@@ -7,11 +7,22 @@ class QCPButton : public QCPBase
 {
     Q_OBJECT
 public:
+    QCPOutput* fOut;
     explicit QCPButton(QWidget *parent, QRenderArea *aOwner);
+    ~QCPButton();
+
+    QSize minimumSizeHint() const;
 
 private:
+    bool oldPressed;
+    bool pressed;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
+    void mousePressEvent(QMouseEvent *event);
+    bool isStateChanged();
+
+protected:
+    void paintEvent(QPaintEvent *event);
 
 signals:
     

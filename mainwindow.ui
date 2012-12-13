@@ -64,16 +64,11 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <widget class="QMenu" name="menuBasic_components">
-     <property name="title">
-      <string>Basic components</string>
-     </property>
-     <addaction name="actionButton"/>
-     <addaction name="actionLED"/>
-    </widget>
     <addaction name="actionCompact_layout"/>
     <addaction name="separator"/>
-    <addaction name="menuBasic_components"/>
+    <addaction name="actionButton"/>
+    <addaction name="actionLED"/>
+    <addaction name="actionLogic"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -186,6 +181,14 @@
    </property>
    <property name="whatsThis">
     <string>QCPLed</string>
+   </property>
+  </action>
+  <action name="actionLogic">
+   <property name="text">
+    <string>Logic element</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPLogic</string>
    </property>
   </action>
  </widget>

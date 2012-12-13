@@ -1,23 +1,3 @@
-/***************************************************************************
-*   Copyright (C) 2006 by Kernel                                          *
-*   kernelonline@bk.ru                                                    *
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-*   This program is distributed in the hope that it will be useful,       *
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-*   GNU General Public License for more details.                          *
-*                                                                         *
-*   You should have received a copy of the GNU General Public License     *
-*   along with this program; if not, write to the                         *
-*   Free Software Foundation, Inc.,                                       *
-*   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
-***************************************************************************/
-
 #include <stdlib.h>
 #include <time.h>
 #include "mainwindow.h"
@@ -27,284 +7,288 @@ MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-  ui->setupUi(this);
+    ui->setupUi(this);
 
-  resize(QSize(800, 500).expandedTo(minimumSizeHint()));
-  
-  statusLabel=new QLabel();
-  this->statusBar()->addPermanentWidget(statusLabel);
+    resize(QSize(800, 500).expandedTo(minimumSizeHint()));
 
-  renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea);
-  ui->scrollArea->setWidget(renderArea);
+    statusLabel=new QLabel();
+    this->statusBar()->addPermanentWidget(statusLabel);
 
-  programTitle=tr("exSim electronic simulator");
-  workFile="";
-  
-  repaintTimer=0;
-  deletedTimer=0;
+    renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea);
+    ui->scrollArea->setWidget(renderArea);
 
-  ui->toolBarFile->addAction(ui->actionNew);
-  ui->toolBarFile->addAction(ui->actionOpen);
-  ui->toolBarFile->addAction(ui->actionSave);
+    programTitle=tr("exSim electronic simulator");
+    workFile="";
 
-  connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
-  connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
-  connect(ui->actionSave,SIGNAL(triggered()),this,SLOT(fileSave()));
-  connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(fileSaveAs()));
-  connect(ui->actionExit,SIGNAL(triggered()),this,SLOT(fileExit()));
-  
-  connect(ui->actionCompact_layout,SIGNAL(triggered()),this,SLOT(toolAllocate()));
-  connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(helpAbout()));
+    repaintTimer=0;
+    deletedTimer=0;
 
-  connect(ui->actionButton,SIGNAL(triggered()),this,SLOT(addComponent()));
-  connect(ui->actionLED,SIGNAL(triggered()),this,SLOT(addComponent()));
+    ui->toolBarFile->addAction(ui->actionNew);
+    ui->toolBarFile->addAction(ui->actionOpen);
+    ui->toolBarFile->addAction(ui->actionSave);
 
-  
-  modified=false;
-  updateStatus();
-  
-  srand(clock());
+    connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
+    connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
+    connect(ui->actionSave,SIGNAL(triggered()),this,SLOT(fileSave()));
+    connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(fileSaveAs()));
+    connect(ui->actionExit,SIGNAL(triggered()),this,SLOT(fileExit()));
+
+    connect(ui->actionCompact_layout,SIGNAL(triggered()),this,SLOT(toolAllocate()));
+    connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(helpAbout()));
+
+    connect(ui->actionButton,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionLED,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
+
+
+    modified=false;
+    updateStatus();
+
+    srand(clock());
 }
 
 void MainWindow::updateStatus()
 {
-  if (modified)
-    statusLabel->setText(tr("Modified"));
-  else
-    statusLabel->setText("");
+    if (modified)
+        statusLabel->setText(tr("Modified"));
+    else
+        statusLabel->setText("");
     
-  QString s=workFile;
-  if (workFile=="") s=tr("[unnamed]");
-  s=programTitle+" - "+s;
-  if (modified) s+=" *";
-  
-  setWindowTitle(s);
+    QString s=workFile;
+    if (workFile=="") s=tr("[unnamed]");
+    s=programTitle+" - "+s;
+    if (modified) s+=" *";
+
+    setWindowTitle(s);
 }
 
 void MainWindow::deletedItem(QObject *)
 {
-  if (renderArea->cpComponentCount()==0) deletedTimer=startTimer(250);
+    if (renderArea->cpComponentCount()==0) deletedTimer=startTimer(250);
 }
 
 void MainWindow::timerEvent(QTimerEvent * event)
 {
-  if (event->timerId()==repaintTimer)
-  {
-    killTimer(repaintTimer);
-    repaintTimer=0;
-    renderArea->repaintConn();
-    update();
-  }
-  else if (event->timerId()==deletedTimer)
-  {
-    killTimer(deletedTimer);
-    continueLoading();
-  }
+    if (event->timerId()==repaintTimer)
+    {
+        killTimer(repaintTimer);
+        repaintTimer=0;
+        renderArea->repaintConn();
+        update();
+    }
+    else if (event->timerId()==deletedTimer)
+    {
+        killTimer(deletedTimer);
+        continueLoading();
+    }
 }
 
 void MainWindow::loadFile(QString & fname)
 {
-  loadingFile=fname;
-  if (renderArea->cpComponentCount()>0)
-  {
-    for (int i=0;i<renderArea->children().count();i++)
+    loadingFile=fname;
+    if (renderArea->cpComponentCount()>0)
     {
-      QCPBase* base;
-      if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
-      connect(base,SIGNAL(destroyed(QObject*)),this,SLOT(deletedItem(QObject*)));
-    }
-    renderArea->deleteComponents();
-  } else
-    continueLoading();
+        for (int i=0;i<renderArea->children().count();i++)
+        {
+            QCPBase* base;
+            if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
+            connect(base,SIGNAL(destroyed(QObject*)),this,SLOT(deletedItem(QObject*)));
+        }
+        renderArea->deleteComponents();
+    } else
+        continueLoading();
 }
 
 bool MainWindow::saveFile(QString & fname)
 {
-  bool allOk=true;
-  QFile file(fname);
-  if (!file.open(QIODevice::WriteOnly))
-  {
-    QMessageBox::critical(this,"Error","Cannot create file");
-    return false;
-  }
-  QDataStream out(&file);
-  try
-  {
-    renderArea->storeSchematic(out);
-  }
-  catch (const char* p)
-  {
-    QMessageBox::critical(this,"Error",QString::fromAscii(p));
-    allOk=false;
-  }
-  file.close();
-  return allOk;
+    bool allOk=true;
+    QFile file(fname);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::critical(this,"Error","Cannot create file");
+        return false;
+    }
+    QDataStream out(&file);
+    try
+    {
+        renderArea->storeSchematic(out);
+    }
+    catch (const char* p)
+    {
+        QMessageBox::critical(this,"Error",QString::fromAscii(p));
+        allOk=false;
+    }
+    file.close();
+    return allOk;
 }
 
 void MainWindow::continueLoading()
 {
-  QFile file(loadingFile);
-  if (!file.open(QIODevice::ReadOnly))
-  {
-    QMessageBox::critical(this,"Error","Cann't read file");
-    return;
-  }
-   QDataStream ins(&file);
-  try
-  {
-    renderArea->readSchematic(ins);
-    for (int i=0;i<renderArea->children().count();i++)
+    QFile file(loadingFile);
+    if (!file.open(QIODevice::ReadOnly))
     {
-      QCPBase* base;
-      if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
-      connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
+        QMessageBox::critical(this,"Error","Cann't read file");
+        return;
     }
-  }
-  catch (const char* p)
-  {
-    renderArea->deleteComponents();
-    QMessageBox::critical(this,"Error",QString::fromAscii(p));
-  }
-  file.close();
-  repaintTimer=startTimer(500);
+    QDataStream ins(&file);
+    try
+    {
+        renderArea->readSchematic(ins);
+        for (int i=0;i<renderArea->children().count();i++)
+        {
+            QCPBase* base;
+            if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
+            connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
+        }
+    }
+    catch (const char* p)
+    {
+        renderArea->deleteComponents();
+        QMessageBox::critical(this,"Error",QString::fromAscii(p));
+    }
+    file.close();
+    repaintTimer=startTimer(500);
 }
 
 void MainWindow::fileNew()
 {
-  if (modified)
-  {
-    switch (QMessageBox::question(this,tr("New file"),tr("Current file has been modified and not saved. Save?"),
-      QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
+    if (modified)
     {
-      case QMessageBox::Cancel:
-        return;
-      case QMessageBox::Yes:
-        fileSave();
-        if (modified) return;
-        break;
+        switch (QMessageBox::question(this,tr("New file"),
+                                      tr("Current file has been modified and not saved. Save?"),
+                                      QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
+        {
+            case QMessageBox::Cancel:
+                return;
+            case QMessageBox::Yes:
+                fileSave();
+                if (modified) return;
+                break;
+        }
     }
-  }
-  
-  ui->scrollArea->ensureVisible(0,0);
-  renderArea->deleteComponents();
-  modified=false;
-  workFile="";
-  updateStatus();
-  repaintTimer=startTimer(1000);
+
+    ui->scrollArea->ensureVisible(0,0);
+    renderArea->deleteComponents();
+    modified=false;
+    workFile="";
+    updateStatus();
+    repaintTimer=startTimer(1000);
 }
 
 void MainWindow::fileOpen()
 {
-  if (modified)
-  {
-    switch (QMessageBox::question(this,tr("Open file"),tr("Current file has been modified and not saved. Save?"),
-      QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
+    if (modified)
     {
-      case QMessageBox::Cancel:
-        return;
-      case QMessageBox::Yes:
-        fileSave();
-        if (modified) return;
-        break;
+        switch (QMessageBox::question(this,tr("Open file"),
+                                      tr("Current file has been modified and not saved. Save?"),
+                                      QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
+        {
+            case QMessageBox::Cancel:
+                return;
+            case QMessageBox::Yes:
+                fileSave();
+                if (modified) return;
+                break;
+        }
     }
-  }
-  QString s = QFileDialog::getOpenFileName(
-                  this,
-                  tr("Choose a file"),
-                  "",
-                  "exSim files (*.exs)");
-  if (s.isEmpty()) return;
-  workFile=s;
-  modified=false;
-  loadFile(s);
-  updateStatus();
+    QString s = QFileDialog::getOpenFileName(
+                    this,
+                    tr("Choose a file"),
+                    "",
+                    "exSim files (*.exs)");
+    if (s.isEmpty()) return;
+    workFile=s;
+    modified=false;
+    loadFile(s);
+    updateStatus();
 }
 
 void MainWindow::fileSave()
 {
-  if (!modified) return;
-  if (workFile=="")
-  {
-    QFileDialog d(this,tr("Choose a filename to save under"),"~",
-                    "exSim files (*.exs)");
-    d.setDefaultSuffix("exs");
-    d.setDirectory(QDir::currentPath());
-    d.setAcceptMode(QFileDialog::AcceptSave);
-    d.setConfirmOverwrite(true);
-    if (!d.exec()) return;
-    if (d.selectedFiles().count()==0) return;
-    workFile=d.selectedFiles()[0];
-  }
-  if (!saveFile(workFile))
-    QMessageBox::critical(this,"Error","File can't saved");
-  else
-    modified=false;
-  updateStatus();
+    if (!modified) return;
+    if (workFile=="")
+    {
+        QFileDialog d(this,tr("Choose a filename to save under"),"~",
+                      "exSim files (*.exs)");
+        d.setDefaultSuffix("exs");
+        d.setDirectory(QDir::currentPath());
+        d.setAcceptMode(QFileDialog::AcceptSave);
+        d.setConfirmOverwrite(true);
+        if (!d.exec()) return;
+        if (d.selectedFiles().count()==0) return;
+        workFile=d.selectedFiles()[0];
+    }
+    if (!saveFile(workFile))
+        QMessageBox::critical(this,"Error","File can't saved");
+    else
+        modified=false;
+    updateStatus();
 }
 
 void MainWindow::fileSaveAs()
 {
-  QFileDialog d(this,tr("Choose a filename to save under"),"~",
+    QFileDialog d(this,tr("Choose a filename to save under"),"~",
                   "exSim files (*.exs)");
-  d.setDefaultSuffix("exs");
-  d.setAcceptMode(QFileDialog::AcceptSave);
-  d.setConfirmOverwrite(true);
-  d.setDirectory(QDir::currentPath());
-  if (!d.exec()) return;
-  if (d.selectedFiles().count()==0) return;
-  workFile=d.selectedFiles()[0];
-  modified=true;
-  fileSave();
+    d.setDefaultSuffix("exs");
+    d.setAcceptMode(QFileDialog::AcceptSave);
+    d.setConfirmOverwrite(true);
+    d.setDirectory(QDir::currentPath());
+    if (!d.exec()) return;
+    if (d.selectedFiles().count()==0) return;
+    workFile=d.selectedFiles()[0];
+    modified=true;
+    fileSave();
 }
 
 void MainWindow::fileExit()
 {
-  close();
+    close();
 }
 
 void MainWindow::helpAbout()
 {
-  QMessageBox::about(this,"exSim electronic simulator","exSim electronic simulator\n\n"
-                          "(c) 2012 by Kernel\n\n"
-                          "This program is provided AS IS with NO WARRANTY OF ANY KIND,\n"
-                          "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS\n"
-                          "FOR A PARTICULAR PURPOSE.\n\n"
-                          "This program distributed under GPL license.\n\n"
-                          "This program is free software; you can redistribute it and/or\n"
-                          "modify it under the terms of the GNU General Public License as\n"
-                          "published by the Free Software Foundation; either version 3 of\n"
-                          "the License, or (at your option) any later version. ");
+    QMessageBox::about(this,"exSim electronic simulator","exSim electronic simulator\n\n"
+                       "(c) 2012 by Kernel\n\n"
+                       "This program is provided AS IS with NO WARRANTY OF ANY KIND,\n"
+                       "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS\n"
+                       "FOR A PARTICULAR PURPOSE.\n\n"
+                       "This program distributed under GPL license.\n\n"
+                       "This program is free software; you can redistribute it and/or\n"
+                       "modify it under the terms of the GNU General Public License as\n"
+                       "published by the Free Software Foundation; either version 3 of\n"
+                       "the License, or (at your option) any later version. ");
 }
 
 void MainWindow::changingComponents(QCPBase *)
 {
-  modified=true;
-  updateStatus();
+    modified=true;
+    updateStatus();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  if (!modified)
-  {
-    event->accept();
-    return;
-  }
-  switch (QMessageBox::question(this,tr("Exit exSim"),tr("Current file has been modified and not saved. Save?"),
-    QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
-  {
-    case QMessageBox::Cancel:
-      event->ignore();
-      return;
-    case QMessageBox::Yes:
-      fileSave();
-      if (modified)
-      {
-        event->ignore();
+    if (!modified)
+    {
+        event->accept();
         return;
-      }
-      break;
-  }
-  event->accept();
+    }
+    switch (QMessageBox::question(this,tr("Exit exSim"),
+                                  tr("Current file has been modified and not saved. Save?"),
+                                  QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel))
+    {
+        case QMessageBox::Cancel:
+            event->ignore();
+            return;
+        case QMessageBox::Yes:
+            fileSave();
+            if (modified)
+            {
+                event->ignore();
+                return;
+            }
+            break;
+    }
+    event->accept();
 }
 
 // Components tools
@@ -326,14 +310,14 @@ void MainWindow::addComponent()
 
 void MainWindow::toolAllocate()
 {
-  for (int i=0;i<renderArea->children().count();i++)
-    if (QWidget* w=qobject_cast<QWidget*>(renderArea->children().at(i)))
-    {
-      if ((w->x()<0) || (w->geometry().right()>renderArea->width()))
-        w->move(100,w->y());
-      if ((w->y()<0) || (w->geometry().bottom()>renderArea->height()))
-        w->move(w->x(),100);
-    }
-  renderArea->update();
-  renderArea->repaintConn();
+    for (int i=0;i<renderArea->children().count();i++)
+        if (QWidget* w=qobject_cast<QWidget*>(renderArea->children().at(i)))
+        {
+            if ((w->x()<0) || (w->geometry().right()>renderArea->width()))
+                w->move(100,w->y());
+            if ((w->y()<0) || (w->geometry().bottom()>renderArea->height()))
+                w->move(w->x(),100);
+        }
+    renderArea->update();
+    renderArea->repaintConn();
 }
