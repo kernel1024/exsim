@@ -25,6 +25,7 @@ public:
 
     void setMode(LogicType lt, int inputCount);
 
+
 private:
     qint32 state;
     qint32 oldState;
