@@ -8,7 +8,7 @@ QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     pinColorOn=Qt::red;
     isDragging=false;
     cpOwner=aOwner;
-    fSettingsDlg=false;
+    setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 QSize QCPBase::minimumSizeHint() const
@@ -209,13 +209,8 @@ void QCPBase::paintEvent ( QPaintEvent * )
 void QCPBase::mousePressEvent(QMouseEvent * event)
 {
     raise();
-    if (event->button()==Qt::RightButton)
-    {
-        fSettingsDlg=true;
-        showSettingsDlg();
-        fSettingsDlg=false;
-        return;
-    }
+//    if (event->button()==Qt::RightButton)
+//        QWidget::mousePressEvent(event);
     QPoint mx=mapToGlobal(event->pos());
     QCPBase* dFlt;
     int pNum,pType;
@@ -236,11 +231,6 @@ void QCPBase::mousePressEvent(QMouseEvent * event)
 
 void QCPBase::mouseReleaseEvent(QMouseEvent * event)
 {
-    if (fSettingsDlg)
-    {
-        fSettingsDlg=false;
-        return;
-    }
     QPoint mx=mapToGlobal(event->pos());
     QCPBase* dFlt;
     int pNum,pType;
@@ -299,10 +289,6 @@ void QCPBase::doLogic(bool forceUpdate)
         cpOwner->nodeLocks.removeAt(cpOwner->nodeLocks.indexOf(QRegExp(objectName())));
         update();
     }
-}
-
-void QCPBase::showSettingsDlg()
-{
 }
 
 QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner)

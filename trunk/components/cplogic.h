@@ -35,10 +35,16 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
     
 public slots:
+    void setModeAND();
+    void setModeOR();
+    void setModeXOR();
+    void setModeNOT();
+    void adjustInpCount();
     
 };
 

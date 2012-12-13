@@ -26,10 +26,13 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void contextMenuEvent(QContextMenuEvent *);
 
 signals:
     
 public slots:
+    void chooseColorOn();
+    void chooseColorOff();
     
 };
 
