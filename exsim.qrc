@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/">
         <file>images/trashcan_empty.png</file>
+        <file>images/button.png</file>
+        <file>images/extender.png</file>
+        <file>images/led.png</file>
+        <file>images/logic.png</file>
+        <file>images/led16.png</file>
+        <file>images/led32.png</file>
+        <file>images/led48.png</file>
+        <file>images/led64.png</file>
+        <file>images/led128.png</file>
     </qresource>
 </RCC>

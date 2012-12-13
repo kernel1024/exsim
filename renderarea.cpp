@@ -4,6 +4,7 @@
 #include "components/cpbutton.h"
 #include "components/cpled.h"
 #include "components/cplogic.h"
+#include "components/cpextender.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     : QFrame(parent)
@@ -332,6 +333,7 @@ void QRenderArea::deleteComponents()
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
         if (base!=0) base->deleteLater();
     }
+    repaintConn();
 }
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
@@ -339,5 +341,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     if (className=="QCPButton")      return new QCPButton(this,this);
     else if (className=="QCPLed")      return new QCPLed(this,this);
     else if (className=="QCPLogic")      return new QCPLogic(this,this);
+    else if (className=="QCPExtender")      return new QCPExtender(this,this);
     else return NULL;
 }

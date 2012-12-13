@@ -48,5 +48,6 @@ protected:
     void closeEvent(QCloseEvent *event);
     void continueLoading();
     void updateStatus();
+    void centerWindow();
 };
 #endif
