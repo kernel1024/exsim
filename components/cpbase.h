@@ -41,7 +41,6 @@ public:
 
     virtual void readFromStream( QDataStream & stream );
     virtual void storeToStream( QDataStream & stream );
-    virtual void showSettingsDlg();
     virtual bool canConnectOut(QCPBase * toFilter);
     virtual bool canConnectIn(QCPBase * toFilter);
 
@@ -49,7 +48,7 @@ public:
     QList<QCPInput*> fInputs;
     QList<QCPOutput*> fOutputs;
     QPoint relCorner;
-    bool isDragging, fSettingsDlg;
+    bool isDragging;
     QColor pinColorOff;
     QColor pinColorOn;
 signals:

@@ -1,4 +1,5 @@
 #include "cplogic.h"
+#include "renderarea.h"
 
 QCPLogic::QCPLogic(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
@@ -28,17 +29,18 @@ QSize QCPLogic::minimumSizeHint() const
 
 void QCPLogic::readFromStream(QDataStream &stream)
 {
-    QCPBase::readFromStream(stream);
     int inpcnt, lt;
     stream >> lt >> inpcnt;
     setMode((LogicType)lt, inpcnt);
+    QCPBase::readFromStream(stream);
 }
 
 void QCPLogic::storeToStream(QDataStream &stream)
 {
-    QCPBase::storeToStream(stream);
     int inpcnt = fInputs.count();
-    stream << (int)mode << inpcnt;
+    int imode = (int)mode;
+    stream << imode << inpcnt;
+    QCPBase::storeToStream(stream);
 }
 
 void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
@@ -66,11 +68,13 @@ void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
         cbInput->deleteLater();
     }
     fInputs.clear();
+    cpOwner->repaintConn();
 
     // create new inputs
     for(int i=0;i<icnt;i++)
         fInputs << new QCPInput(this,this);
 
+    resize(minimumSizeHint());
     update();
 }
 
@@ -144,7 +148,7 @@ void QCPLogic::paintEvent(QPaintEvent *)
             s = "=1";
             break;
         case LT_NOT:
-            s = "~";
+            s = "#";
             break;
         default:
             break;
@@ -162,4 +166,52 @@ void QCPLogic::paintEvent(QPaintEvent *)
     p.setBrush(ob);
     p.setPen(op);
 
+}
+
+void QCPLogic::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu cm(this);
+    QAction* ac = cm.addAction(tr("AND logic"),this,SLOT(setModeAND()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==LT_AND);
+    ac = cm.addAction(tr("OR logic"),this,SLOT(setModeOR()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==LT_OR);
+    ac = cm.addAction(tr("XOR logic"),this,SLOT(setModeXOR()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==LT_XOR);
+    ac = cm.addAction(tr("NOT logic"),this,SLOT(setModeNOT()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==LT_NOT);
+    cm.addSeparator();
+    cm.addAction(tr("Change inputs count..."),this,SLOT(adjustInpCount()));
+    cm.exec(event->globalPos());
+}
+
+void QCPLogic::setModeAND()
+{
+    setMode(LT_AND,fInputs.count());
+}
+
+void QCPLogic::setModeOR()
+{
+    setMode(LT_OR,fInputs.count());
+}
+
+void QCPLogic::setModeXOR()
+{
+    setMode(LT_XOR,fInputs.count());
+}
+
+void QCPLogic::setModeNOT()
+{
+    setMode(LT_NOT,fInputs.count());
+}
+
+void QCPLogic::adjustInpCount()
+{
+    bool ok;
+    int cnt = QInputDialog::getInt(this,tr("Logic's inputs count"),tr("Count"),fInputs.count(),1,32,1,&ok);
+    if (ok)
+        setMode(mode,cnt);
 }

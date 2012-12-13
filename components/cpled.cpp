@@ -80,3 +80,29 @@ void QCPLed::paintEvent(QPaintEvent *)
     p.setBrush(ob);
     p.setPen(op);
 }
+
+void QCPLed::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu cm(this);
+    cm.addAction(tr("Change ON color..."),this,SLOT(chooseColorOn()));
+    cm.addAction(tr("Change OFF color..."),this,SLOT(chooseColorOff()));
+    cm.exec(event->globalPos());
+}
+
+void QCPLed::chooseColorOn()
+{
+    QColor res = QColorDialog::getColor(onColor,this);
+    if (res.isValid()) {
+        onColor = res;
+        update();
+    }
+}
+
+void QCPLed::chooseColorOff()
+{
+    QColor res = QColorDialog::getColor(offColor,this);
+    if (res.isValid()) {
+        offColor = res;
+        update();
+    }
+}
