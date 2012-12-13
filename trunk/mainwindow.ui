@@ -68,6 +68,7 @@
     <addaction name="separator"/>
     <addaction name="actionButton"/>
     <addaction name="actionLED"/>
+    <addaction name="actionOutputs_extender"/>
     <addaction name="actionLogic"/>
    </widget>
    <addaction name="menuFile"/>
@@ -168,6 +169,10 @@
    </property>
   </action>
   <action name="actionButton">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/button.png</normaloff>:/images/button.png</iconset>
+   </property>
    <property name="text">
     <string>Button</string>
    </property>
@@ -176,6 +181,10 @@
    </property>
   </action>
   <action name="actionLED">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/led.png</normaloff>:/images/led.png</iconset>
+   </property>
    <property name="text">
     <string>LED</string>
    </property>
@@ -184,6 +193,10 @@
    </property>
   </action>
   <action name="actionLogic">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/logic.png</normaloff>:/images/logic.png</iconset>
+   </property>
    <property name="text">
     <string>Logic element</string>
    </property>
@@ -191,7 +204,21 @@
     <string>QCPLogic</string>
    </property>
   </action>
+  <action name="actionOutputs_extender">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/extender.png</normaloff>:/images/extender.png</iconset>
+   </property>
+   <property name="text">
+    <string>Outputs extender</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPExtender</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="exsim.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -5,6 +5,8 @@ QCPLogic::QCPLogic(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     mode = LT_AND;
+    state = 0;
+    oldState = 0;
     fOut = new QCPOutput(this,this);
     fOutputs.append(fOut);
     fInputs << new QCPInput(this,this);

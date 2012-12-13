@@ -9,6 +9,15 @@ MainWindow::MainWindow(QWidget * parent) :
 {
     ui->setupUi(this);
 
+    QIcon appIcon;
+    // Icon author: Jack Cai
+    appIcon.addFile(":/images/led16.png");
+    appIcon.addFile(":/images/led32.png");
+    appIcon.addFile(":/images/led48.png");
+    appIcon.addFile(":/images/led64.png");
+    appIcon.addFile(":/images/led128.png");
+    setWindowIcon(appIcon);
+
     resize(QSize(800, 500).expandedTo(minimumSizeHint()));
 
     statusLabel=new QLabel();
@@ -26,6 +35,11 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarFile->addAction(ui->actionNew);
     ui->toolBarFile->addAction(ui->actionOpen);
     ui->toolBarFile->addAction(ui->actionSave);
+    ui->toolBarComponents->addAction(ui->actionButton);
+    ui->toolBarComponents->addAction(ui->actionLED);
+    ui->toolBarComponents->addAction(ui->actionOutputs_extender);
+    ui->toolBarComponents->addSeparator();
+    ui->toolBarComponents->addAction(ui->actionLogic);
 
     connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
@@ -38,6 +52,7 @@ MainWindow::MainWindow(QWidget * parent) :
 
     connect(ui->actionButton,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionLED,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionOutputs_extender,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
 
 
@@ -45,6 +60,8 @@ MainWindow::MainWindow(QWidget * parent) :
     updateStatus();
 
     srand(clock());
+
+    centerWindow();
 }
 
 void MainWindow::updateStatus()
@@ -54,12 +71,33 @@ void MainWindow::updateStatus()
     else
         statusLabel->setText("");
     
-    QString s=workFile;
-    if (workFile=="") s=tr("[unnamed]");
-    s=programTitle+" - "+s;
+    QFileInfo fi(workFile);
+    QString s=fi.fileName();
+    if (workFile=="") s=tr("[untitled]");
+    s=s+" - "+programTitle;
     if (modified) s+=" *";
 
     setWindowTitle(s);
+}
+
+void MainWindow::centerWindow()
+{
+    int screen = 0;
+    QWidget *w = window();
+    QDesktopWidget *desktop = QApplication::desktop();
+    if (w) {
+        screen = desktop->screenNumber(w);
+    } else if (desktop->isVirtualDesktop()) {
+        screen = desktop->screenNumber(QCursor::pos());
+    } else {
+        screen = desktop->screenNumber(this);
+    }
+    QRect rect(desktop->availableGeometry(screen));
+    int h = 60*rect.height()/100;
+    QSize nw(135*h/100,h);
+    resize(nw);
+    move(rect.width()/2 - frameGeometry().width()/2,
+         rect.height()/2 - frameGeometry().height()/2);
 }
 
 void MainWindow::deletedItem(QObject *)
