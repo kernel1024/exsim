@@ -16,7 +16,7 @@ public:
     
     QScrollArea *scroller;
     
-    bool resReading, erroneousRoute, rectLinks;
+    bool resReading, rectLinks;
     QStringList nodeLocks;
     QLabel* recycle;
     QDataStream* storeStream;

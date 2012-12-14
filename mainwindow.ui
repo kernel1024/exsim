@@ -71,6 +71,9 @@
     <addaction name="actionOutputs_extender"/>
     <addaction name="actionLogic"/>
     <addaction name="actionTrigger"/>
+    <addaction name="actionOscillator"/>
+    <addaction name="actionAsyncronous_repeater"/>
+    <addaction name="actionBeeper"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -226,18 +229,60 @@
   </action>
   <action name="actionZoom">
    <property name="icon">
-    <iconset theme="zoom-draw"/>
+    <iconset theme="zoom-draw">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Zoom...</string>
    </property>
   </action>
   <action name="actionTrigger">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/trigger.png</normaloff>:/images/trigger.png</iconset>
+   </property>
    <property name="text">
     <string>Trigger</string>
    </property>
    <property name="whatsThis">
     <string>QCPTrigger</string>
+   </property>
+  </action>
+  <action name="actionOscillator">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/generator.png</normaloff>:/images/generator.png</iconset>
+   </property>
+   <property name="text">
+    <string>Oscillator</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPGen</string>
+   </property>
+  </action>
+  <action name="actionAsyncronous_repeater">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/repeater.png</normaloff>:/images/repeater.png</iconset>
+   </property>
+   <property name="text">
+    <string>Asyncronous repeater</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPRepeater</string>
+   </property>
+  </action>
+  <action name="actionBeeper">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/beeper.png</normaloff>:/images/beeper.png</iconset>
+   </property>
+   <property name="text">
+    <string>Beeper</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPBeeper</string>
    </property>
   </action>
  </widget>

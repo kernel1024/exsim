@@ -20,11 +20,8 @@ public:
     void setMode(int outputCount);
 
 protected:
-    bool state;
-    bool oldState;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
-    bool isStateChanged();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
 

@@ -11,7 +11,10 @@ HEADERS       = components/cpbase.h \
     components/cpled.h \
     components/cplogic.h \
     components/cpextender.h \
-    components/cptrigger.h
+    components/cptrigger.h \
+    components/cpgen.h \
+    components/cprepeater.h \
+    components/cpbeeper.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -20,11 +23,16 @@ SOURCES       = main.cpp \
     components/cpled.cpp \
     components/cplogic.cpp \
     components/cpextender.cpp \
-    components/cptrigger.cpp
+    components/cptrigger.cpp \
+    components/cpgen.cpp \
+    components/cprepeater.cpp \
+    components/cpbeeper.cpp
 
 RESOURCES     = exsim.qrc
 
-CONFIG += warn_on
+CONFIG += warn_on link_pkgconfig
+
+LIBS += -lopenal
 
 FORMS += \
     mainwindow.ui

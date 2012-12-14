@@ -5,7 +5,6 @@ QCPButton::QCPButton(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     pressed = false;
-    oldPressed = false;
     fOut = new QCPOutput(this,this);
     fOutputs.append(fOut);
 }
@@ -30,7 +29,6 @@ void QCPButton::realignPins(QPainter &)
 void QCPButton::doLogicPrivate()
 {
     fOut->state = pressed;
-    oldPressed = pressed;
 }
 
 void QCPButton::mousePressEvent(QMouseEvent *event)
@@ -44,11 +42,6 @@ void QCPButton::mousePressEvent(QMouseEvent *event)
         }
     }
     QCPBase::mousePressEvent(event);
-}
-
-bool QCPButton::isStateChanged()
-{
-    return (pressed != oldPressed);
 }
 
 void QCPButton::paintEvent(QPaintEvent *)

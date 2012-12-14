@@ -22,9 +22,12 @@ private:
 protected:
     float oldZoom;
     int zoom() const;
+    qint32 savedState;
+    bool isStateChanged();
+    qint32 calcState();
+
     virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;
-    virtual bool isStateChanged()=0;
 
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);
@@ -38,7 +41,7 @@ public:
     QSize sizeHint() const;
 
     void postLoadBind();
-    void doLogic(bool forceUpdate = false);
+    void doLogic();
     void redrawPins(QPainter & painter);
     void zoomChanged();
     int getPinSize();

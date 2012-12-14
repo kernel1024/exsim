@@ -3,8 +3,6 @@
 QCPLed::QCPLed(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
-    state = false;
-    oldState = false;
     onColor = Qt::green;
     offColor = Qt::darkGreen;
     fInp = new QCPInput(this,this);
@@ -42,13 +40,6 @@ void QCPLed::realignPins(QPainter &)
 
 void QCPLed::doLogicPrivate()
 {
-    state = fInp->state;
-    oldState = state;
-}
-
-bool QCPLed::isStateChanged()
-{
-    return (oldState != state);
 }
 
 void QCPLed::paintEvent(QPaintEvent *)
@@ -66,7 +57,7 @@ void QCPLed::paintEvent(QPaintEvent *)
 
     redrawPins(p);
 
-    if (state) {
+    if (fInp->state) {
         p.setPen(QPen(onColor));
         p.setBrush(QBrush(onColor,Qt::SolidPattern));
     } else {

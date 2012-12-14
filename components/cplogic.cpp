@@ -5,8 +5,6 @@ QCPLogic::QCPLogic(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     mode = LT_AND;
-    state = 0;
-    oldState = 0;
     fOut = new QCPOutput(this,this);
     fOutputs.append(fOut);
     fInputs << new QCPInput(this,this);
@@ -57,6 +55,8 @@ void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
     if (icnt>32)
         icnt=32;
 
+    fOut->inversed = (lt==LT_NOT);
+
     // disconnect and delete all inputs
     for (int i=0;i<fInputs.count();i++) {
         QCPInput* cbInput = fInputs.at(i);
@@ -90,11 +90,7 @@ void QCPLogic::realignPins(QPainter &)
 
 void QCPLogic::doLogicPrivate()
 {
-    qint32 a = 0;
-    for(int i=0;i<fInputs.count();i++)
-        if (fInputs.at(i)->state)
-            a = a | (1 << i);
-    state = a;
+    qint32 state = calcState();
     bool outv = false;
     switch (mode) {
         case LT_AND:
@@ -115,12 +111,6 @@ void QCPLogic::doLogicPrivate()
             break;
     }
     fOut->state = outv;
-    oldState = state;
-}
-
-bool QCPLogic::isStateChanged()
-{
-    return (oldState != state);
 }
 
 void QCPLogic::paintEvent(QPaintEvent *)

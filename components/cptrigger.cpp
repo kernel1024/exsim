@@ -4,20 +4,22 @@ QCPTrigger::QCPTrigger(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     state = false;
-    oldState = false;
+    mode = TM_RSD;
+    savedT = false;
     fQOut = new QCPOutput(this,this);
     fQOut->pinName = "Q";
     fOutputs.append(fQOut);
     fNQOut = new QCPOutput(this,this);
     fNQOut->pinName = "Q";
     fNQOut->inversed = true;
+    fNQOut->state = true;
     fOutputs.append(fNQOut);
     fSInp = new QCPInput(this,this);
     fSInp->pinName = "S";
     fInputs.append(fSInp);
-    fDInp = new QCPInput(this,this);
-    fDInp->pinName = "D";
-    fInputs.append(fDInp);
+    fDTInp = new QCPInput(this,this);
+    fDTInp->pinName = "D";
+    fInputs.append(fDTInp);
     fCInp = new QCPInput(this,this);
     fCInp->pinName = "C";
     fInputs.append(fCInp);
@@ -33,7 +35,7 @@ QCPTrigger::~QCPTrigger()
     delete fQOut;
     delete fNQOut;
     delete fSInp;
-    delete fDInp;
+    delete fDTInp;
     delete fCInp;
     delete fRInp;
 }
@@ -45,13 +47,46 @@ QSize QCPTrigger::minimumSizeHint() const
     return QSize(80*zoom()/100,vsz*zoom()/100);
 }
 
+void QCPTrigger::readFromStream(QDataStream &stream)
+{
+    int lt;
+    stream >> lt;
+    setMode((TriggerMode)lt);
+    QCPBase::readFromStream(stream);
+}
+
+void QCPTrigger::storeToStream(QDataStream &stream)
+{
+    int imode = (int)mode;
+    stream << imode;
+    QCPBase::storeToStream(stream);
+}
+
+void QCPTrigger::setMode(QCPTrigger::TriggerMode tMode)
+{
+    mode = tMode;
+
+    if (mode==TM_RSD) {
+        fDTInp->pinName="D";
+        fCInp->pinName="C";
+        savedT = fDTInp->state;
+    } else {
+        fDTInp->pinName="T";
+        fCInp->pinName=" ";
+
+    }
+
+    resize(minimumSizeHint());
+    update();
+}
+
 void QCPTrigger::realignPins(QPainter &)
 {
     int dy = height()/6;
     int ddy = dy/2;
     fSInp->relCoord = QPoint(getPinSize()/2,dy);
     fQOut->relCoord = QPoint(width()-getPinSize()/2,dy);
-    fDInp->relCoord = QPoint(getPinSize()/2,2*dy+ddy);
+    fDTInp->relCoord = QPoint(getPinSize()/2,2*dy+ddy);
     fCInp->relCoord = QPoint(getPinSize()/2,3*dy+ddy);
     fRInp->relCoord = QPoint(getPinSize()/2,4*dy+2*ddy);
     fNQOut->relCoord= QPoint(width()-getPinSize()/2,4*dy+2*ddy);
@@ -60,7 +95,7 @@ void QCPTrigger::realignPins(QPainter &)
 void QCPTrigger::doLogicPrivate()
 {
     bool S = fSInp->state;
-    bool D = fDInp->state;
+    bool DT = fDTInp->state;
     bool C = fCInp->state;
     bool R = fRInp->state;
 
@@ -68,17 +103,17 @@ void QCPTrigger::doLogicPrivate()
         if (S) state = true;
         if (R) state = false;
     }
-    if (!S && !R && C)
-        state = D;
+    if (mode==TM_RSD) {
+        if (!S && !R && C)
+            state = DT;
+    } else {
+        if (!DT && savedT)
+            state = !state;
+        savedT = DT;
+    }
 
     fQOut->state = state;
     fNQOut->state = !state;
-    oldState = state;
-}
-
-bool QCPTrigger::isStateChanged()
-{
-    return (state != oldState);
 }
 
 void QCPTrigger::paintEvent(QPaintEvent *)
@@ -111,9 +146,34 @@ void QCPTrigger::paintEvent(QPaintEvent *)
     p.drawLine(0,3*dy+2*ddy+getPinSize()/2,rc.left(),3*dy+2*ddy+getPinSize()/2);
 
     rc.adjust(0,0,-p.fontMetrics().width("Q")-getPinSize(),-2*rc.height()/3);
-    p.drawText(rc,Qt::AlignCenter,"T");
+    if (mode==TM_RSD)
+        p.drawText(rc,Qt::AlignCenter,"T");
+    else
+        p.drawText(rc,Qt::AlignCenter,"TT");
 
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+}
+
+void QCPTrigger::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu cm(this);
+    QAction* ac = cm.addAction(tr("RS/D trigger"),this,SLOT(applyDtrigger()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==TM_RSD);
+    ac = cm.addAction(tr("RS/T trigger"),this,SLOT(applyTtrigger()));
+    ac->setCheckable(true);
+    ac->setChecked(mode==TM_RST);
+    cm.exec(event->globalPos());
+}
+
+void QCPTrigger::applyDtrigger()
+{
+    setMode(TM_RSD);
+}
+
+void QCPTrigger::applyTtrigger()
+{
+    setMode(TM_RST);
 }
