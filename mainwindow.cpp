@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionLED,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionOutputs_extender,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionTrigger,SIGNAL(triggered()),this,SLOT(addComponent()));
 
 
     modified=false;

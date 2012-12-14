@@ -1,0 +1,119 @@
+#include "cptrigger.h"
+
+QCPTrigger::QCPTrigger(QWidget *parent, QRenderArea *aOwner) :
+    QCPBase(parent,aOwner)
+{
+    state = false;
+    oldState = false;
+    fQOut = new QCPOutput(this,this);
+    fQOut->pinName = "Q";
+    fOutputs.append(fQOut);
+    fNQOut = new QCPOutput(this,this);
+    fNQOut->pinName = "Q";
+    fNQOut->inversed = true;
+    fOutputs.append(fNQOut);
+    fSInp = new QCPInput(this,this);
+    fSInp->pinName = "S";
+    fInputs.append(fSInp);
+    fDInp = new QCPInput(this,this);
+    fDInp->pinName = "D";
+    fInputs.append(fDInp);
+    fCInp = new QCPInput(this,this);
+    fCInp->pinName = "C";
+    fInputs.append(fCInp);
+    fRInp = new QCPInput(this,this);
+    fRInp->pinName = "R";
+    fInputs.append(fRInp);
+}
+
+QCPTrigger::~QCPTrigger()
+{
+    fInputs.clear();
+    fOutputs.clear();
+    delete fQOut;
+    delete fNQOut;
+    delete fSInp;
+    delete fDInp;
+    delete fCInp;
+    delete fRInp;
+}
+
+QSize QCPTrigger::minimumSizeHint() const
+{
+    int vsz = (QApplication::fontMetrics().height()+4)*7;
+    if (vsz<80) vsz = 80;
+    return QSize(80*zoom()/100,vsz*zoom()/100);
+}
+
+void QCPTrigger::realignPins(QPainter &)
+{
+    int dy = height()/6;
+    int ddy = dy/2;
+    fSInp->relCoord = QPoint(getPinSize()/2,dy);
+    fQOut->relCoord = QPoint(width()-getPinSize()/2,dy);
+    fDInp->relCoord = QPoint(getPinSize()/2,2*dy+ddy);
+    fCInp->relCoord = QPoint(getPinSize()/2,3*dy+ddy);
+    fRInp->relCoord = QPoint(getPinSize()/2,4*dy+2*ddy);
+    fNQOut->relCoord= QPoint(width()-getPinSize()/2,4*dy+2*ddy);
+}
+
+void QCPTrigger::doLogicPrivate()
+{
+    bool S = fSInp->state;
+    bool D = fDInp->state;
+    bool C = fCInp->state;
+    bool R = fRInp->state;
+
+    if (!(S && R)) {
+        if (S) state = true;
+        if (R) state = false;
+    }
+    if (!S && !R && C)
+        state = D;
+
+    fQOut->state = state;
+    fNQOut->state = !state;
+    oldState = state;
+}
+
+bool QCPTrigger::isStateChanged()
+{
+    return (state != oldState);
+}
+
+void QCPTrigger::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    QPen op=p.pen();
+    QBrush ob=p.brush();
+    QFont of=p.font();
+
+    p.setPen(QPen(Qt::black));
+    p.setBrush(QBrush(Qt::white,Qt::SolidPattern));
+    QRect rc = rect();
+    rc.adjust(0,0,-1,-1);
+    p.drawRect(rc);
+
+    redrawPins(p);
+
+    QFont n=QApplication::font();
+    p.setPen(QPen(Qt::black));
+    n.setBold(true);
+    n.setPointSize((n.pointSize()+4)*zoom()/100);
+    p.setFont(n);
+
+    rc = rect();
+    rc.adjust(p.fontMetrics().width("D")+getPinSize(),0,-1,-1);
+    p.drawLine(rc.topLeft(),rc.bottomLeft());
+    int dy = height()/6;
+    int ddy = dy/2;
+    p.drawLine(0,dy+ddy+getPinSize()/2,rc.left(),dy+ddy+getPinSize()/2);
+    p.drawLine(0,3*dy+2*ddy+getPinSize()/2,rc.left(),3*dy+2*ddy+getPinSize()/2);
+
+    rc.adjust(0,0,-p.fontMetrics().width("Q")-getPinSize(),-2*rc.height()/3);
+    p.drawText(rc,Qt::AlignCenter,"T");
+
+    p.setFont(of);
+    p.setBrush(ob);
+    p.setPen(op);
+}
