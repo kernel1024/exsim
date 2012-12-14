@@ -9,6 +9,7 @@ QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     isDragging=false;
     cpOwner=aOwner;
     oldZoom=100;
+    savedState=0;
     fInputs.clear();
     fOutputs.clear();
     setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -104,10 +105,14 @@ void QCPBase::redrawPins(QPainter & painter)
         painter.setPen(QPen(pc));
         QBrush brshPin = QBrush(pc,Qt::SolidPattern);
         painter.setBrush(brshPin);
-        painter.fillRect(QRect(   a->relCoord.x()-getPinSize()/2,
-                                  a->relCoord.y()-getPinSize()/2,
-                                  getPinSize(),
-                                  getPinSize()),brshPin);
+        QRect pinRect = QRect(   a->relCoord.x()-getPinSize()/2,
+                                 a->relCoord.y()-getPinSize()/2,
+                                 getPinSize(),
+                                 getPinSize());
+        if (!a->inversed)
+            painter.fillRect(pinRect,brshPin);
+        else
+            painter.drawEllipse(pinRect);
         if (a->pinName.isEmpty()) continue;
         painter.setPen(QPen(Qt::black));
         painter.drawText(QPoint(  a->relCoord.x()+getPinSize()/2+1,
@@ -130,10 +135,14 @@ void QCPBase::redrawPins(QPainter & painter)
         painter.setPen(QPen(pc));
         QBrush brshPin = QBrush(pc,Qt::SolidPattern);
         painter.setBrush(brshPin);
-        painter.fillRect(QRect(   a->relCoord.x()-getPinSize()/2,
+        QRect pinRect = QRect(   a->relCoord.x()-getPinSize()/2,
                                   a->relCoord.y()-getPinSize()/2,
                                   getPinSize(),
-                                  getPinSize()),brshPin);
+                                  getPinSize());
+        if (!a->inversed)
+            painter.fillRect(pinRect,brshPin);
+        else
+            painter.drawEllipse(pinRect);
         if (a->pinName.isEmpty()) continue;
         painter.setPen(QPen(Qt::black));
         painter.drawText(QPoint(  a->relCoord.x()-getPinSize()/2-1 - painter.fontMetrics().width(a->pinName),
@@ -203,6 +212,22 @@ void QCPBase::checkRecycle()
 int QCPBase::zoom() const
 {
     return cpOwner->zoom;
+}
+
+bool QCPBase::isStateChanged()
+{
+    if (fInputs.isEmpty()) // initiator component (button, generator)
+        return true;
+    return (calcState()!=savedState);
+}
+
+qint32 QCPBase::calcState()
+{
+    qint32 a = 0;
+    for(int i=0;i<fInputs.count();i++)
+        if (fInputs.at(i)->state)
+            a = a | (1 << i);
+    return a;
 }
 
 void QCPBase::mouseMoveEvent(QMouseEvent * event)
@@ -295,15 +320,11 @@ void QCPBase::storeToStream( QDataStream & stream )
         fOutputs[i]->storeToStream(stream);
 }
 
-void QCPBase::doLogic(bool forceUpdate)
+void QCPBase::doLogic()
 {
-    if (cpOwner->erroneousRoute) return;
     if (cpOwner->nodeLocks.contains(objectName()))
-    {
-        cpOwner->erroneousRoute=true;
         return;
-    }
-    if (isStateChanged() || forceUpdate) {
+    if (isStateChanged()) {
         cpOwner->nodeLocks.append(objectName());
         doLogicPrivate();
         for (int i=0;i<fOutputs.count();i++) {
@@ -312,6 +333,7 @@ void QCPBase::doLogic(bool forceUpdate)
         }
         cpOwner->nodeLocks.removeAt(cpOwner->nodeLocks.indexOf(QRegExp(objectName())));
         update();
+        savedState = calcState();
     }
 }
 
@@ -424,5 +446,5 @@ void QCPInput::applyState(bool aState)
     if (state==oldState) return;
     oldState = state;
     if (ownerCmp!=NULL)
-        ownerCmp->doLogic(true);
+        ownerCmp->doLogic();
 }

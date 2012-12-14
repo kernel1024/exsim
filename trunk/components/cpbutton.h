@@ -20,7 +20,6 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void realignPins(QPainter & painter);
     void doLogicPrivate();
-    bool isStateChanged();
 
 signals:
     

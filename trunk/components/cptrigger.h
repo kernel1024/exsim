@@ -7,23 +7,37 @@ class QCPTrigger : public QCPBase
 {
     Q_OBJECT
 public:
+    enum TriggerMode {
+        TM_RSD=1,
+        TM_RST=2
+    };
+
     QCPOutput* fQOut;
     QCPOutput* fNQOut;
     QCPInput* fSInp;
-    QCPInput* fDInp;
+    QCPInput* fDTInp;
     QCPInput* fCInp;
     QCPInput* fRInp;
     explicit QCPTrigger(QWidget *parent, QRenderArea *aOwner);
     ~QCPTrigger();
     QSize minimumSizeHint() const;
 
+    void readFromStream(QDataStream &stream);
+    void storeToStream(QDataStream &stream);
+    void setMode(TriggerMode tMode);
+
 protected:
     bool state;
-    bool oldState;
+    bool savedT;
+    TriggerMode mode;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
-    bool isStateChanged();
     void paintEvent(QPaintEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
+
+public slots:
+    void applyDtrigger();
+    void applyTtrigger();
 
 };
 

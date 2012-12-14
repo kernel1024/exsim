@@ -2,12 +2,38 @@
 #include <time.h>
 #include "mainwindow.h"
 #include "components/cpbase.h"
+#include <AL/al.h>
+#include <AL/alc.h>
+
+void init_al() {
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
+
+    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+
+    dev = alcOpenDevice(defname);
+    ctx = alcCreateContext(dev, NULL);
+    alcMakeContextCurrent(ctx);
+}
+
+void exit_al() {
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
+    ctx = alcGetCurrentContext();
+    dev = alcGetContextsDevice(ctx);
+
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(ctx);
+    alcCloseDevice(dev);
+}
 
 MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    init_al();
 
     QIcon appIcon;
     // Icon author: Jack Cai
@@ -37,9 +63,13 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarFile->addAction(ui->actionSave);
     ui->toolBarComponents->addAction(ui->actionButton);
     ui->toolBarComponents->addAction(ui->actionLED);
+    ui->toolBarComponents->addAction(ui->actionBeeper);
     ui->toolBarComponents->addAction(ui->actionOutputs_extender);
+    ui->toolBarComponents->addAction(ui->actionOscillator);
+    ui->toolBarComponents->addAction(ui->actionAsyncronous_repeater);
     ui->toolBarComponents->addSeparator();
     ui->toolBarComponents->addAction(ui->actionLogic);
+    ui->toolBarComponents->addAction(ui->actionTrigger);
 
     connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
@@ -55,6 +85,9 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionOutputs_extender,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionTrigger,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionOscillator,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionAsyncronous_repeater,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionBeeper,SIGNAL(triggered()),this,SLOT(addComponent()));
 
 
     modified=false;
@@ -63,6 +96,11 @@ MainWindow::MainWindow(QWidget * parent) :
     srand(clock());
 
     centerWindow();
+}
+
+MainWindow::~MainWindow()
+{
+    exit_al();
 }
 
 void MainWindow::updateStatus()
@@ -250,6 +288,9 @@ void MainWindow::fileSave()
         QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
                                                      tr("exSim files (*.exs)"));
         if (fname.isEmpty()) return;
+        QFileInfo fi(fname);
+        if (fi.suffix().isEmpty())
+            fname+=".exs";
         workFile=fname;
     }
     if (!saveFile(workFile))
@@ -264,6 +305,9 @@ void MainWindow::fileSaveAs()
     QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
                                                  tr("exSim files (*.exs)"));
     if (fname.isEmpty()) return;
+    QFileInfo fi(fname);
+    if (fi.suffix().isEmpty())
+        fname+=".exs";
     workFile=fname;
     modified=true;
     fileSave();

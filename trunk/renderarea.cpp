@@ -6,6 +6,9 @@
 #include "components/cplogic.h"
 #include "components/cpextender.h"
 #include "components/cptrigger.h"
+#include "components/cpgen.h"
+#include "components/cprepeater.h"
+#include "components/cpbeeper.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     : QFrame(parent)
@@ -13,7 +16,6 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     scroller=aScroller;
 
     resReading=false;
-    erroneousRoute=false;
     rectLinks=true;
     zoom = 100;
     nodeLocks.clear();
@@ -195,6 +197,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
         }
         cbInput->fromCmp=0;
         cbInput->fromPin=-1;
+        cbInput->applyState(false);
     }
     // if we making trace from output to this input...
     else if (cbOutput!=0)
@@ -210,6 +213,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
             }
             aInput->fromCmp=0;
             aInput->fromPin=-1;
+            aInput->applyState(false);
         }
         // if our output (from that we making connection) is connected - then disconnect it now
         if ((cbOutput->toPin!=-1) && (cbOutput->toCmp!=0))
@@ -249,11 +253,13 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
         cbInput->fromPin=aPinNum;
         aOutput->toCmp=cbInput->ownerCmp;
         aOutput->toPin=cbPinNum;
+        cbInput->applyState(aOutput->state);
     } else {
         cbOutput->toCmp=aInput->ownerCmp;
         cbOutput->toPin=aPinNum;
         aInput->fromCmp=cbOutput->ownerCmp;
         aInput->fromPin=cbPinNum;
+        aInput->applyState(cbOutput->state);
     }
     cbBuilding=false;
     repaintConn();
@@ -359,5 +365,8 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPLogic")      return new QCPLogic(this,this);
     else if (className=="QCPExtender")      return new QCPExtender(this,this);
     else if (className=="QCPTrigger")      return new QCPTrigger(this,this);
+    else if (className=="QCPGen")      return new QCPGen(this,this);
+    else if (className=="QCPRepeater")      return new QCPRepeater(this,this);
+    else if (className=="QCPBeeper")      return new QCPBeeper(this,this);
     else return NULL;
 }

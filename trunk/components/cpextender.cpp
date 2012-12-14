@@ -83,15 +83,8 @@ void QCPExtender::realignPins(QPainter &)
 
 void QCPExtender::doLogicPrivate()
 {
-    state = fInp->state;
     for(int i=0;i<fOutputs.count();i++)
-        fOutputs.at(i)->state=state;
-    oldState = state;
-}
-
-bool QCPExtender::isStateChanged()
-{
-    return (oldState != state);
+        fOutputs.at(i)->state=fInp->state;
 }
 
 void QCPExtender::paintEvent(QPaintEvent *)

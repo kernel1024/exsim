@@ -16,6 +16,7 @@ private:
 
 public:
     MainWindow(QWidget *parent = 0);
+    ~MainWindow();
     
     QRenderArea *renderArea;
     QLabel* statusLabel;

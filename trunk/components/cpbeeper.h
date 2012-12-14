@@ -1,34 +1,38 @@
-#ifndef CPLED_H
-#define CPLED_H
+#ifndef CPBEEPER_H
+#define CPBEEPER_H
 
 #include <cpbase.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 
-class QCPLed : public QCPBase
+class QCPBeeper : public QCPBase
 {
     Q_OBJECT
 public:
     QCPInput* fInp;
-    explicit QCPLed(QWidget *parent, QRenderArea *aOwner);
-    ~QCPLed();
+    bool alError;
+    bool alPlaying;
+    explicit QCPBeeper(QWidget *parent, QRenderArea *aOwner);
+    ~QCPBeeper();
     QSize minimumSizeHint() const;
 
     void readFromStream(QDataStream &stream);
     void storeToStream(QDataStream &stream);
-    
+
+    void updateFreq(float aFreq);
+
 protected:
-    QColor onColor;
-    QColor offColor;
+    ALuint albuf;
+    ALuint alsrc;
+
+    float freq;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);
 
-signals:
-    
 public slots:
-    void chooseColorOn();
-    void chooseColorOff();
-    
+    void chooseFreq();
 };
 
-#endif // CPLED_H
+#endif // CPBEEPER_H
