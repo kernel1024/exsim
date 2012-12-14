@@ -91,7 +91,7 @@ void QCPBase::redrawPins(QPainter & painter)
     QFont of=painter.font();
     QFont n=QApplication::font();
     QColor pc = Qt::black;
-    n.setBold(false);
+    n.setBold(true);
     n.setPointSize(n.pointSize()*zoom()/100);
     painter.setFont(n);
     for (int i=0;i<fInputs.count();i++)
@@ -113,6 +113,11 @@ void QCPBase::redrawPins(QPainter & painter)
         painter.drawText(QPoint(  a->relCoord.x()+getPinSize()/2+1,
                                   a->relCoord.y()+painter.fontMetrics().height()/4),
                          a->pinName);
+        if (a->inversed)
+            painter.drawLine(QPoint(  a->relCoord.x()+getPinSize()/2+1,
+                                      a->relCoord.y()-2*painter.fontMetrics().height()/3),
+                             QPoint(  a->relCoord.x()+getPinSize()/2+1+painter.fontMetrics().width(a->pinName),
+                                      a->relCoord.y()-2*painter.fontMetrics().height()/3));
 
     }
     for (int i=0;i<fOutputs.count();i++)
@@ -133,6 +138,12 @@ void QCPBase::redrawPins(QPainter & painter)
         painter.setPen(QPen(Qt::black));
         painter.drawText(QPoint(  a->relCoord.x()-getPinSize()/2-1 - painter.fontMetrics().width(a->pinName),
                                   a->relCoord.y()+painter.fontMetrics().height()/4), a->pinName);
+        if (a->inversed)
+            painter.drawLine(QPoint(  a->relCoord.x()-getPinSize()/2-1 -
+                                      painter.fontMetrics().width(a->pinName),
+                                      a->relCoord.y()-2*painter.fontMetrics().height()/3),
+                             QPoint(  a->relCoord.x()-getPinSize()/2-1,
+                                      a->relCoord.y()-2*painter.fontMetrics().height()/3));
     }
     painter.setFont(of);
     painter.setBrush(ob);
@@ -308,6 +319,7 @@ QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner)
     : QObject(parent)
 {
     pinName=QString();
+    inversed=false;
     toPin=-1;
     toCmp=0;
     state=false;
@@ -322,6 +334,7 @@ void QCPOutput::readFromStream( QDataStream & stream )
     toCmp=0;
     QString q;
     stream >> q;
+    stream >> inversed;
     if (q!="<NONE>")
         ffLogic=q;
     else
@@ -337,6 +350,7 @@ void QCPOutput::storeToStream( QDataStream & stream )
     else
         q=toCmp->objectName();
     stream << q;
+    stream << inversed;
 }
 
 void QCPOutput::postLoadBind()
@@ -361,6 +375,7 @@ QCPInput::QCPInput(QObject * parent, QCPBase * aOwner)
     : QObject(parent)
 {
     pinName=QString();
+    inversed=false;
     fromPin=-1;
     fromCmp=0;
     state=false;
@@ -374,6 +389,7 @@ void QCPInput::readFromStream( QDataStream & stream )
     fromCmp=0;
     QString q;
     stream >> q;
+    stream >> inversed;
     if (q!="<NONE>")
         ffLogic=q;
     else
@@ -389,6 +405,7 @@ void QCPInput::storeToStream( QDataStream & stream )
     else
         q=fromCmp->objectName();
     stream << q;
+    stream << inversed;
 }
 
 void QCPInput::postLoadBind()

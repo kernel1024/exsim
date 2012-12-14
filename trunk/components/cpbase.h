@@ -74,6 +74,7 @@ public:
     QPoint relCoord;
     qint32 toPin;
     QString pinName;
+    bool inversed;
     QString ffLogic;
 
     bool state;
@@ -96,6 +97,7 @@ public:
     QPoint relCoord;
     qint32 fromPin;
     QString pinName;
+    bool inversed;
     QString ffLogic;
 
     bool state;

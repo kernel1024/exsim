@@ -10,7 +10,8 @@ HEADERS       = components/cpbase.h \
     components/cpbutton.h \
     components/cpled.h \
     components/cplogic.h \
-    components/cpextender.h
+    components/cpextender.h \
+    components/cptrigger.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -18,7 +19,8 @@ SOURCES       = main.cpp \
     components/cpbutton.cpp \
     components/cpled.cpp \
     components/cplogic.cpp \
-    components/cpextender.cpp
+    components/cpextender.cpp \
+    components/cptrigger.cpp
 
 RESOURCES     = exsim.qrc
 

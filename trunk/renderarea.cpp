@@ -5,6 +5,7 @@
 #include "components/cpled.h"
 #include "components/cplogic.h"
 #include "components/cpextender.h"
+#include "components/cptrigger.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     : QFrame(parent)
@@ -357,5 +358,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPLed")      return new QCPLed(this,this);
     else if (className=="QCPLogic")      return new QCPLogic(this,this);
     else if (className=="QCPExtender")      return new QCPExtender(this,this);
+    else if (className=="QCPTrigger")      return new QCPTrigger(this,this);
     else return NULL;
 }

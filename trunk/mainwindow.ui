@@ -70,6 +70,7 @@
     <addaction name="actionLED"/>
     <addaction name="actionOutputs_extender"/>
     <addaction name="actionLogic"/>
+    <addaction name="actionTrigger"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -229,6 +230,14 @@
    </property>
    <property name="text">
     <string>Zoom...</string>
+   </property>
+  </action>
+  <action name="actionTrigger">
+   <property name="text">
+    <string>Trigger</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPTrigger</string>
    </property>
   </action>
  </widget>
