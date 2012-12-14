@@ -25,15 +25,12 @@ public:
 
     void setMode(LogicType lt, int inputCount);
 
-
-private:
+protected:
     qint32 state;
     qint32 oldState;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     bool isStateChanged();
-
-protected:
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
 

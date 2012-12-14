@@ -24,7 +24,7 @@ QSize QCPExtender::minimumSizeHint() const
 {
     int vsz = (QApplication::fontMetrics().height()+4)*(fOutputs.count()+1);
     if (vsz<40) vsz = 40;
-    return QSize(40,vsz);
+    return QSize(40*zoom()/100,vsz*zoom()/100);
 }
 
 void QCPExtender::readFromStream(QDataStream &stream)

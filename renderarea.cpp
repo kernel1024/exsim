@@ -151,6 +151,12 @@ void QRenderArea::paintEvent ( QPaintEvent * )
     p.setPen(op);
 }
 
+void QRenderArea::keyPressEvent(QKeyEvent *event)
+{
+    qDebug() << event->key();
+    QFrame::keyPressEvent(event);
+}
+
 
 void QRenderArea::refreshConnBuilder(const QPoint & atPos)
 {
@@ -162,7 +168,8 @@ void QRenderArea::refreshConnBuilder(const QPoint & atPos)
     repaintConn();
 }
 
-void QRenderArea::doneConnBuilder(const bool aNone, int aType, const int aPinNum, QCPInput* aInput, QCPOutput* aOutput)
+void QRenderArea::doneConnBuilder(const bool aNone, int aType,
+                                  const int aPinNum, QCPInput* aInput, QCPOutput* aOutput)
 {
     // if we making trace from input to this output...
     if ((cbType==QPT_INPUT) && (cbInput!=0))
@@ -219,7 +226,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType, const int aPinNum
         repaintConn();
         return;
     }
-    // if this output can't possible connect to specified input (np: DMix connecting not to HW), then delete it
+    // if this output can't possible connect to specified input, then delete it
     QCPBase *aTo, *aFrom;
     if (cbType==QPT_INPUT)
     {
@@ -271,12 +278,20 @@ int QRenderArea::cpComponentCount()
 void QRenderArea::setZoom(int zoomFactor)
 {
     zoom = zoomFactor;
+
+    recycle->setGeometry(QRect(10*zoom/100, 10*zoom/100, 48*zoom/100, 48*zoom/100));
+    QPixmap p = QPixmap(":/images/trashcan_empty.png");
+    if (zoom!=100)
+        p = p.scaled(48*zoom/100,48*zoom/100,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    recycle->setPixmap(p);
+
     for (int i=0;i<children().count();i++) {
         QCPBase* cb = qobject_cast<QCPBase*>(children().at(i));
         if (cb != NULL) {
             cb->zoomChanged();
         }
     }
+    repaintConn();
 }
 
 void QRenderArea::readSchematic(QDataStream & stream)

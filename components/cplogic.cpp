@@ -26,7 +26,7 @@ QSize QCPLogic::minimumSizeHint() const
 {
     int vsz = (QApplication::fontMetrics().height()+4)*(fInputs.count()+1);
     if (vsz<60) vsz = 60;
-    return QSize(60,vsz);
+    return QSize(60*zoom()/100,vsz*zoom()/100);
 }
 
 void QCPLogic::readFromStream(QDataStream &stream)
@@ -157,10 +157,10 @@ void QCPLogic::paintEvent(QPaintEvent *)
     }
     rc = rect();
     rc.adjust(0,0,0,-2*rc.height()/3);
-    QFont n=of;
+    QFont n=QApplication::font();
     p.setPen(QPen(Qt::black));
     n.setBold(true);
-    n.setPointSize(n.pointSize()+2);
+    n.setPointSize((n.pointSize()+2)*zoom()/100);
     p.setFont(n);
     p.drawText(rc,Qt::AlignCenter,s);
 

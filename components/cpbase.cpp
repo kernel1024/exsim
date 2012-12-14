@@ -8,6 +8,9 @@ QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     pinColorOn=Qt::red;
     isDragging=false;
     cpOwner=aOwner;
+    oldZoom=100;
+    fInputs.clear();
+    fOutputs.clear();
     setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
@@ -86,9 +89,10 @@ void QCPBase::redrawPins(QPainter & painter)
     QPen op=painter.pen();
     QBrush ob=painter.brush();
     QFont of=painter.font();
-    QFont n=of;
+    QFont n=QApplication::font();
     QColor pc = Qt::black;
     n.setBold(false);
+    n.setPointSize(n.pointSize()*zoom()/100);
     painter.setFont(n);
     for (int i=0;i<fInputs.count();i++)
     {
@@ -137,11 +141,15 @@ void QCPBase::redrawPins(QPainter & painter)
 
 void QCPBase::zoomChanged()
 {
+    QPoint newpos = pos()*(100.0/oldZoom);
+    oldZoom=zoom();
+    move(newpos*(oldZoom/100.0));
+    resize(minimumSizeHint());
 }
 
 int QCPBase::getPinSize()
 {
-    return 8*cpOwner->zoom/100;
+    return 8*zoom()/100;
 }
 
 void QCPBase::postLoadBind()
@@ -179,6 +187,11 @@ void QCPBase::checkRecycle()
     }
     cpOwner->repaintConn();
     deleteLater();
+}
+
+int QCPBase::zoom() const
+{
+    return cpOwner->zoom;
 }
 
 void QCPBase::mouseMoveEvent(QMouseEvent * event)

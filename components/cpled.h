@@ -15,7 +15,7 @@ public:
     void readFromStream(QDataStream &stream);
     void storeToStream(QDataStream &stream);
     
-private:
+protected:
     QColor onColor;
     QColor offColor;
     bool state;
@@ -23,8 +23,6 @@ private:
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     bool isStateChanged();
-
-protected:
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);
 
