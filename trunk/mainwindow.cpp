@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionSave,SIGNAL(triggered()),this,SLOT(fileSave()));
     connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(fileSaveAs()));
     connect(ui->actionExit,SIGNAL(triggered()),this,SLOT(fileExit()));
-
+    connect(ui->actionZoom,SIGNAL(triggered()),this,SLOT(setZoom()));
     connect(ui->actionCompact_layout,SIGNAL(triggered()),this,SLOT(toolAllocate()));
     connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(helpAbout()));
 
@@ -74,8 +74,8 @@ void MainWindow::updateStatus()
     QFileInfo fi(workFile);
     QString s=fi.fileName();
     if (workFile=="") s=tr("[untitled]");
-    s=s+" - "+programTitle;
     if (modified) s+=" *";
+    s=s+" - "+programTitle;
 
     setWindowTitle(s);
 }
@@ -246,18 +246,13 @@ void MainWindow::fileSave()
     if (!modified) return;
     if (workFile=="")
     {
-        QFileDialog d(this,tr("Choose a filename to save under"),"~",
-                      "exSim files (*.exs)");
-        d.setDefaultSuffix("exs");
-        d.setDirectory(QDir::currentPath());
-        d.setAcceptMode(QFileDialog::AcceptSave);
-        d.setConfirmOverwrite(true);
-        if (!d.exec()) return;
-        if (d.selectedFiles().count()==0) return;
-        workFile=d.selectedFiles()[0];
+        QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
+                                                     tr("exSim files (*.exs)"));
+        if (fname.isEmpty()) return;
+        workFile=fname;
     }
     if (!saveFile(workFile))
-        QMessageBox::critical(this,"Error","File can't saved");
+        QMessageBox::critical(this,"Error","File can't be saved");
     else
         modified=false;
     updateStatus();
@@ -265,15 +260,10 @@ void MainWindow::fileSave()
 
 void MainWindow::fileSaveAs()
 {
-    QFileDialog d(this,tr("Choose a filename to save under"),"~",
-                  "exSim files (*.exs)");
-    d.setDefaultSuffix("exs");
-    d.setAcceptMode(QFileDialog::AcceptSave);
-    d.setConfirmOverwrite(true);
-    d.setDirectory(QDir::currentPath());
-    if (!d.exec()) return;
-    if (d.selectedFiles().count()==0) return;
-    workFile=d.selectedFiles()[0];
+    QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
+                                                 tr("exSim files (*.exs)"));
+    if (fname.isEmpty()) return;
+    workFile=fname;
     modified=true;
     fileSave();
 }
@@ -358,4 +348,14 @@ void MainWindow::toolAllocate()
         }
     renderArea->update();
     renderArea->repaintConn();
+}
+
+void MainWindow::setZoom()
+{
+    bool ok;
+    int z = QInputDialog::getInt(this,tr("Adjust current zoom"),tr("Zoom (%)"),
+                                 renderArea->zoom,10,500,10,&ok);
+    if (ok)
+        renderArea->setZoom(z);
+
 }

@@ -36,6 +36,7 @@ public slots:
     void fileExit();
     void addComponent();
     void toolAllocate();
+    void setZoom();
     
     void helpAbout();
 protected:

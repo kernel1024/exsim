@@ -19,7 +19,8 @@ QCPLed::~QCPLed()
 
 QSize QCPLed::minimumSizeHint() const
 {
-    return QSize(55,50);
+    return QSize(55*zoom()/100,
+                 50*zoom()/100);
 }
 
 void QCPLed::readFromStream(QDataStream &stream)
@@ -73,7 +74,8 @@ void QCPLed::paintEvent(QPaintEvent *)
         p.setBrush(QBrush(offColor,Qt::SolidPattern));
     }
     rc = rect();
-    rc.adjust(12,7,-7,-7);
+    rc.adjust(12*zoom()/100,7*zoom()/100,
+              -7*zoom()/100,-7*zoom()/100);
     p.drawEllipse(rc);
 
     p.setFont(of);

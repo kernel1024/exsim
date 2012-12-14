@@ -41,6 +41,7 @@ public:
     QCPBase* createCpInstance(const QString & className);
 protected:
     void paintEvent ( QPaintEvent * event );
+    void keyPressEvent(QKeyEvent * event);
 };
 
 #endif

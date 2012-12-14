@@ -16,12 +16,16 @@ class QCPBase : public QWidget
     Q_OBJECT
 
 private:
-    virtual void realignPins(QPainter & painter)=0;
     void mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase * &aFilter);
     void checkRecycle();
+
+protected:
+    float oldZoom;
+    int zoom() const;
+    virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;
     virtual bool isStateChanged()=0;
-protected:
+
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);

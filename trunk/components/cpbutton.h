@@ -13,16 +13,14 @@ public:
 
     QSize minimumSizeHint() const;
 
-private:
+protected:
     bool oldPressed;
     bool pressed;
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
     void realignPins(QPainter & painter);
     void doLogicPrivate();
-    void mousePressEvent(QMouseEvent *event);
     bool isStateChanged();
-
-protected:
-    void paintEvent(QPaintEvent *event);
 
 signals:
     
