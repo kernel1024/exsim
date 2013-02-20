@@ -60,14 +60,13 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuComponents">
     <property name="title">
-     <string>Edit</string>
+     <string>Components</string>
     </property>
-    <addaction name="actionCompact_layout"/>
-    <addaction name="separator"/>
     <addaction name="actionButton"/>
     <addaction name="actionLED"/>
+    <addaction name="actionDigital_indicator"/>
     <addaction name="actionOutputs_extender"/>
     <addaction name="actionLogic"/>
     <addaction name="actionTrigger"/>
@@ -75,6 +74,9 @@
     <addaction name="actionBeeper"/>
     <addaction name="separator"/>
     <addaction name="actionRegister"/>
+    <addaction name="actionDecoder"/>
+    <addaction name="actionEncoder"/>
+    <addaction name="actionCounter"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -82,8 +84,15 @@
     </property>
     <addaction name="actionZoom"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCompact_layout"/>
+   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
+   <addaction name="menuComponents"/>
+   <addaction name="menuTools"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -296,6 +305,38 @@
    </property>
    <property name="whatsThis">
     <string>QCPRegister</string>
+   </property>
+  </action>
+  <action name="actionDecoder">
+   <property name="text">
+    <string>Decoder</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPDecoder</string>
+   </property>
+  </action>
+  <action name="actionEncoder">
+   <property name="text">
+    <string>Encoder</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPEncoder</string>
+   </property>
+  </action>
+  <action name="actionCounter">
+   <property name="text">
+    <string>Counter</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPCounter</string>
+   </property>
+  </action>
+  <action name="actionDigital_indicator">
+   <property name="text">
+    <string>Digital indicator</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPDigit</string>
    </property>
   </action>
  </widget>

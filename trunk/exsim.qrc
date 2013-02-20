@@ -14,5 +14,6 @@
         <file>images/generator.png</file>
         <file>images/trigger.png</file>
         <file>images/register.png</file>
+        <file>images/digital.ttf</file>
     </qresource>
 </RCC>

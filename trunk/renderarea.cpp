@@ -9,8 +9,12 @@
 #include "components/cpgen.h"
 #include "components/cpbeeper.h"
 #include "components/cpregister.h"
+#include "components/cpdecoder.h"
+#include "components/cpencoder.h"
+#include "components/cpcounter.h"
+#include "components/cpdigit.h"
 
-QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
+QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
 {
     scroller=aScroller;
@@ -33,6 +37,13 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     cbOutput=0;
     cbBuilding=false;
     cbCurrent=QPoint(0,0);
+
+    lcdFont=QApplication::font();
+    if (aLcdFontIdx>=0) {
+        QString font = QFontDatabase::applicationFontFamilies(aLcdFontIdx).first();
+        lcdFont=QFont(font);
+    }
+
 }
 
 QSize QRenderArea::minimumSizeHint() const
@@ -360,6 +371,8 @@ void QRenderArea::deleteComponents()
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
 {
+    // TODO: Comparator, RAM, programmable sound generator, random generator, mux, sum, gnd and vcc busses
+
     if (className=="QCPButton")      return new QCPButton(this,this);
     else if (className=="QCPLed")      return new QCPLed(this,this);
     else if (className=="QCPLogic")      return new QCPLogic(this,this);
@@ -368,5 +381,9 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPGen")      return new QCPGen(this,this);
     else if (className=="QCPBeeper")      return new QCPBeeper(this,this);
     else if (className=="QCPRegister")      return new QCPRegister(this,this);
+    else if (className=="QCPDecoder")      return new QCPDecoder(this,this);
+    else if (className=="QCPEncoder")      return new QCPEncoder(this,this);
+    else if (className=="QCPCounter")      return new QCPCounter(this,this);
+    else if (className=="QCPDigit")      return new QCPDigit(this,this);
     else return NULL;
 }
