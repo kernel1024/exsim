@@ -8,6 +8,7 @@
 #include "components/cptrigger.h"
 #include "components/cpgen.h"
 #include "components/cpbeeper.h"
+#include "components/cpregister.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
     : QFrame(parent)
@@ -366,5 +367,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPTrigger")      return new QCPTrigger(this,this);
     else if (className=="QCPGen")      return new QCPGen(this,this);
     else if (className=="QCPBeeper")      return new QCPBeeper(this,this);
+    else if (className=="QCPRegister")      return new QCPRegister(this,this);
     else return NULL;
 }

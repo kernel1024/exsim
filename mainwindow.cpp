@@ -69,6 +69,8 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarComponents->addSeparator();
     ui->toolBarComponents->addAction(ui->actionLogic);
     ui->toolBarComponents->addAction(ui->actionTrigger);
+    ui->toolBarComponents->addSeparator();
+    ui->toolBarComponents->addAction(ui->actionRegister);
 
     connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
@@ -86,6 +88,7 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionTrigger,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionOscillator,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionBeeper,SIGNAL(triggered()),this,SLOT(addComponent()));
+    connect(ui->actionRegister,SIGNAL(triggered()),this,SLOT(addComponent()));
 
 
     modified=false;

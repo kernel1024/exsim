@@ -6,25 +6,19 @@ QCPTrigger::QCPTrigger(QWidget *parent, QRenderArea *aOwner) :
     state = false;
     mode = TM_RSD;
     savedT = false;
-    fQOut = new QCPOutput(this,this);
-    fQOut->pinName = "Q";
+    fQOut = new QCPOutput(this,this,"Q");
     fOutputs.append(fQOut);
-    fNQOut = new QCPOutput(this,this);
-    fNQOut->pinName = "Q";
+    fNQOut = new QCPOutput(this,this,"Q");
     fNQOut->inversed = true;
     fNQOut->state = true;
     fOutputs.append(fNQOut);
-    fSInp = new QCPInput(this,this);
-    fSInp->pinName = "S";
+    fSInp = new QCPInput(this,this,"S");
     fInputs.append(fSInp);
-    fDTInp = new QCPInput(this,this);
-    fDTInp->pinName = "D";
+    fDTInp = new QCPInput(this,this,"D");
     fInputs.append(fDTInp);
-    fCInp = new QCPInput(this,this);
-    fCInp->pinName = "C";
+    fCInp = new QCPInput(this,this,"C");
     fInputs.append(fCInp);
-    fRInp = new QCPInput(this,this);
-    fRInp->pinName = "R";
+    fRInp = new QCPInput(this,this,"R");
     fInputs.append(fRInp);
 }
 

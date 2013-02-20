@@ -68,7 +68,7 @@ class QCPOutput : public QObject
 {
     Q_OBJECT
 public:
-    QCPOutput(QObject * parent, QCPBase * aOwner);
+    QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
     void readFromStream( QDataStream & stream );
     void storeToStream( QDataStream & stream );
     void postLoadBind();
@@ -100,8 +100,8 @@ public:
     bool state;
     bool oldState;
 
-    QCPInput(QObject * parent, QCPBase * aOwner);
-    
+    QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
+
     void readFromStream( QDataStream & stream );
     void storeToStream( QDataStream & stream );
     void postLoadBind();
