@@ -60,6 +60,8 @@ public:
     QColor pinColorOn;
 signals:
     void componentChanged(QCPBase * obj);
+private slots:
+    void applyInputState(QCPInput* input, bool state);
 };
 
 class QCPOutput : public QObject
@@ -88,13 +90,6 @@ class QCPInput : public QObject
 {
     Q_OBJECT
 public:
-    QCPInput(QObject * parent, QCPBase * aOwner);
-    
-    void readFromStream( QDataStream & stream );
-    void storeToStream( QDataStream & stream );
-    void postLoadBind();
-    void applyState(bool aState);
-
     QCPBase * fromCmp;
     QCPBase * ownerCmp;
     QPoint relCoord;
@@ -102,9 +97,18 @@ public:
     QString pinName;
     bool inversed;
     QString ffLogic;
-
     bool state;
     bool oldState;
+
+    QCPInput(QObject * parent, QCPBase * aOwner);
+    
+    void readFromStream( QDataStream & stream );
+    void storeToStream( QDataStream & stream );
+    void postLoadBind();
+    void applyState(bool aState);
+
+signals:
+    void applyInputState(QCPInput* input, bool state);
 };
 
 #endif

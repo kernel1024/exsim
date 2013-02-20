@@ -12,7 +12,6 @@
         <file>images/led128.png</file>
         <file>images/beeper.png</file>
         <file>images/generator.png</file>
-        <file>images/repeater.png</file>
         <file>images/trigger.png</file>
     </qresource>
 </RCC>

@@ -66,7 +66,6 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarComponents->addAction(ui->actionBeeper);
     ui->toolBarComponents->addAction(ui->actionOutputs_extender);
     ui->toolBarComponents->addAction(ui->actionOscillator);
-    ui->toolBarComponents->addAction(ui->actionAsyncronous_repeater);
     ui->toolBarComponents->addSeparator();
     ui->toolBarComponents->addAction(ui->actionLogic);
     ui->toolBarComponents->addAction(ui->actionTrigger);
@@ -86,7 +85,6 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionTrigger,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionOscillator,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionAsyncronous_repeater,SIGNAL(triggered()),this,SLOT(addComponent()));
     connect(ui->actionBeeper,SIGNAL(triggered()),this,SLOT(addComponent()));
 
 

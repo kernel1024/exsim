@@ -7,7 +7,6 @@
 #include "components/cpextender.h"
 #include "components/cptrigger.h"
 #include "components/cpgen.h"
-#include "components/cprepeater.h"
 #include "components/cpbeeper.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller)
@@ -366,7 +365,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPExtender")      return new QCPExtender(this,this);
     else if (className=="QCPTrigger")      return new QCPTrigger(this,this);
     else if (className=="QCPGen")      return new QCPGen(this,this);
-    else if (className=="QCPRepeater")      return new QCPRepeater(this,this);
     else if (className=="QCPBeeper")      return new QCPBeeper(this,this);
     else return NULL;
 }
