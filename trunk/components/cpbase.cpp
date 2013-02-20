@@ -337,6 +337,17 @@ void QCPBase::doLogic()
     }
 }
 
+void QCPBase::applyInputState(QCPInput *input, bool state)
+{
+    if (input==NULL) return;
+    int idx = fInputs.indexOf(input);
+    if (idx<0) return;
+    fInputs[idx]->state = state;
+    if (fInputs[idx]->oldState == state) return;
+    fInputs[idx]->oldState = state;
+    doLogic();
+}
+
 QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner)
     : QObject(parent)
 {
@@ -403,6 +414,9 @@ QCPInput::QCPInput(QObject * parent, QCPBase * aOwner)
     state=false;
     relCoord=QPoint(0,0);
     ownerCmp=aOwner;
+    connect(this,SIGNAL(applyInputState(QCPInput*,bool)),
+            aOwner,SLOT(applyInputState(QCPInput*,bool)),
+            Qt::QueuedConnection);
 }
 
 void QCPInput::readFromStream( QDataStream & stream )
@@ -442,9 +456,5 @@ void QCPInput::postLoadBind()
 
 void QCPInput::applyState(bool aState)
 {
-    state = aState;
-    if (state==oldState) return;
-    oldState = state;
-    if (ownerCmp!=NULL)
-        ownerCmp->doLogic();
+    emit applyInputState(this,aState);
 }
