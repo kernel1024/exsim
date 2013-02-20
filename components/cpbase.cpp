@@ -230,6 +230,19 @@ qint32 QCPBase::calcState()
     return a;
 }
 
+int QCPBase::getDCompHeight(const int divCount) const
+{
+    int dy = QApplication::fontMetrics().height()+4;
+    int vsz = (dy * (qMax(fInputs.count(),fOutputs.count())+1)) + ((dy * divCount)/2);
+    if (vsz<80) vsz = 80;
+    return vsz;
+}
+
+int QCPBase::getDCompIncrement() const
+{
+    return QApplication::fontMetrics().height()+4;
+}
+
 void QCPBase::mouseMoveEvent(QMouseEvent * event)
 {
     //  if (event->button()==Qt::LeftButton)

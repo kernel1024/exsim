@@ -44,12 +44,19 @@ MainWindow::MainWindow(QWidget * parent) :
     appIcon.addFile(":/images/led128.png");
     setWindowIcon(appIcon);
 
+    int fontIdx = -1;
+    QFile res(":/images/digital.ttf");
+    if (res.open(QIODevice::ReadOnly)) {
+        fontIdx = QFontDatabase::addApplicationFontFromData(res.readAll());
+        res.close();
+    }
+
     resize(QSize(800, 500).expandedTo(minimumSizeHint()));
 
     statusLabel=new QLabel();
     this->statusBar()->addPermanentWidget(statusLabel);
 
-    renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea);
+    renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea,fontIdx);
     ui->scrollArea->setWidget(renderArea);
 
     programTitle=tr("exSim electronic simulator");
@@ -61,16 +68,6 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarFile->addAction(ui->actionNew);
     ui->toolBarFile->addAction(ui->actionOpen);
     ui->toolBarFile->addAction(ui->actionSave);
-    ui->toolBarComponents->addAction(ui->actionButton);
-    ui->toolBarComponents->addAction(ui->actionLED);
-    ui->toolBarComponents->addAction(ui->actionBeeper);
-    ui->toolBarComponents->addAction(ui->actionOutputs_extender);
-    ui->toolBarComponents->addAction(ui->actionOscillator);
-    ui->toolBarComponents->addSeparator();
-    ui->toolBarComponents->addAction(ui->actionLogic);
-    ui->toolBarComponents->addAction(ui->actionTrigger);
-    ui->toolBarComponents->addSeparator();
-    ui->toolBarComponents->addAction(ui->actionRegister);
 
     connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
@@ -81,15 +78,14 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionCompact_layout,SIGNAL(triggered()),this,SLOT(toolAllocate()));
     connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(helpAbout()));
 
-    connect(ui->actionButton,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionLED,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionOutputs_extender,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionLogic,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionTrigger,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionOscillator,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionBeeper,SIGNAL(triggered()),this,SLOT(addComponent()));
-    connect(ui->actionRegister,SIGNAL(triggered()),this,SLOT(addComponent()));
-
+    for(int i=0;i<ui->menuComponents->actions().count();i++) {
+        QAction* acm = ui->menuComponents->actions().at(i);
+        if (!acm->isSeparator()) {
+            ui->toolBarComponents->addAction(acm);
+            connect(acm,SIGNAL(triggered()),this,SLOT(addComponent()));
+        } else
+            ui->toolBarComponents->addSeparator();
+    }
 
     modified=false;
     updateStatus();
@@ -322,7 +318,7 @@ void MainWindow::fileExit()
 void MainWindow::helpAbout()
 {
     QMessageBox::about(this,"exSim electronic simulator","exSim electronic simulator\n\n"
-                       "(c) 2012 by Kernel\n\n"
+                       "(c) 2012-2013 by Kernel\n\n"
                        "This program is provided AS IS with NO WARRANTY OF ANY KIND,\n"
                        "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS\n"
                        "FOR A PARTICULAR PURPOSE.\n\n"

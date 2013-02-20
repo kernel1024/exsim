@@ -14,7 +14,11 @@ HEADERS       = components/cpbase.h \
     components/cptrigger.h \
     components/cpgen.h \
     components/cpbeeper.h \
-    components/cpregister.h
+    components/cpregister.h \
+    components/cpdecoder.h \
+    components/cpencoder.h \
+    components/cpcounter.h \
+    components/cpdigit.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -26,7 +30,11 @@ SOURCES       = main.cpp \
     components/cptrigger.cpp \
     components/cpgen.cpp \
     components/cpbeeper.cpp \
-    components/cpregister.cpp
+    components/cpregister.cpp \
+    components/cpdecoder.cpp \
+    components/cpencoder.cpp \
+    components/cpcounter.cpp \
+    components/cpdigit.cpp
 
 RESOURCES     = exsim.qrc
 

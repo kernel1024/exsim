@@ -81,7 +81,10 @@ void QCPGen::paintEvent(QPaintEvent *)
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     p.setFont(n);
-    p.drawText(rc,Qt::AlignCenter,"Oscillator");
+    if (period>1500)
+        p.drawText(rc,Qt::AlignCenter,tr("OSC: %1 s").arg((double)period/1000,1,'f',1));
+    else
+        p.drawText(rc,Qt::AlignCenter,tr("OSC: %1 ms").arg(period));
 
     p.setFont(of);
     p.setBrush(ob);

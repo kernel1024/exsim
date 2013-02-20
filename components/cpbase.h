@@ -29,6 +29,9 @@ protected:
     virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;
 
+    int getDCompHeight(const int divCount) const;
+    int getDCompIncrement() const;
+
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);

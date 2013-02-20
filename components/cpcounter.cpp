@@ -1,17 +1,19 @@
-#include "cpregister.h"
+#include "cpcounter.h"
 
-QCPRegister::QCPRegister(QWidget *parent, QRenderArea *aOwner) :
+QCPCounter::QCPCounter(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     state = 0;
     savedC = false;
-    savedLS = false;
-    savedRS = false;
+    savedInc = false;
+    savedDec = false;
 
     f1Out = new QCPOutput(this,this,"1"); fOutputs.append(f1Out);
     f2Out = new QCPOutput(this,this,"2"); fOutputs.append(f2Out);
     f4Out = new QCPOutput(this,this,"4"); fOutputs.append(f4Out);
     f8Out = new QCPOutput(this,this,"8"); fOutputs.append(f8Out);
+    fUFOut = new QCPOutput(this,this,QChar(0x2264)); fOutputs.append(fUFOut);
+    fOFOut = new QCPOutput(this,this,QChar(0x2265)); fOutputs.append(fOFOut);
 
     f1Inp = new QCPInput(this,this,"1"); fInputs.append(f1Inp);
     f2Inp = new QCPInput(this,this,"2"); fInputs.append(f2Inp);
@@ -19,11 +21,12 @@ QCPRegister::QCPRegister(QWidget *parent, QRenderArea *aOwner) :
     f8Inp = new QCPInput(this,this,"8"); fInputs.append(f8Inp);
     fCInp = new QCPInput(this,this,"C"); fInputs.append(fCInp);
     fRInp = new QCPInput(this,this,"R"); fInputs.append(fRInp);
-    fLSInp = new QCPInput(this,this,"<-"); fInputs.append(fLSInp);
-    fRSInp = new QCPInput(this,this,"->"); fInputs.append(fRSInp);
+    fIncInp = new QCPInput(this,this,"+1"); fInputs.append(fIncInp);
+    fDecInp = new QCPInput(this,this,"-1"); fInputs.append(fDecInp);
+    fModeInp = new QCPInput(this,this,"DM"); fInputs.append(fModeInp);
 }
 
-QCPRegister::~QCPRegister()
+QCPCounter::~QCPCounter()
 {
     fInputs.clear();
     fOutputs.clear();
@@ -31,22 +34,25 @@ QCPRegister::~QCPRegister()
     delete f2Out;
     delete f4Out;
     delete f8Out;
+    delete fUFOut;
+    delete fOFOut;
     delete f1Inp;
     delete f2Inp;
     delete f4Inp;
     delete f8Inp;
     delete fCInp;
     delete fRInp;
-    delete fLSInp;
-    delete fRSInp;
+    delete fIncInp;
+    delete fDecInp;
+    delete fModeInp;
 }
 
-QSize QCPRegister::minimumSizeHint() const
+QSize QCPCounter::minimumSizeHint() const
 {
     return QSize(100*zoom()/100,getDCompHeight(1)*zoom()/100);
 }
 
-void QCPRegister::realignPins(QPainter &)
+void QCPCounter::realignPins(QPainter &)
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;
@@ -58,18 +64,25 @@ void QCPRegister::realignPins(QPainter &)
     f4Out->relCoord = QPoint(width()-getPinSize()/2,3*dy);
     f8Inp->relCoord = QPoint(getPinSize()/2,4*dy);
     f8Out->relCoord = QPoint(width()-getPinSize()/2,4*dy);
-    fLSInp->relCoord = QPoint(getPinSize()/2,5*dy+ddy);
-    fRSInp->relCoord= QPoint(getPinSize()/2,6*dy+ddy);
-    fCInp->relCoord = QPoint(getPinSize()/2,7*dy+ddy);
-    fRInp->relCoord = QPoint(getPinSize()/2,8*dy+ddy);
+    fCInp->relCoord = QPoint(getPinSize()/2,5*dy+ddy);
+    fRInp->relCoord = QPoint(getPinSize()/2,6*dy+ddy);
+    fIncInp->relCoord = QPoint(getPinSize()/2,7*dy+ddy);
+    fDecInp->relCoord = QPoint(getPinSize()/2,8*dy+ddy);
+    fOFOut->relCoord = QPoint(width()-getPinSize()/2,8*dy+ddy);
+    fModeInp->relCoord = QPoint(getPinSize()/2,9*dy+ddy);
+    fUFOut->relCoord = QPoint(width()-getPinSize()/2,9*dy+ddy);
 }
 
-void QCPRegister::doLogicPrivate()
+void QCPCounter::doLogicPrivate()
 {
-    bool LS = fLSInp->state;
-    bool RS = fRSInp->state;
+    bool inc = fIncInp->state;
+    bool dec = fDecInp->state;
     bool C = fCInp->state;
     bool R = fRInp->state;
+    bool mode = fModeInp->state;
+    int max = 15;
+    if (mode)
+        max = 9;
     qint8 di = ((f8Inp->state << 3) & 0x8) |
                ((f4Inp->state << 2) & 0x4) |
                ((f2Inp->state << 1) & 0x2) |
@@ -78,23 +91,28 @@ void QCPRegister::doLogicPrivate()
     if (R) state = 0;
     else if (!C && savedC) {
         state = di;
-    } else if (!LS && savedLS) {
-        state = (state << 1) & 0xf;
-    } else if (!RS && savedRS) {
-        state = (state >> 1) & 0xf;
+    } else if (!inc && savedInc) {
+        state++;
+    } else if (!dec && savedDec) {
+        state--;
     }
 
+    if (state>max) state=0;
+    if (state<0) state=max;
+
     savedC = C;
-    savedLS = LS;
-    savedRS = RS;
+    savedInc = inc;
+    savedDec = dec;
 
     f1Out->state = ((state & 0x1) > 0);
     f2Out->state = ((state & 0x2) > 0);
     f4Out->state = ((state & 0x4) > 0);
     f8Out->state = ((state & 0x8) > 0);
+    fUFOut->state = ((state == 0) && dec);
+    fOFOut->state = ((state == max) && inc);
 }
 
-void QCPRegister::paintEvent(QPaintEvent *)
+void QCPCounter::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QPen op=p.pen();
@@ -114,22 +132,25 @@ void QCPRegister::paintEvent(QPaintEvent *)
     n.setPointSize((n.pointSize()+4)*zoom()/100);
     p.setFont(n);
 
-    rc = rect();
-    rc.adjust(p.fontMetrics().width("->")+getPinSize()/2,0,-1,-1);
-    p.drawLine(rc.topLeft(),rc.bottomLeft());
-
     int dy = getDCompIncrement();
     int ddy = dy/2;
+
+    rc = rect();
+    rc.adjust(p.fontMetrics().width("DM")+getPinSize()/2,0,-1,-1);
+    p.drawLine(rc.topLeft(),rc.bottomLeft());
+
     p.drawLine(0,4*dy+ddy+getPinSize()/2,rc.left(),4*dy+ddy+getPinSize()/2);
 
     rc = rect();
-    rc.adjust(width()-p.fontMetrics().width("->")-getPinSize()/2,0,-1,-1);
+    rc.adjust(width()-p.fontMetrics().width("DM")-getPinSize()/2,0,-1,-1);
     p.drawLine(rc.topLeft(),rc.bottomLeft());
+
+    p.drawLine(rc.left(),7*dy+ddy+getPinSize()/2,rc.right(),7*dy+ddy+getPinSize()/2);
 
     rc = rect();
     rc.adjust(0,0,-1,0);
     rc.setHeight(getDCompIncrement()*3);
-    p.drawText(rc,Qt::AlignCenter,"RG");
+    p.drawText(rc,Qt::AlignCenter,"CT");
 
     p.setFont(of);
     p.setBrush(ob);

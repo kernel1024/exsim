@@ -154,7 +154,10 @@ void QCPBeeper::paintEvent(QPaintEvent *)
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     p.setFont(n);
-    p.drawText(rc,Qt::AlignCenter,tr("SND: %1 Hz").arg(freq));
+    if (freq>=1000.0)
+        p.drawText(rc,Qt::AlignCenter,tr("SND: %1 kHz").arg(freq/1000,1,'f',1));
+    else
+        p.drawText(rc,Qt::AlignCenter,tr("SND: %1 Hz").arg(freq));
 
     p.setFont(of);
     p.setBrush(ob);

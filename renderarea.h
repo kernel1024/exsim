@@ -9,7 +9,7 @@ class QRenderArea : public QFrame
 {
     Q_OBJECT
 public:
-    QRenderArea(QWidget *parent = 0, QScrollArea *aScroller=0);
+    QRenderArea(QWidget *parent = 0, QScrollArea *aScroller=0, int aLcdFontIdx = -1);
     
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
@@ -27,6 +27,8 @@ public:
     bool cbBuilding;
     QPoint cbCurrent;
     int zoom;
+
+    QFont lcdFont;
     
     void initConnBuilder(const int aType, int aPinNum, QCPInput* aInput, QCPOutput* aOutput);
     void repaintConn();
