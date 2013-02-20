@@ -348,10 +348,10 @@ void QCPBase::applyInputState(QCPInput *input, bool state)
     doLogic();
 }
 
-QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner)
+QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName)
     : QObject(parent)
 {
-    pinName=QString();
+    pinName=aPinName;
     inversed=false;
     toPin=-1;
     toCmp=0;
@@ -404,10 +404,10 @@ void QCPOutput::applyState()
     oldState = state;
 }
 
-QCPInput::QCPInput(QObject * parent, QCPBase * aOwner)
+QCPInput::QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName)
     : QObject(parent)
 {
-    pinName=QString();
+    pinName=aPinName;
     inversed=false;
     fromPin=-1;
     fromCmp=0;

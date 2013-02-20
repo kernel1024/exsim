@@ -1,7 +1,7 @@
 #ifndef CPTRIGGER_H
 #define CPTRIGGER_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 
 class QCPTrigger : public QCPBase
 {

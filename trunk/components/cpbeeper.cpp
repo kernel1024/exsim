@@ -25,6 +25,15 @@ QCPBeeper::QCPBeeper(QWidget *parent, QRenderArea *aOwner) :
 
 QCPBeeper::~QCPBeeper()
 {
+    if (alPlaying) {
+        alSourceStop(alsrc);
+        if (!al_check_error("alSourceStop"))
+            alError=true;
+        alDeleteSources(1,&alsrc);
+        if (!al_check_error("alDeleteSources"))
+            alError=true;
+        alsrc=0;
+    }
     fInputs.clear();
     delete fInp;
 }

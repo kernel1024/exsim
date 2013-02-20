@@ -13,5 +13,6 @@
         <file>images/beeper.png</file>
         <file>images/generator.png</file>
         <file>images/trigger.png</file>
+        <file>images/register.png</file>
     </qresource>
 </RCC>
