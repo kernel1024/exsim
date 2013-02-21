@@ -167,7 +167,7 @@ void QCPBase::zoomChanged()
     resize(minimumSizeHint());
 }
 
-int QCPBase::getPinSize()
+int QCPBase::getPinSize() const
 {
     return 8*zoom()/100;
 }
@@ -232,15 +232,15 @@ qint32 QCPBase::calcState()
 
 int QCPBase::getDCompHeight(const int divCount) const
 {
-    int dy = QApplication::fontMetrics().height()+4;
+    int dy = getDCompIncrement();
     int vsz = (dy * (qMax(fInputs.count(),fOutputs.count())+1)) + ((dy * divCount)/2);
-    if (vsz<80) vsz = 80;
+    if (vsz<5) vsz = 5;
     return vsz;
 }
 
 int QCPBase::getDCompIncrement() const
 {
-    return QApplication::fontMetrics().height()+4;
+    return ((QApplication::fontMetrics().height()+4)*zoom()/100);
 }
 
 void QCPBase::mouseMoveEvent(QMouseEvent * event)

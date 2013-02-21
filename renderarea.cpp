@@ -13,6 +13,12 @@
 #include "components/cpencoder.h"
 #include "components/cpcounter.h"
 #include "components/cpdigit.h"
+#include "components/cpmux.h"
+#include "components/cpsum.h"
+#include "components/cpgnd.h"
+#include "components/cpvcc.h"
+#include "components/cpcomparator.h"
+#include "components/cprndgen.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
@@ -40,8 +46,11 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
 
     lcdFont=QApplication::font();
     if (aLcdFontIdx>=0) {
-        QString font = QFontDatabase::applicationFontFamilies(aLcdFontIdx).first();
-        lcdFont=QFont(font);
+        if (!QFontDatabase::applicationFontFamilies(aLcdFontIdx).isEmpty()) {
+            QString font = QFontDatabase::applicationFontFamilies(aLcdFontIdx).first();
+            if (!font.isEmpty())
+                lcdFont=QFont(font);
+        }
     }
 
 }
@@ -371,7 +380,7 @@ void QRenderArea::deleteComponents()
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
 {
-    // TODO: Comparator, RAM, programmable sound generator, random generator, mux, sum, gnd and vcc busses
+    // TODO: RAM, programmable sound generator
 
     if (className=="QCPButton")      return new QCPButton(this,this);
     else if (className=="QCPLed")      return new QCPLed(this,this);
@@ -385,5 +394,11 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPEncoder")      return new QCPEncoder(this,this);
     else if (className=="QCPCounter")      return new QCPCounter(this,this);
     else if (className=="QCPDigit")      return new QCPDigit(this,this);
+    else if (className=="QCPMux")      return new QCPMux(this,this);
+    else if (className=="QCPSum")      return new QCPSum(this,this);
+    else if (className=="QCPGnd")      return new QCPGnd(this,this);
+    else if (className=="QCPVcc")      return new QCPVcc(this,this);
+    else if (className=="QCPComparator")      return new QCPComparator(this,this);
+    else if (className=="QCPRndGen")      return new QCPRndGen(this,this);
     else return NULL;
 }

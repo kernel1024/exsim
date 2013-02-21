@@ -76,6 +76,8 @@ void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
     for(int i=0;i<icnt;i++)
         fInputs << new QCPInput(this,this);
 
+    fOut->state = (lt==LT_NOT);
+
     resize(minimumSizeHint());
     update();
 }

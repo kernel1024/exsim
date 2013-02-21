@@ -46,13 +46,13 @@ public:
     void postLoadBind();
     void doLogic();
     void redrawPins(QPainter & painter);
-    void zoomChanged();
-    int getPinSize();
+    virtual void zoomChanged();
+    int getPinSize() const;
 
     virtual void readFromStream( QDataStream & stream );
     virtual void storeToStream( QDataStream & stream );
-    virtual bool canConnectOut(QCPBase * toFilter);
-    virtual bool canConnectIn(QCPBase * toFilter);
+    virtual bool canConnectOut(QCPBase * toComponent);
+    virtual bool canConnectIn(QCPBase * toComponent);
 
     QRenderArea *cpOwner;
     QList<QCPInput*> fInputs;

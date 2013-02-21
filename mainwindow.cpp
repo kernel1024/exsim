@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget * parent) :
     modified=false;
     updateStatus();
 
-    srand(clock());
+    qsrand(clock());
 
     centerWindow();
 }

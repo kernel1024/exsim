@@ -65,18 +65,27 @@
      <string>Components</string>
     </property>
     <addaction name="actionButton"/>
+    <addaction name="actionGround"/>
+    <addaction name="actionVcc"/>
+    <addaction name="separator"/>
     <addaction name="actionLED"/>
     <addaction name="actionDigital_indicator"/>
-    <addaction name="actionOutputs_extender"/>
-    <addaction name="actionLogic"/>
-    <addaction name="actionTrigger"/>
+    <addaction name="separator"/>
     <addaction name="actionOscillator"/>
     <addaction name="actionBeeper"/>
+    <addaction name="actionOutputs_extender"/>
+    <addaction name="separator"/>
+    <addaction name="actionLogic"/>
+    <addaction name="actionTrigger"/>
     <addaction name="separator"/>
     <addaction name="actionRegister"/>
     <addaction name="actionDecoder"/>
     <addaction name="actionEncoder"/>
     <addaction name="actionCounter"/>
+    <addaction name="actionMultiplexer"/>
+    <addaction name="actionAdder"/>
+    <addaction name="actionComparator"/>
+    <addaction name="actionRandom_generator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -337,6 +346,59 @@
    </property>
    <property name="whatsThis">
     <string>QCPDigit</string>
+   </property>
+  </action>
+  <action name="actionMux">
+   <property name="text">
+    <string>Mux</string>
+   </property>
+  </action>
+  <action name="actionMultiplexer">
+   <property name="text">
+    <string>Multiplexer</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPMux</string>
+   </property>
+  </action>
+  <action name="actionAdder">
+   <property name="text">
+    <string>Adder</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPSum</string>
+   </property>
+  </action>
+  <action name="actionGround">
+   <property name="text">
+    <string>Ground</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPGnd</string>
+   </property>
+  </action>
+  <action name="actionVcc">
+   <property name="text">
+    <string>Vcc</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPVcc</string>
+   </property>
+  </action>
+  <action name="actionComparator">
+   <property name="text">
+    <string>Comparator</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPComparator</string>
+   </property>
+  </action>
+  <action name="actionRandom_generator">
+   <property name="text">
+    <string>Random generator</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPRndGen</string>
    </property>
   </action>
  </widget>

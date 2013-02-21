@@ -1,75 +1,68 @@
-#include "cpencoder.h"
+#include "cprndgen.h"
 
-QCPEncoder::QCPEncoder(QWidget *parent, QRenderArea *aOwner) :
+QCPRndGen::QCPRndGen(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     state = 0;
+    savedC = false;
 
     f1Out = new QCPOutput(this,this,"1"); fOutputs.append(f1Out);
     f2Out = new QCPOutput(this,this,"2"); fOutputs.append(f2Out);
     f4Out = new QCPOutput(this,this,"4"); fOutputs.append(f4Out);
+    f8Out = new QCPOutput(this,this,"8"); fOutputs.append(f8Out);
 
-    f1Inp = new QCPInput(this,this,"1");  fInputs.append(f1Inp);
-    f2Inp = new QCPInput(this,this,"2");  fInputs.append(f2Inp);
-    f3Inp = new QCPInput(this,this,"3");  fInputs.append(f3Inp);
-    f4Inp = new QCPInput(this,this,"4");  fInputs.append(f4Inp);
-    f5Inp = new QCPInput(this,this,"5");  fInputs.append(f5Inp);
-    f6Inp = new QCPInput(this,this,"6");  fInputs.append(f6Inp);
-    f7Inp = new QCPInput(this,this,"7");  fInputs.append(f7Inp);
+    fCInp = new QCPInput(this,this,"C"); fInputs.append(fCInp);
+    fRInp = new QCPInput(this,this,"R"); fInputs.append(fRInp);
 }
 
-QCPEncoder::~QCPEncoder()
+QCPRndGen::~QCPRndGen()
 {
     fInputs.clear();
     fOutputs.clear();
     delete f1Out;
     delete f2Out;
     delete f4Out;
-    delete f1Inp;
-    delete f2Inp;
-    delete f3Inp;
-    delete f4Inp;
-    delete f5Inp;
-    delete f6Inp;
-    delete f7Inp;
+    delete f8Out;
+    delete fCInp;
+    delete fRInp;
 }
 
-QSize QCPEncoder::minimumSizeHint() const
+QSize QCPRndGen::minimumSizeHint() const
 {
     return QSize(100*zoom()/100,getDCompHeight(0));
 }
 
-void QCPEncoder::realignPins(QPainter &)
+void QCPRndGen::realignPins(QPainter &)
 {
     int dy = getDCompIncrement();
-    f1Inp->relCoord = QPoint(getPinSize()/2,dy);
+    int ddy = dy/2;
     f1Out->relCoord = QPoint(width()-getPinSize()/2,dy);
-    f2Inp->relCoord = QPoint(getPinSize()/2,2*dy);
     f2Out->relCoord = QPoint(width()-getPinSize()/2,2*dy);
-    f3Inp->relCoord = QPoint(getPinSize()/2,3*dy);
     f4Out->relCoord = QPoint(width()-getPinSize()/2,3*dy);
-    f4Inp->relCoord = QPoint(getPinSize()/2,4*dy);
-    f5Inp->relCoord = QPoint(getPinSize()/2,5*dy);
-    f6Inp->relCoord = QPoint(getPinSize()/2,6*dy);
-    f7Inp->relCoord = QPoint(getPinSize()/2,7*dy);
+    f8Out->relCoord = QPoint(width()-getPinSize()/2,4*dy);
+    fCInp->relCoord = QPoint(getPinSize()/2,dy+ddy);
+    fRInp->relCoord = QPoint(getPinSize()/2,3*dy+ddy);
 }
 
-void QCPEncoder::doLogicPrivate()
+void QCPRndGen::doLogicPrivate()
 {
-    qint8 di = -1;
-    for(int i=fInputs.count()-1;i>=0;i--)
-        if (fInputs.at(i)->state) {
-            di = i;
-            break;
-        }
-    state = di+1;
+    bool C = fCInp->state;
+    bool R = fRInp->state;
+
+    if (R) state = 0;
+    else if (!C && savedC) {
+        state = qrand() & 0xf;
+    }
+
+    savedC = C;
 
     f1Out->state = ((state & 0x1) > 0);
     f2Out->state = ((state & 0x2) > 0);
     f4Out->state = ((state & 0x4) > 0);
+    f8Out->state = ((state & 0x8) > 0);
 }
 
-void QCPEncoder::paintEvent(QPaintEvent *)
+void QCPRndGen::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QPen op=p.pen();
@@ -103,7 +96,7 @@ void QCPEncoder::paintEvent(QPaintEvent *)
     rc.setHeight(getDCompIncrement()*3);
     n.setBold(false);
     p.setFont(n);
-    p.drawText(rc,Qt::AlignCenter,"CD");
+    p.drawText(rc,Qt::AlignCenter,"RND");
 
     p.setFont(of);
     p.setBrush(ob);
