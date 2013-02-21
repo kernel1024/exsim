@@ -20,6 +20,7 @@
 #include "components/cpcomparator.h"
 #include "components/cprndgen.h"
 #include "components/cpram.h"
+#include "components/cpsynth.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
@@ -381,8 +382,6 @@ void QRenderArea::deleteComponents()
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
 {
-    // TODO: programmable sound generator
-
     if (className=="QCPButton")      return new QCPButton(this,this);
     else if (className=="QCPLed")      return new QCPLed(this,this);
     else if (className=="QCPLogic")      return new QCPLogic(this,this);
@@ -402,5 +401,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPComparator")      return new QCPComparator(this,this);
     else if (className=="QCPRndGen")      return new QCPRndGen(this,this);
     else if (className=="QCPRAM")      return new QCPRAM(this,this);
+    else if (className=="QCPSynth")      return new QCPSynth(this,this);
     else return NULL;
 }

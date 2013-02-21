@@ -6,7 +6,6 @@ QCPDecoder::QCPDecoder(QWidget *parent, QRenderArea *aOwner) :
     state = 0;
 
     f1Out = new QCPOutput(this,this,"0"); fOutputs.append(f1Out);
-    f1Out->state = true;
     f2Out = new QCPOutput(this,this,"1"); fOutputs.append(f2Out);
     f3Out = new QCPOutput(this,this,"2"); fOutputs.append(f3Out);
     f4Out = new QCPOutput(this,this,"3"); fOutputs.append(f4Out);

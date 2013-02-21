@@ -73,6 +73,7 @@
     <addaction name="separator"/>
     <addaction name="actionOscillator"/>
     <addaction name="actionBeeper"/>
+    <addaction name="actionSynthesizer"/>
     <addaction name="actionOutputs_extender"/>
     <addaction name="separator"/>
     <addaction name="actionLogic"/>
@@ -452,6 +453,18 @@
    </property>
    <property name="whatsThis">
     <string>QCPRAM</string>
+   </property>
+  </action>
+  <action name="actionSynthesizer">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/synth.png</normaloff>:/images/synth.png</iconset>
+   </property>
+   <property name="text">
+    <string>Synthesizer</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPSynth</string>
    </property>
   </action>
  </widget>
