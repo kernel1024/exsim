@@ -15,5 +15,16 @@
         <file>images/trigger.png</file>
         <file>images/register.png</file>
         <file>images/digital.ttf</file>
+        <file>images/decoder.png</file>
+        <file>images/digit.png</file>
+        <file>images/gnd.png</file>
+        <file>images/vcc.png</file>
+        <file>images/comparator.png</file>
+        <file>images/counter.png</file>
+        <file>images/encoder.png</file>
+        <file>images/mux.png</file>
+        <file>images/ram.png</file>
+        <file>images/rnd.png</file>
+        <file>images/sum.png</file>
     </qresource>
 </RCC>

@@ -405,8 +405,11 @@ void QCPOutput::postLoadBind()
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
     if (b==0)
         throw "Binding error. Error in loading components from file.";
-    else
+    else {
         toCmp=b;
+        oldState = !state;
+        applyState();
+    }
 }
 
 void QCPOutput::applyState()

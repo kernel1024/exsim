@@ -24,7 +24,8 @@ HEADERS       = components/cpbase.h \
     components/cpgnd.h \
     components/cpvcc.h \
     components/cpcomparator.h \
-    components/cprndgen.h
+    components/cprndgen.h \
+    components/cpram.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -46,7 +47,8 @@ SOURCES       = main.cpp \
     components/cpgnd.cpp \
     components/cpvcc.cpp \
     components/cpcomparator.cpp \
-    components/cprndgen.cpp
+    components/cprndgen.cpp \
+    components/cpram.cpp
 
 RESOURCES     = exsim.qrc
 

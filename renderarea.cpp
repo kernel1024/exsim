@@ -19,6 +19,7 @@
 #include "components/cpvcc.h"
 #include "components/cpcomparator.h"
 #include "components/cprndgen.h"
+#include "components/cpram.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
@@ -380,7 +381,7 @@ void QRenderArea::deleteComponents()
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
 {
-    // TODO: RAM, programmable sound generator
+    // TODO: programmable sound generator
 
     if (className=="QCPButton")      return new QCPButton(this,this);
     else if (className=="QCPLed")      return new QCPLed(this,this);
@@ -400,5 +401,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPVcc")      return new QCPVcc(this,this);
     else if (className=="QCPComparator")      return new QCPComparator(this,this);
     else if (className=="QCPRndGen")      return new QCPRndGen(this,this);
+    else if (className=="QCPRAM")      return new QCPRAM(this,this);
     else return NULL;
 }

@@ -86,6 +86,7 @@
     <addaction name="actionAdder"/>
     <addaction name="actionComparator"/>
     <addaction name="actionRandom_generator"/>
+    <addaction name="actionRAM"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -317,6 +318,10 @@
    </property>
   </action>
   <action name="actionDecoder">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/decoder.png</normaloff>:/images/decoder.png</iconset>
+   </property>
    <property name="text">
     <string>Decoder</string>
    </property>
@@ -325,6 +330,10 @@
    </property>
   </action>
   <action name="actionEncoder">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/encoder.png</normaloff>:/images/encoder.png</iconset>
+   </property>
    <property name="text">
     <string>Encoder</string>
    </property>
@@ -333,6 +342,10 @@
    </property>
   </action>
   <action name="actionCounter">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/counter.png</normaloff>:/images/counter.png</iconset>
+   </property>
    <property name="text">
     <string>Counter</string>
    </property>
@@ -341,6 +354,10 @@
    </property>
   </action>
   <action name="actionDigital_indicator">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/digit.png</normaloff>:/images/digit.png</iconset>
+   </property>
    <property name="text">
     <string>Digital indicator</string>
    </property>
@@ -354,6 +371,10 @@
    </property>
   </action>
   <action name="actionMultiplexer">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/mux.png</normaloff>:/images/mux.png</iconset>
+   </property>
    <property name="text">
     <string>Multiplexer</string>
    </property>
@@ -362,6 +383,10 @@
    </property>
   </action>
   <action name="actionAdder">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/sum.png</normaloff>:/images/sum.png</iconset>
+   </property>
    <property name="text">
     <string>Adder</string>
    </property>
@@ -370,6 +395,10 @@
    </property>
   </action>
   <action name="actionGround">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/gnd.png</normaloff>:/images/gnd.png</iconset>
+   </property>
    <property name="text">
     <string>Ground</string>
    </property>
@@ -378,6 +407,10 @@
    </property>
   </action>
   <action name="actionVcc">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/vcc.png</normaloff>:/images/vcc.png</iconset>
+   </property>
    <property name="text">
     <string>Vcc</string>
    </property>
@@ -386,6 +419,10 @@
    </property>
   </action>
   <action name="actionComparator">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/comparator.png</normaloff>:/images/comparator.png</iconset>
+   </property>
    <property name="text">
     <string>Comparator</string>
    </property>
@@ -394,11 +431,27 @@
    </property>
   </action>
   <action name="actionRandom_generator">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/rnd.png</normaloff>:/images/rnd.png</iconset>
+   </property>
    <property name="text">
     <string>Random generator</string>
    </property>
    <property name="whatsThis">
     <string>QCPRndGen</string>
+   </property>
+  </action>
+  <action name="actionRAM">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/ram.png</normaloff>:/images/ram.png</iconset>
+   </property>
+   <property name="text">
+    <string>RAM</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPRAM</string>
    </property>
   </action>
  </widget>
