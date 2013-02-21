@@ -26,5 +26,6 @@
         <file>images/ram.png</file>
         <file>images/rnd.png</file>
         <file>images/sum.png</file>
+        <file>images/synth.png</file>
     </qresource>
 </RCC>
