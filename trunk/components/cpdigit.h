@@ -18,6 +18,8 @@ public:
     void readFromStream(QDataStream &stream);
     void storeToStream(QDataStream &stream);
 
+    void zoomChanged();
+
 protected:
     QColor fontColor;
     int lcdFontSize;
@@ -25,6 +27,7 @@ protected:
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);
+    void calcDigitSize();
 
 public slots:
     void chooseColor();

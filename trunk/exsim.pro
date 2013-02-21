@@ -18,7 +18,13 @@ HEADERS       = components/cpbase.h \
     components/cpdecoder.h \
     components/cpencoder.h \
     components/cpcounter.h \
-    components/cpdigit.h
+    components/cpdigit.h \
+    components/cpmux.h \
+    components/cpsum.h \
+    components/cpgnd.h \
+    components/cpvcc.h \
+    components/cpcomparator.h \
+    components/cprndgen.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -34,7 +40,13 @@ SOURCES       = main.cpp \
     components/cpdecoder.cpp \
     components/cpencoder.cpp \
     components/cpcounter.cpp \
-    components/cpdigit.cpp
+    components/cpdigit.cpp \
+    components/cpmux.cpp \
+    components/cpsum.cpp \
+    components/cpgnd.cpp \
+    components/cpvcc.cpp \
+    components/cpcomparator.cpp \
+    components/cprndgen.cpp
 
 RESOURCES     = exsim.qrc
 

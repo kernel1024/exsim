@@ -9,15 +9,7 @@ QCPDigit::QCPDigit(QWidget *parent, QRenderArea *aOwner) :
     f2Inp = new QCPInput(this,this,"2"); fInputs.append(f2Inp);
     f4Inp = new QCPInput(this,this,"4"); fInputs.append(f4Inp);
     f8Inp = new QCPInput(this,this,"8"); fInputs.append(f8Inp);
-    int h = 3*minimumSizeHint().height()/4;
-    lcdFontSize=cpOwner->lcdFont.pointSize();
-    for(int i=0;i<100;i++) {
-        QFont n=cpOwner->lcdFont;
-        n.setPointSize(cpOwner->lcdFont.pointSize()+i);
-        QFontMetrics fm(n);
-        if (fm.height()>h) break;
-        lcdFontSize=cpOwner->lcdFont.pointSize()+i;
-    }
+    calcDigitSize();
 }
 
 QCPDigit::~QCPDigit()
@@ -29,12 +21,29 @@ QCPDigit::~QCPDigit()
     delete f8Inp;
 }
 
+void QCPDigit::calcDigitSize()
+{
+    int h = 3*minimumSizeHint().height()/4;
+    lcdFontSize=cpOwner->lcdFont.pointSize();
+    for(int i=0;i<100;i++) {
+        QFont n=cpOwner->lcdFont;
+        n.setPointSize(cpOwner->lcdFont.pointSize()+i);
+        QFontMetrics fm(n);
+        if (fm.height()>h) break;
+        lcdFontSize=cpOwner->lcdFont.pointSize()+i;
+    }
+}
+
+void QCPDigit::zoomChanged()
+{
+    QCPBase::zoomChanged();
+    calcDigitSize();
+    update();
+}
+
 QSize QCPDigit::minimumSizeHint() const
 {
-    int h = getDCompHeight(0);
-    if (h<100) h=100;
-    return QSize(80*zoom()/100,
-                 h*zoom()/100);
+    return QSize(80*zoom()/100, getDCompHeight(0));
 }
 
 void QCPDigit::readFromStream(QDataStream &stream)
@@ -82,12 +91,18 @@ void QCPDigit::paintEvent(QPaintEvent *)
 
     redrawPins(p);
 
+    QFont n=QApplication::font();
+    p.setPen(QPen(Qt::black));
+    n.setPointSize((n.pointSize()+4)*zoom()/100);
+    n.setBold(true);
+    p.setFont(n);
+
     rc = rect();
-    rc.adjust(p.fontMetrics().width("DM")+getPinSize()/2,0,-1,-1);
+    rc.adjust(p.fontMetrics().width("8")+getPinSize(),0,-1,-1);
     p.setBrush(QBrush(Qt::black,Qt::SolidPattern));
     p.drawRect(rc);
 
-    QFont n = cpOwner->lcdFont;
+    n = cpOwner->lcdFont;
     p.setPen(QPen(fontColor));
     n.setPointSize(lcdFontSize);
     p.setFont(n);

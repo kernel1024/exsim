@@ -43,7 +43,7 @@ QCPRegister::~QCPRegister()
 
 QSize QCPRegister::minimumSizeHint() const
 {
-    return QSize(100*zoom()/100,getDCompHeight(1)*zoom()/100);
+    return QSize(100*zoom()/100,getDCompHeight(1));
 }
 
 void QCPRegister::realignPins(QPainter &)
@@ -112,6 +112,7 @@ void QCPRegister::paintEvent(QPaintEvent *)
     QFont n=QApplication::font();
     p.setPen(QPen(Qt::black));
     n.setPointSize((n.pointSize()+4)*zoom()/100);
+    n.setBold(true);
     p.setFont(n);
 
     rc = rect();
@@ -129,6 +130,8 @@ void QCPRegister::paintEvent(QPaintEvent *)
     rc = rect();
     rc.adjust(0,0,-1,0);
     rc.setHeight(getDCompIncrement()*3);
+    n.setBold(false);
+    p.setFont(n);
     p.drawText(rc,Qt::AlignCenter,"RG");
 
     p.setFont(of);

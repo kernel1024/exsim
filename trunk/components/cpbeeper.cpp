@@ -94,8 +94,11 @@ void QCPBeeper::updateFreq(float aFreq)
 
 QSize QCPBeeper::minimumSizeHint() const
 {
-    return QSize(5*QApplication::fontMetrics().width("OSC") * zoom()/100,
-                 2*QApplication::fontMetrics().height()     * zoom()/100);
+    QFont n=QApplication::font();
+    n.setPointSize((n.pointSize()) * zoom()/100);
+    QFontMetrics fm(n);
+    return QSize((fm.width(" SND: xxx Hz Q")+2*getPinSize()) * zoom()/100,
+                 2*fm.height()     * zoom()/100);
 }
 
 void QCPBeeper::readFromStream(QDataStream &stream)

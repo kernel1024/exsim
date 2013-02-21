@@ -4,8 +4,7 @@
 QCPGen::QCPGen(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
-    fOut = new QCPOutput(this,this);
-    fOut->pinName = "Q";
+    fOut = new QCPOutput(this,this,"Q");
     fOutputs.append(fOut);
     genState = false;
     connect(&mainTimer,SIGNAL(timeout()),this,SLOT(timeImpulse()));
@@ -20,8 +19,11 @@ QCPGen::~QCPGen()
 
 QSize QCPGen::minimumSizeHint() const
 {
-    return QSize(4*QApplication::fontMetrics().width("OSC") * zoom()/100,
-                 2*QApplication::fontMetrics().height()     * zoom()/100);
+    QFont n=QApplication::font();
+    n.setPointSize((n.pointSize()) * zoom()/100);
+    QFontMetrics fm(n);
+    return QSize((fm.width(" OSC: xxx ms Q")+2*getPinSize()) * zoom()/100,
+                 2*fm.height()     * zoom()/100);
 }
 
 void QCPGen::readFromStream(QDataStream &stream)
