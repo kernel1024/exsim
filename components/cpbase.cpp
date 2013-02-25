@@ -249,9 +249,9 @@ bool QCPBase::isStateChanged()
     return (calcState()!=savedState);
 }
 
-qint32 QCPBase::calcState()
+qint64 QCPBase::calcState()
 {
-    qint32 a = 0;
+    qint64 a = 0;
     for(int i=0;i<fInputs.count();i++)
         if (fInputs.at(i)->state)
             a = a | (1 << i);
@@ -381,11 +381,13 @@ void QCPBase::doLogic()
 void QCPBase::applyInputState(QCPInput *input, bool state)
 {
     if (input==NULL) return;
-    int idx = fInputs.indexOf(input);
-    if (idx<0) return;
-    fInputs[idx]->state = state;
-    if (fInputs[idx]->oldState == state) return;
-    fInputs[idx]->oldState = state;
+    if (input->fromCmp!=NULL) {
+        QUuid id = input->fromCmp->fOutputs[input->fromPin]->groupId;
+        cpOwner->pendingLogicLinks.removeOne(id);
+    }
+    input->state = state;
+    if (input->oldState == state) return;
+    input->oldState = state;
     doLogic();
 }
 
@@ -445,8 +447,18 @@ void QCPOutput::postLoadBind()
 void QCPOutput::applyState()
 {
     if (state==oldState) return;
-    if (toCmp!=NULL)
-        toCmp->fInputs[toPin]->applyState(state);
+    if (toCmp!=NULL) {
+        if (!groupId.isNull()) {
+            if (ownerCmp->cpOwner->pendingLogicLinks.contains(groupId)) {
+                toCmp->fInputs[toPin]->state = state;
+                toCmp->fInputs[toPin]->oldState = state;
+            } else {
+                ownerCmp->cpOwner->pendingLogicLinks.append(groupId);
+                toCmp->fInputs[toPin]->applyState(state);
+            }
+        } else
+            toCmp->fInputs[toPin]->applyState(state);
+    }
     oldState = state;
 }
 

@@ -15,6 +15,8 @@ public:
     QSize sizeHint() const;
     
     QScrollArea *scroller;
+
+    QList<QUuid> pendingLogicLinks;
     
     bool resReading, rectLinks;
     QStringList nodeLocks;

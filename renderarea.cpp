@@ -26,6 +26,7 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
     : QFrame(parent)
 {
     scroller=aScroller;
+    pendingLogicLinks.clear();
 
     resReading=false;
     rectLinks=true;
@@ -156,7 +157,7 @@ void QRenderArea::paintEvent ( QPaintEvent * )
             c3=QPoint((c1.x()+c2.x())/2,c1.y());
             c4=QPoint(c3.x(),c2.y());
 
-            p.drawText(c3,aout->groupId.toString());
+            //p.drawText(c3,aout->groupId.toString());
 
             if (rectLinks)
             {
@@ -302,6 +303,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
 
 void QRenderArea::postLoadBinding()
 {
+    pendingLogicLinks.clear();
     for (int i=0;i<children().count();i++)
     {
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
