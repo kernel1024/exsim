@@ -5,6 +5,7 @@ QCPButton::QCPButton(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     pressed = false;
+    savedClick = QPoint();
     fOut = new QCPOutput(this,this);
     fOutputs.append(fOut);
 }
@@ -33,15 +34,23 @@ void QCPButton::doLogicPrivate()
 
 void QCPButton::mousePressEvent(QMouseEvent *event)
 {
+    if (event->button()==Qt::LeftButton)
+        savedClick=mapToGlobal(event->pos());
+    QCPBase::mousePressEvent(event);
+}
+
+void QCPButton::mouseReleaseEvent(QMouseEvent *event)
+{
     if (event->button()==Qt::LeftButton) {
         QRect rc = rect();
         rc.adjust(getPinSize(),getPinSize(),-2*getPinSize(),-getPinSize());
-        if (rc.contains(event->pos())) {
+        QPoint dp = mapToGlobal(event->pos()) - savedClick;
+        if (rc.contains(event->pos()) && (dp.manhattanLength()<3)) {
             pressed = !pressed;
             doLogic();
         }
     }
-    QCPBase::mousePressEvent(event);
+    QCPBase::mouseReleaseEvent(event);
 }
 
 void QCPButton::paintEvent(QPaintEvent *)

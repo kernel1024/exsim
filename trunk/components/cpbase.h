@@ -22,9 +22,9 @@ private:
 protected:
     float oldZoom;
     int zoom() const;
-    qint32 savedState;
+    qint64 savedState;
     bool isStateChanged();
-    qint32 calcState();
+    qint64 calcState();
 
     virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;

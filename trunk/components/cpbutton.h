@@ -16,8 +16,10 @@ public:
 protected:
     bool oldPressed;
     bool pressed;
+    QPoint savedClick;
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void realignPins(QPainter & painter);
     void doLogicPrivate();
 
