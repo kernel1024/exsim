@@ -133,8 +133,12 @@ void QRenderArea::paintEvent ( QPaintEvent * )
     QCPInput* ainp;
     QPoint c1,c2,c3,c4;
 
+    QFont nf=QApplication::font();
+    nf.setPointSize(8);
+    QFont of=p.font();
     QPen op=p.pen();
     p.setPen(QPen(Qt::red));
+    p.setFont(nf);
     cbConnCount=0;
     for (int i=0;i<children().count();i++)
     {
@@ -151,6 +155,8 @@ void QRenderArea::paintEvent ( QPaintEvent * )
             c2=aout->toCmp->pos()+ainp->relCoord;
             c3=QPoint((c1.x()+c2.x())/2,c1.y());
             c4=QPoint(c3.x(),c2.y());
+
+            p.drawText(c3,aout->groupId.toString());
 
             if (rectLinks)
             {
@@ -174,6 +180,7 @@ void QRenderArea::paintEvent ( QPaintEvent * )
         p.drawLine(c1,c2);
     }
     p.setPen(op);
+    p.setFont(of);
 }
 
 void QRenderArea::keyPressEvent(QKeyEvent *event)
@@ -210,12 +217,14 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
             }
             aOutput->toCmp=0;
             aOutput->toPin=-1;
+            aOutput->ownerCmp->regroupOutputs();
         }
         // if our input (from that we making connection) is connected - then disconnect it now
         if ((cbInput->fromPin!=-1) && (cbInput->fromCmp!=0))
         {
             cbInput->fromCmp->fOutputs[cbInput->fromPin]->toCmp=0;
             cbInput->fromCmp->fOutputs[cbInput->fromPin]->toPin=-1;
+            cbInput->fromCmp->regroupOutputs();
         }
         cbInput->fromCmp=0;
         cbInput->fromPin=-1;
@@ -232,6 +241,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
             {
                 aInput->fromCmp->fOutputs[aInput->fromPin]->toCmp=0;
                 aInput->fromCmp->fOutputs[aInput->fromPin]->toPin=-1;
+                aInput->fromCmp->regroupOutputs();
             }
             aInput->fromCmp=0;
             aInput->fromPin=-1;
@@ -245,6 +255,7 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
         }
         cbOutput->toCmp=0;
         cbOutput->toPin=-1;
+        cbOutput->ownerCmp->regroupOutputs();
     }
     // if this is simple deletion or incorrect route (in-in, out-out), then delete it
     if ((aNone) || (aType==cbType))
@@ -275,12 +286,14 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
         cbInput->fromPin=aPinNum;
         aOutput->toCmp=cbInput->ownerCmp;
         aOutput->toPin=cbPinNum;
+        aOutput->ownerCmp->regroupOutputs();
         cbInput->applyState(aOutput->state);
     } else {
         cbOutput->toCmp=aInput->ownerCmp;
         cbOutput->toPin=aPinNum;
         aInput->fromCmp=cbOutput->ownerCmp;
         aInput->fromPin=cbPinNum;
+        cbOutput->ownerCmp->regroupOutputs();
         aInput->applyState(cbOutput->state);
     }
     cbBuilding=false;
