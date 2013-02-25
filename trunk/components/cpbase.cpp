@@ -178,6 +178,34 @@ void QCPBase::postLoadBind()
         fInputs[i]->postLoadBind();
     for (int i=0;i<fOutputs.count();i++)
         fOutputs[i]->postLoadBind();
+    regroupOutputs();
+}
+
+void QCPBase::regroupOutputs()
+{
+    for (int i=0;i<fOutputs.count();i++)
+        fOutputs[i]->groupId=QUuid();
+
+    if (!fOutputs.isEmpty()) {
+        if (fOutputs[0]->toCmp!=NULL)
+            fOutputs[0]->groupId=QUuid::createUuid();
+        for (int i=0;i<fOutputs.count();i++) {
+            if (fOutputs[i]->toCmp==NULL) continue;
+
+            for (int j=0;j<fOutputs.count();j++) {
+                if (j==i) continue;
+                else {
+                    if ((fOutputs[i]->toCmp==fOutputs[j]->toCmp) &&
+                            (!fOutputs[j]->groupId.isNull())) {
+                        fOutputs[i]->groupId=fOutputs[j]->groupId;
+                        break;
+                    }
+                }
+            }
+            if (fOutputs[i]->groupId.isNull())
+                fOutputs[i]->groupId=QUuid::createUuid();
+        }
+    }
 }
 
 void QCPBase::checkRecycle()
@@ -372,6 +400,7 @@ QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName)
     oldState=false;
     relCoord=QPoint(0,0);
     ownerCmp=aOwner;
+    groupId=QUuid();
 }
 
 void QCPOutput::readFromStream( QDataStream & stream )
@@ -385,6 +414,7 @@ void QCPOutput::readFromStream( QDataStream & stream )
         ffLogic=q;
     else
         ffLogic="";
+    groupId=QUuid();
 }
 
 void QCPOutput::storeToStream( QDataStream & stream )

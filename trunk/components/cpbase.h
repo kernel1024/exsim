@@ -36,7 +36,7 @@ protected:
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void paintEvent(QPaintEvent *event);
-    
+
 public:
     QCPBase(QWidget *parent, QRenderArea *aOwner);
 
@@ -53,6 +53,7 @@ public:
     virtual void storeToStream( QDataStream & stream );
     virtual bool canConnectOut(QCPBase * toComponent);
     virtual bool canConnectIn(QCPBase * toComponent);
+    void regroupOutputs();
 
     QRenderArea *cpOwner;
     QList<QCPInput*> fInputs;
@@ -84,6 +85,8 @@ public:
     QString pinName;
     bool inversed;
     QString ffLogic;
+
+    QUuid groupId;
 
     bool state;
     bool oldState;
