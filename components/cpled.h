@@ -1,7 +1,7 @@
 #ifndef CPLED_H
 #define CPLED_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 
 class QCPLed : public QCPBase
 {

@@ -27,5 +27,6 @@
         <file>images/rnd.png</file>
         <file>images/sum.png</file>
         <file>images/synth.png</file>
+        <file>images/label.png</file>
     </qresource>
 </RCC>

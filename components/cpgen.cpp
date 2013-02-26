@@ -22,8 +22,8 @@ QSize QCPGen::minimumSizeHint() const
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     QFontMetrics fm(n);
-    return QSize((fm.width(" OSC: xxx ms Q")+2*getPinSize()) * zoom()/100,
-                 2*fm.height()     * zoom()/100);
+    return QSize(fm.width(" OSC: xxx ms Q")+2*getPinSize()* zoom()/100,
+                 2*fm.height());
 }
 
 void QCPGen::readFromStream(QDataStream &stream)

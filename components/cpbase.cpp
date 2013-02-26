@@ -208,9 +208,9 @@ void QCPBase::regroupOutputs()
     }
 }
 
-void QCPBase::checkRecycle()
+void QCPBase::checkRecycle(bool forceDelete)
 {
-    if (!(frameGeometry().intersects(cpOwner->recycle->frameGeometry()))) return;
+    if ((!forceDelete) && (!(frameGeometry().intersects(cpOwner->recycle->frameGeometry())))) return;
     for (int i=0;i<fInputs.count();i++)
     {
         if (fInputs[i]->fromPin!=-1)
@@ -273,8 +273,6 @@ int QCPBase::getDCompIncrement() const
 
 void QCPBase::mouseMoveEvent(QMouseEvent * event)
 {
-    //  if (event->button()==Qt::LeftButton)
-
     if (isDragging)
     {
         move(QPoint(x()+event->x()-relCorner.x(),y()+event->y()-relCorner.y()));

@@ -18,8 +18,8 @@ QSize QCPGnd::minimumSizeHint() const
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     QFontMetrics fm(n);
-    return QSize((fm.width("  GND  Q")+2*getPinSize()) * zoom()/100,
-                 2*fm.height()     * zoom()/100);
+    return QSize(fm.width("  GND  Q")+2*getPinSize()*zoom()/100 ,
+                 2*fm.height());
 }
 
 void QCPGnd::realignPins(QPainter &)

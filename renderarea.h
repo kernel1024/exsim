@@ -18,7 +18,7 @@ public:
 
     QList<QUuid> pendingLogicLinks;
     
-    bool resReading, rectLinks;
+    bool resReading;
     QStringList nodeLocks;
     QLabel* recycle;
     QDataStream* storeStream;
@@ -45,7 +45,7 @@ public:
     QCPBase* createCpInstance(const QString & className);
 protected:
     void paintEvent ( QPaintEvent * event );
-    void keyPressEvent(QKeyEvent * event);
+    void paintConnections(QPainter *p);
 };
 
 #endif

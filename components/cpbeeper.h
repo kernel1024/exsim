@@ -1,7 +1,7 @@
 #ifndef CPBEEPER_H
 #define CPBEEPER_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 

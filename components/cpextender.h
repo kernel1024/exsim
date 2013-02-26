@@ -1,7 +1,7 @@
 #ifndef CPEXTENDER_H
 #define CPEXTENDER_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 
 class QCPExtender : public QCPBase
 {
