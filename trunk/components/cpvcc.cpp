@@ -19,8 +19,8 @@ QSize QCPVcc::minimumSizeHint() const
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     QFontMetrics fm(n);
-    return QSize((fm.width("  Vcc  Q")+2*getPinSize()) * zoom()/100,
-                 2*fm.height()     * zoom()/100);
+    return QSize(fm.width("  Vcc  Q")+2*getPinSize()*zoom()/100,
+                 2*fm.height());
 }
 
 void QCPVcc::realignPins(QPainter &)

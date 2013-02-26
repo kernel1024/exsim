@@ -17,7 +17,6 @@ class QCPBase : public QWidget
 
 private:
     void mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase * &aFilter);
-    void checkRecycle();
 
 protected:
     float oldZoom;
@@ -31,6 +30,7 @@ protected:
 
     int getDCompHeight(const int divCount) const;
     int getDCompIncrement() const;
+    void checkRecycle(bool forceDelete = false);
 
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);

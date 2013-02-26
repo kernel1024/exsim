@@ -97,8 +97,8 @@ QSize QCPBeeper::minimumSizeHint() const
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     QFontMetrics fm(n);
-    return QSize((fm.width(" SND: xxx Hz Q")+2*getPinSize()) * zoom()/100,
-                 2*fm.height()     * zoom()/100);
+    return QSize(fm.width(" SND: xxx Hz Q")+2*getPinSize()*zoom()/100,
+                 2*fm.height());
 }
 
 void QCPBeeper::readFromStream(QDataStream &stream)

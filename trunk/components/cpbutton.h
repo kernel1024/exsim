@@ -1,7 +1,7 @@
 #ifndef CPBUTTON_H
 #define CPBUTTON_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 
 class QCPButton : public QCPBase
 {

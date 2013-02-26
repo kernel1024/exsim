@@ -1,7 +1,7 @@
 #ifndef CPLOGIC_H
 #define CPLOGIC_H
 
-#include <cpbase.h>
+#include "cpbase.h"
 
 class QCPLogic : public QCPBase
 {

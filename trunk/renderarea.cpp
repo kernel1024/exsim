@@ -21,6 +21,7 @@
 #include "components/cprndgen.h"
 #include "components/cpram.h"
 #include "components/cpsynth.h"
+#include "components/cplabel.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
@@ -29,7 +30,6 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
     pendingLogicLinks.clear();
 
     resReading=false;
-    rectLinks=true;
     zoom = 100;
     nodeLocks.clear();
 
@@ -129,47 +129,18 @@ void QRenderArea::repaintConn()
 void QRenderArea::paintEvent ( QPaintEvent * )
 {
     QPainter p(this);
-    cbConnCount=0;
-    QCPOutput* aout;
-    QCPInput* ainp;
-    QPoint c1,c2,c3,c4;
+    QPoint c1,c2;
 
     QFont nf=QApplication::font();
-    nf.setPointSize(8);
+    nf.setPointSize(8*zoom/100);
     QFont of=p.font();
     QPen op=p.pen();
     p.setPen(QPen(Qt::red));
     p.setFont(nf);
-    cbConnCount=0;
-    for (int i=0;i<children().count();i++)
-    {
-        QCPBase *base=qobject_cast<QCPBase*>(children().at(i));
-        if (base==0) continue;
-        for (int j=0;j<base->fOutputs.count();j++)
-        {
-            aout=base->fOutputs[j];
-            if (aout->toPin==-1) continue;
-            if (aout->toCmp==0) continue;
-            ainp=aout->toCmp->fInputs[aout->toPin];
 
-            c1=base->pos()+aout->relCoord;
-            c2=aout->toCmp->pos()+ainp->relCoord;
-            c3=QPoint((c1.x()+c2.x())/2,c1.y());
-            c4=QPoint(c3.x(),c2.y());
+    paintConnections(&p);
 
-            //p.drawText(c3,aout->groupId.toString());
-
-            if (rectLinks)
-            {
-                p.drawLine(c1,c3);
-                p.drawLine(c3,c4);
-                p.drawLine(c4,c2);
-            } else
-                p.drawLine(c1,c2);
-
-            cbConnCount++;
-        }
-    }
+    p.setPen(QPen(Qt::red));
     if (cbBuilding)
     {
         p.setPen(QPen(Qt::darkCyan));
@@ -180,16 +151,136 @@ void QRenderArea::paintEvent ( QPaintEvent * )
         c2=cbCurrent;
         p.drawLine(c1,c2);
     }
+
     p.setPen(op);
     p.setFont(of);
 }
 
-void QRenderArea::keyPressEvent(QKeyEvent *event)
+bool rectLessThan(const QRect &r1, const QRect &r2)
 {
-    qDebug() << event->key();
-    QFrame::keyPressEvent(event);
+     return r1.top() < r2.top();
 }
 
+void QRenderArea::paintConnections(QPainter* p)
+{
+    const int pinSpace = 20*zoom/100;
+
+    QCPOutput* aout;
+    QCPInput* ainp;
+    QCPBase *base;
+
+    QList<QCPBase *> cmps;
+    QList<QRect> cmpsRect;
+
+    QPen wirePen = QPen(Qt::red);
+    QPen busPen = QPen(Qt::blue);
+    busPen.setWidth(3);
+    QPen textPen = QPen(Qt::black);
+    QFontMetrics fm(p->font());
+
+    cmps.clear();
+    cmpsRect.clear();
+    cbConnCount=0;
+
+    QRect framingRect = QRect();
+
+    for (int i=0;i<children().count();i++) {
+        base=qobject_cast<QCPBase*>(children().at(i));
+        if (base!=NULL) {
+            cmps << base;
+            cmpsRect << base->geometry();
+            framingRect = framingRect.united(base->geometry());
+        }
+    }
+
+    for (int i=0;i<cmps.count();i++) {
+        base = cmps.at(i);
+        for (int j=0;j<base->fOutputs.count();j++) {
+            aout=base->fOutputs[j];
+            if (aout->toPin==-1) continue;
+            if (aout->toCmp==0) continue;
+            ainp=aout->toCmp->fInputs[aout->toPin];
+
+            QPoint c1 = base->pos()+aout->relCoord;
+            QPoint c2 = aout->toCmp->pos()+ainp->relCoord;
+
+            QRect linkRect = QRect(c1,c2).normalized();
+            linkRect.adjust(base->getPinSize()/2,0,-base->getPinSize()/2-2,0);
+            bool selfIntersect = (linkRect.intersects(base->geometry()) ||
+                    linkRect.intersects(aout->toCmp->geometry()));
+
+            linkRect = QRect(c1,c2).normalized();
+            if (selfIntersect)
+                linkRect.adjust(-base->getPinSize()/2-2,0,base->getPinSize()/2,0);
+            else
+                linkRect.adjust(base->getPinSize()/2,0,-base->getPinSize()/2-1,0);
+
+            // Check intersection between line framing rect and any components
+            bool intsno = true;
+            QList<int> intsidx;
+            intsidx.clear();
+            for (int k=0;k<cmpsRect.count();k++) {
+                if (linkRect.intersects(cmpsRect.at(k))) {
+                    intsno = false;
+                    intsidx << k;
+                }
+            }
+
+            // If no intersections occurs - simply draw 3-part line
+            if (intsno) {
+                QPoint c3=QPoint((c1.x()+c2.x())/2,c1.y());
+                QPoint c4=QPoint(c3.x(),c2.y());
+
+                p->setPen(wirePen);
+                p->drawLine(c1,c3);
+                p->drawLine(c3,c4);
+                p->drawLine(c4,c2);
+            } else {
+                int si = -1;
+                if (selfIntersect) si = 1;
+
+                QPoint p1, p2, m1, m2;
+                double dy = c1.y()-c2.y();
+                double dx = c1.x()-c2.x();
+                if ((dy/dx)<0) {
+                    p1 = QPoint(linkRect.right()+si*pinSpace,linkRect.top());
+                    p2 = QPoint(linkRect.left()-si*pinSpace,linkRect.bottom());
+                    c1 = linkRect.topRight();
+                    c2 = linkRect.bottomLeft();
+                    m1 = QPoint(linkRect.right()+si*pinSpace,framingRect.bottom()+pinSpace);
+                    m2 = QPoint(linkRect.left()-si*pinSpace,framingRect.bottom()+pinSpace);
+                } else {
+                    p1 = QPoint(linkRect.left()-si*pinSpace,linkRect.top());
+                    p2 = QPoint(linkRect.right()+si*pinSpace,linkRect.bottom());
+                    c1 = linkRect.topLeft();
+                    c2 = linkRect.bottomRight();
+                    m1 = QPoint(linkRect.left()-si*pinSpace,framingRect.bottom()+pinSpace);
+                    m2 = QPoint(linkRect.right()+si*pinSpace,framingRect.bottom()+pinSpace);
+                }
+                QString busID = tr("%1").arg(cbConnCount+1);
+                QRect rt1 = QRect(c1,p1).normalized();
+                rt1.setHeight(fm.height());
+                rt1.adjust(0,-fm.height(),0,-fm.height());
+                QRect rt2 = QRect(c2,p2).normalized();
+                rt2.setHeight(fm.height());
+                rt2.adjust(0,-fm.height(),0,-fm.height());
+                p->setPen(wirePen);
+                p->drawLine(c1,p1);
+                p->drawLine(p2,c2);
+                p->setPen(busPen);
+                p->drawLine(p1,m1);
+                p->drawLine(m1,m2);
+                p->drawLine(m2,p2);
+                p->setPen(textPen);
+                p->drawText(rt1,Qt::AlignCenter,busID);
+                p->drawText(rt2,Qt::AlignCenter,busID);
+            }
+            cbConnCount++;
+        }
+    }
+    cmps.clear();
+    cmpsRect.clear();
+}
 
 void QRenderArea::refreshConnBuilder(const QPoint & atPos)
 {
@@ -417,5 +508,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPRndGen")      return new QCPRndGen(this,this);
     else if (className=="QCPRAM")      return new QCPRAM(this,this);
     else if (className=="QCPSynth")      return new QCPSynth(this,this);
+    else if (className=="QCPLabel")      return new QCPLabel(this,this);
     else return NULL;
 }
