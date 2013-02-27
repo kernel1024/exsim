@@ -27,19 +27,22 @@ QSize QCPExtender::minimumSizeHint() const
     return QSize(40*zoom()/100,vsz*zoom()/100);
 }
 
-void QCPExtender::readFromStream(QDataStream &stream)
+void QCPExtender::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    int outcnt;
-    stream >> outcnt;
+    bool ok;
+    int outcnt = element.attribute("outCount","3").toInt(&ok);
+    if ((!ok) || (outcnt<1) || (outcnt>32)) {
+        errlog << tr("QCPExtender: outCount value incorrect");
+        outcnt = 3;
+    }
     setMode(outcnt);
-    QCPBase::readFromStream(stream);
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPExtender::storeToStream(QDataStream &stream)
+void QCPExtender::storeToStream(QDomElement &element)
 {
-    int outcnt = fOutputs.count();
-    stream << outcnt;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("outCount",fOutputs.count());
+    QCPBase::storeToStream(element);
 }
 
 void QCPExtender::setMode(int outputCount)

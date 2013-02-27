@@ -175,52 +175,54 @@ void MainWindow::loadFile(QString & fname)
 
 bool MainWindow::saveFile(QString & fname)
 {
-    bool allOk=true;
     QFile file(fname);
-    if (!file.open(QIODevice::WriteOnly))
-    {
+    if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this,"Error","Cannot create file");
         return false;
     }
-    QDataStream out(&file);
-    try
-    {
-        renderArea->storeSchematic(out);
-    }
-    catch (const char* p)
-    {
-        QMessageBox::critical(this,"Error",QString::fromAscii(p));
-        allOk=false;
-    }
+    QTextStream fout(&file);
+
+    QDomDocument xdoc;
+    QDomElement clist = xdoc.createElement("components");
+    renderArea->storeSchematic(clist);
+    xdoc.appendChild(clist);
+
+    xdoc.save(fout,4);
     file.close();
-    return allOk;
+    return true;
 }
 
 void MainWindow::continueLoading()
 {
     QFile file(loadingFile);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::critical(this,"Error","Cann't read file");
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(this,"exSim error","Can't read file");
         return;
     }
-    QDataStream ins(&file);
-    try
-    {
-        renderArea->readSchematic(ins);
-        for (int i=0;i<renderArea->children().count();i++)
-        {
-            QCPBase* base;
-            if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
-            connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
-        }
-    }
-    catch (const char* p)
-    {
-        renderArea->deleteComponents();
-        QMessageBox::critical(this,"Error",QString::fromAscii(p));
+    QDomDocument xdoc;
+    int eline, ecol;
+    QString emsg;
+    if (!xdoc.setContent(&file,&emsg,&eline,&ecol)) {
+        QMessageBox::critical(this,"exSim XML error",tr("XML parsing error:\n %1\n at line %2, column %3.").
+                              arg(emsg).arg(eline).arg(ecol));
+        file.close();
+        return;
     }
     file.close();
+    QByteArray errbuf;
+    errbuf.clear();
+    QTextStream errlog(&errbuf);
+
+    renderArea->readSchematic(errlog,xdoc.firstChildElement("components"));
+    for (int i=0;i<renderArea->children().count();i++) {
+        QCPBase* base;
+        if (!(base=qobject_cast<QCPBase*>(renderArea->children().at(i)))) continue;
+        connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
+    }
+    xdoc.clear();
+    if (!errbuf.isEmpty())
+        qDebug() << errbuf;
+    errbuf.clear();
     repaintTimer=startTimer(500);
 }
 
@@ -265,11 +267,8 @@ void MainWindow::fileOpen()
                 break;
         }
     }
-    QString s = QFileDialog::getOpenFileName(
-                    this,
-                    tr("Choose a file"),
-                    "",
-                    "exSim files (*.exs)");
+    QString s = QFileDialog::getOpenFileName(this,tr("Choose a file"),"","exSim files (*.exs)",
+                                             NULL, QFileDialog::DontUseNativeDialog);
     if (s.isEmpty()) return;
     workFile=s;
     modified=false;
@@ -283,7 +282,8 @@ void MainWindow::fileSave()
     if (workFile=="")
     {
         QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
-                                                     tr("exSim files (*.exs)"));
+                                                     tr("exSim files (*.exs)"),NULL,
+                                                     QFileDialog::DontUseNativeDialog);
         if (fname.isEmpty()) return;
         QFileInfo fi(fname);
         if (fi.suffix().isEmpty())
@@ -300,7 +300,8 @@ void MainWindow::fileSave()
 void MainWindow::fileSaveAs()
 {
     QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
-                                                 tr("exSim files (*.exs)"));
+                                                 tr("exSim files (*.exs)"),NULL,
+                                                 QFileDialog::DontUseNativeDialog);
     if (fname.isEmpty()) return;
     QFileInfo fi(fname);
     if (fi.suffix().isEmpty())

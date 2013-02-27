@@ -13,8 +13,8 @@ public:
     ~QCPMux();
     QSize minimumSizeHint() const;
 
-    void readFromStream(QDataStream &stream);
-    void storeToStream(QDataStream &stream);
+    void readFromStream(QTextStream &errlog, const QDomElement &element);
+    void storeToStream(QDomElement &element);
 
 protected:
     void realignPins(QPainter & painter);

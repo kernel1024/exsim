@@ -10,12 +10,13 @@ class QCPLabel : public QCPBase
 public:
     QString labelText;
     QColor labelColor;
+    QFont labelFont;
     explicit QCPLabel(QWidget *parent, QRenderArea *aOwner);
 
     QSize minimumSizeHint() const;
 
-    void readFromStream(QDataStream &stream);
-    void storeToStream(QDataStream &stream);
+    void readFromStream(QTextStream &errlog, const QDomElement &element);
+    void storeToStream(QDomElement &element);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -27,6 +28,7 @@ protected:
 public slots:
     void changeText();
     void changeColor();
+    void changeFont();
 };
 
 #endif // CPLABEL_H

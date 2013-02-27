@@ -15,8 +15,8 @@ public:
 
     QSize minimumSizeHint() const;
 
-    void readFromStream(QDataStream &stream);
-    void storeToStream(QDataStream &stream);
+    void readFromStream(QTextStream &errlog, const QDomElement &element);
+    void storeToStream(QDomElement &element);
 
     void setPeriod(int msec);
 

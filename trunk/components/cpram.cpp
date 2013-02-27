@@ -65,19 +65,29 @@ QSize QCPRAM::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(2));
 }
 
-void QCPRAM::readFromStream(QDataStream &stream)
+void QCPRAM::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> addrWidth;
+    bool ok;
+    addrWidth = element.attribute("addrWidth","10").toInt(&ok);
+    if ((!ok) || (addrWidth<1) || (addrWidth>20)) {
+        errlog << tr("QCPRAM: addrWidth parameter incorrect");
+        addrWidth = 10;
+    }
     updateInputsCount();
-    stream >> data;
-    QCPBase::readFromStream(stream);
+    data = QByteArray::fromHex(element.attribute("data","").toAscii());
+    if (data.size()!=ipow(2,addrWidth)) {
+        errlog << tr("QCPRAM: data is empty or has incorrect size");
+        data.clear();
+        data.fill('\x00',ipow(2,addrWidth));
+    }
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPRAM::storeToStream(QDataStream &stream)
+void QCPRAM::storeToStream(QDomElement &element)
 {
-    stream << addrWidth;
-    stream << data;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("addrWidth",addrWidth);
+    element.setAttribute("data",QString::fromAscii(data.toHex()));
+    QCPBase::storeToStream(element);
 }
 
 void QCPRAM::realignPins(QPainter &)

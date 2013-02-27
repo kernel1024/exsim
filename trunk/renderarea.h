@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <QtGui>
+#include <QtXml>
 #include "components/cpbase.h"
 
 class QRenderArea : public QFrame
@@ -36,9 +37,9 @@ public:
     void repaintConn();
     void refreshConnBuilder(const QPoint & atPos);
     void doneConnBuilder(const bool aNone, int aType, const int aPinNum, QCPInput* aInput, QCPOutput* aOutput);
-    void postLoadBinding();
-    void readSchematic(QDataStream & stream);
-    void storeSchematic(QDataStream & stream);
+    void postLoadBinding(QTextStream &errlog);
+    void readSchematic(QTextStream &errlog, const QDomElement &element);
+    void storeSchematic(QDomElement & element);
     void deleteComponents();
     int cpComponentCount();
     void setZoom(int zoomFactor);

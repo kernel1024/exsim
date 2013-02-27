@@ -4,27 +4,40 @@ QCPLabel::QCPLabel(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     labelText = "text";
+    labelColor = QColor(Qt::black);
+    labelFont = QApplication::font();
+    labelFont.setPointSize((labelFont.pointSize()+2) * zoom()/100);
 }
 
 QSize QCPLabel::minimumSizeHint() const
 {
-    QFont n=QApplication::font();
-    n.setPointSize((n.pointSize()+2)* zoom()/100);
-    QFontMetrics fm(n);
+    QFontMetrics fm(labelFont);
     return QSize(fm.width(labelText),2*fm.height());
 }
 
-void QCPLabel::readFromStream(QDataStream &stream)
+void QCPLabel::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> labelText >> labelColor;
-    QCPBase::readFromStream(stream);
+    labelText = element.attribute("labelText","text");
+    labelColor = element.attribute("labelColor","black");
+    if (!labelColor.isValid()) {
+        errlog << tr("QCPLabel: incorrect labelColor value");
+        labelColor = QColor(Qt::black);
+    }
+    if (!labelFont.fromString(element.attribute("labelFont",""))) {
+        errlog << tr("QCPLabel: incorrect labelFont value");
+        labelFont = QApplication::font();
+        labelFont.setPointSize((labelFont.pointSize()+2)*zoom()/100);
+    }
+    QCPBase::readFromStream(errlog,element);
     if (labelText.isEmpty()) checkRecycle(true);
 }
 
-void QCPLabel::storeToStream(QDataStream &stream)
+void QCPLabel::storeToStream(QDomElement &element)
 {
-    stream << labelText << labelColor;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("labelText",labelText);
+    element.setAttribute("labelColor",labelColor.name());
+    element.setAttribute("labelFont",labelFont.toString());
+    QCPBase::storeToStream(element);
 }
 
 void QCPLabel::realignPins(QPainter &)
@@ -40,6 +53,7 @@ void QCPLabel::contextMenuEvent(QContextMenuEvent *event)
     QMenu cm(this);
     cm.addAction(tr("Change text..."),this,SLOT(changeText()));
     cm.addAction(tr("Change text color..."),this,SLOT(changeColor()));
+    cm.addAction(tr("Change font..."),this,SLOT(changeFont()));
     cm.exec(event->globalPos());
 }
 
@@ -71,6 +85,17 @@ void QCPLabel::changeColor()
     }
 }
 
+void QCPLabel::changeFont()
+{
+    bool ok;
+    QFont f = QFontDialog::getFont(&ok,labelFont,this,tr("Text label font"));
+    if (ok) {
+        labelFont = f;
+        resize(minimumSizeHint());
+        update();
+    }
+}
+
 void QCPLabel::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -79,9 +104,7 @@ void QCPLabel::paintEvent(QPaintEvent *)
 
     QRect rc = rect();
     p.setPen(QPen(labelColor));
-    QFont n = QApplication::font();
-    n.setPointSize((n.pointSize()+2) * zoom()/100);
-    p.setFont(n);
+    p.setFont(labelFont);
     p.drawText(rc,Qt::AlignCenter,labelText);
 
     p.setFont(of);

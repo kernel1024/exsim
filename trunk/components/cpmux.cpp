@@ -45,17 +45,29 @@ QSize QCPMux::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(ipow(2,dCount)));
 }
 
-void QCPMux::readFromStream(QDataStream &stream)
+void QCPMux::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> dCount >> dWidth;
+    bool ok;
+    dCount = element.attribute("channels","2").toInt(&ok);
+    if ((!ok) || (dCount>8) || (dCount<1)) {
+        errlog << tr("QCPMux: channels value incorrect");
+        dCount = 2;
+    }
+    dWidth = element.attribute("dataWidth","2").toInt(&ok);
+    if ((!ok) || (dWidth<1) || (dWidth>8)) {
+        errlog << tr("QCPMux: dataWidth value incorrect");
+        dWidth = 2;
+    }
+
     updateMuxPins();
-    QCPBase::readFromStream(stream);
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPMux::storeToStream(QDataStream &stream)
+void QCPMux::storeToStream(QDomElement &element)
 {
-    stream << dCount << dWidth;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("channels",dCount);
+    element.setAttribute("dataWidth",dWidth);
+    QCPBase::storeToStream(element);
 }
 
 void QCPMux::realignPins(QPainter &)
