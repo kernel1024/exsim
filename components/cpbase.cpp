@@ -181,12 +181,12 @@ int QCPBase::getPinSize() const
     return 8*zoom()/100;
 }
 
-void QCPBase::postLoadBind()
+void QCPBase::postLoadBind(QTextStream &errlog)
 {
     for (int i=0;i<fInputs.count();i++)
-        fInputs[i]->postLoadBind();
+        fInputs[i]->postLoadBind(errlog);
     for (int i=0;i<fOutputs.count();i++)
-        fOutputs[i]->postLoadBind();
+        fOutputs[i]->postLoadBind(errlog);
     regroupOutputs();
 }
 
@@ -385,22 +385,47 @@ void QCPBase::mouseReleaseEvent(QMouseEvent * event)
     emit componentChanged(this);
 }
 
-void QCPBase::readFromStream( QDataStream & stream )
+void QCPBase::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> pinColorOff >> pinColorOn;
+    pinColorOff = QColor(element.attribute("pinColorOff","blue"));
+    pinColorOn = QColor(element.attribute("pinColorOn","red"));
+    if (!pinColorOff.isValid()) {
+        errlog << tr("QCPBase: pinColorOff has incorrect name");
+        pinColorOff = QColor(Qt::blue);
+    }
+    if (!pinColorOn.isValid()) {
+        errlog << tr("QCPBase: pinColorOn has incorrect name");
+        pinColorOn = QColor(Qt::red);
+    }
+
+    QDomElement inp = element.firstChildElement("inputs");
+    QDomElement out = element.firstChildElement("outputs");
+
     for (int i=0;i<fInputs.count();i++)
-        fInputs[i]->readFromStream(stream);
+        fInputs[i]->readFromStream(errlog,inp.firstChildElement(tr("inp%1").arg(i)));
     for (int i=0;i<fOutputs.count();i++)
-        fOutputs[i]->readFromStream(stream);
+        fOutputs[i]->readFromStream(errlog,out.firstChildElement(tr("out%1").arg(i)));
 }
 
-void QCPBase::storeToStream( QDataStream & stream )
+void QCPBase::storeToStream(QDomElement &element)
 {
-    stream << pinColorOff << pinColorOn;
-    for (int i=0;i<fInputs.count();i++)
-        fInputs[i]->storeToStream(stream);
-    for (int i=0;i<fOutputs.count();i++)
-        fOutputs[i]->storeToStream(stream);
+    element.setAttribute("pinColorOff",pinColorOff.name());
+    element.setAttribute("pinColorOn",pinColorOn.name());
+
+    QDomElement inp = element.ownerDocument().createElement("inputs");
+    for (int i=0;i<fInputs.count();i++) {
+        QDomElement ti = element.ownerDocument().createElement(tr("inp%1").arg(i));
+        fInputs[i]->storeToStream(ti);
+        inp.appendChild(ti);
+    }
+    element.appendChild(inp);
+    QDomElement out = element.ownerDocument().createElement("outputs");
+    for (int i=0;i<fOutputs.count();i++) {
+        QDomElement ti = element.ownerDocument().createElement(tr("out%1").arg(i));
+        fOutputs[i]->storeToStream(ti);
+        out.appendChild(ti);
+    }
+    element.appendChild(out);
 }
 
 void QCPBase::doLogic()
@@ -447,38 +472,46 @@ QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName)
     groupId=QUuid();
 }
 
-void QCPOutput::readFromStream( QDataStream & stream )
+void QCPOutput::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> toPin;
-    toCmp=0;
-    QString q;
-    stream >> q;
-    stream >> inversed;
-    if (q!="<NONE>")
+    bool ok;
+    toPin = element.attribute("toPin","0").toInt(&ok);
+    if (!ok) {
+        errlog << tr("QCPOutput: cannot read pin number");
+        toPin = 0;
+    }
+    toCmp=NULL;
+    QString q = element.attribute("toCmp","NONE");
+    inversed = (element.attribute("inversed","0").toInt(&ok)!=0);
+    if (!ok) {
+        errlog << tr("QCPInput: cannot read pin inversion mark");
+        inversed = false;
+    }
+    if (q!="NONE")
         ffLogic=q;
     else
         ffLogic="";
     groupId=QUuid();
 }
 
-void QCPOutput::storeToStream( QDataStream & stream )
+void QCPOutput::storeToStream(QDomElement &element )
 {
-    stream << toPin;
+    element.setAttribute("toPin",toPin);
     QString q;
     if (toCmp==0)
-        q="<NONE>";
+        q="NONE";
     else
         q=toCmp->objectName();
-    stream << q;
-    stream << inversed;
+    element.setAttribute("toCmp",q);
+    element.setAttribute("inversed",(int)inversed);
 }
 
-void QCPOutput::postLoadBind()
+void QCPOutput::postLoadBind(QTextStream &errlog)
 {
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
     if (b==0)
-        throw "Binding error. Error in loading components from file.";
+        errlog << tr("QCPOutput: binding error in component %1").arg(ownerCmp->objectName());
     else {
         toCmp=b;
         oldState = !state;
@@ -519,37 +552,45 @@ QCPInput::QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName)
             Qt::QueuedConnection);
 }
 
-void QCPInput::readFromStream( QDataStream & stream )
+void QCPInput::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> fromPin;
-    fromCmp=0;
-    QString q;
-    stream >> q;
-    stream >> inversed;
-    if (q!="<NONE>")
+    bool ok;
+    fromPin = element.attribute("fromPin","0").toInt(&ok);
+    if (!ok) {
+        errlog << tr("QCPInput: cannot read pin number");
+        fromPin = 0;
+    }
+    fromCmp=NULL;
+    QString q = element.attribute("fromCmp","NONE");
+    inversed = element.attribute("inversed","0").toInt(&ok);
+    if (!ok) {
+        errlog << tr("QCPInput: cannot read pin inversion mark");
+        inversed = false;
+    }
+    if (q!="NONE")
         ffLogic=q;
     else
         ffLogic="";
 }
 
-void QCPInput::storeToStream( QDataStream & stream )
+void QCPInput::storeToStream(QDomElement & element)
 {
-    stream << fromPin;
+    element.setAttribute("fromPin",fromPin);
     QString q;
     if (fromCmp==0)
-        q="<NONE>";
+        q="NONE";
     else
         q=fromCmp->objectName();
-    stream << q;
-    stream << inversed;
+    element.setAttribute("fromCmp",q);
+    element.setAttribute("inversed",(int)inversed);
 }
 
-void QCPInput::postLoadBind()
+void QCPInput::postLoadBind(QTextStream &errlog)
 {
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
     if (b==0)
-        throw "Binding error. Error in loading components from file.";
+        errlog << tr("QCPInput: binding error in component %1").arg(ownerCmp->objectName());
     else
         fromCmp=b;
 }

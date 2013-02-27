@@ -46,16 +46,20 @@ QSize QCPDigit::minimumSizeHint() const
     return QSize(80*zoom()/100, getDCompHeight(0));
 }
 
-void QCPDigit::readFromStream(QDataStream &stream)
+void QCPDigit::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    QCPBase::readFromStream(stream);
-    stream >> fontColor;
+    fontColor = QColor(element.attribute("fontColor","green"));
+    if (!fontColor.isValid()) {
+        errlog << tr("QCPDigit: fontColor has unknown name");
+        fontColor = QColor(Qt::green);
+    }
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPDigit::storeToStream(QDataStream &stream)
+void QCPDigit::storeToStream(QDomElement &element)
 {
-    QCPBase::storeToStream(stream);
-    stream << fontColor;
+    element.setAttribute("fontColor",fontColor.name());
+    QCPBase::storeToStream(element);
 }
 
 void QCPDigit::realignPins(QPainter &)

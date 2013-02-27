@@ -26,17 +26,22 @@ QSize QCPGen::minimumSizeHint() const
                  2*fm.height());
 }
 
-void QCPGen::readFromStream(QDataStream &stream)
+void QCPGen::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    stream >> period;
+    bool ok;
+    period = element.attribute("period","2000").toInt(&ok);
+    if ((!ok) || (period<10)) {
+        errlog << tr("QCPGen: period value incorrect");
+        period = 2000;
+    }
     setPeriod(period);
-    QCPBase::readFromStream(stream);
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPGen::storeToStream(QDataStream &stream)
+void QCPGen::storeToStream(QDomElement &element)
 {
-    stream << period;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("period",period);
+    QCPBase::storeToStream(element);
 }
 
 void QCPGen::realignPins(QPainter &)

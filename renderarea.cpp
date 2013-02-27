@@ -23,7 +23,6 @@
 #include "components/cpsynth.h"
 #include "components/cplabel.h"
 
-// TODO: Font selection dialog for QCPLabel
 // TODO: Saving and loading from XML, with structured content, for better compatibility between versions
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
@@ -390,13 +389,13 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
     repaintConn();
 }
 
-void QRenderArea::postLoadBinding()
+void QRenderArea::postLoadBinding(QTextStream &errlog)
 {
     pendingLogicLinks.clear();
     for (int i=0;i<children().count();i++)
     {
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
-        if (base!=0) base->postLoadBind();
+        if (base!=0) base->postLoadBind(errlog);
     }
 }
 
@@ -427,50 +426,60 @@ void QRenderArea::setZoom(int zoomFactor)
     repaintConn();
 }
 
-void QRenderArea::readSchematic(QDataStream & stream)
+void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
 {
-    int c;
-    stream >> c;
-    for (int i=0;i<c;i++)
+    if (element.isNull())
+        errlog << tr("readSchematic: NULL element passed");
+
+    for (int i=0;i<element.childNodes().count();i++)
     {
-        QString clName;
-        stream >> clName;
+        if (!element.childNodes().at(i).isElement()) continue;
+        QDomElement xc = element.childNodes().at(i).toElement();
+        QString clName = xc.attribute("className","---");
         QCPBase* b=createCpInstance(clName);
         if (b==0)
         {
-            qDebug() << clName;
-            throw "Loading error. Class not found.";
-            return;
+            errlog << tr("Loading error. Class '%1' not found.").arg(clName);
+        } else {
+            QPoint pos = QPoint(200,200);
+            QStringList spos = xc.attribute("position","200,200").split(',',QString::SkipEmptyParts);
+            if (spos.count()!=2)
+                errlog << tr("readSchematic: wrong element '%1' position").arg(clName);
+            else {
+                bool ok1, ok2;
+                int x = spos.first().toInt(&ok1);
+                int y = spos.last().toInt(&ok2);
+                if (!ok1 || !ok2) {
+                    errlog << tr("readSchematic: wrong element '%1' position").arg(clName);
+                    x = 200; y = 200;
+                }
+                pos = QPoint(x,y);
+            }
+            QString instName = xc.attribute("instanceName",tr("QCPBase%1").arg(i+1));
+            b->move(pos);
+            b->setObjectName(instName);
+            b->readFromStream(errlog, xc);
+            b->show();
         }
-        QPoint pos;
-        QString instName;
-        stream >> pos;
-        stream >> instName;
-        b->move(pos);
-        b->setObjectName(instName);
-        b->readFromStream(stream);
-        b->show();
     }
     resReading=false;
-    postLoadBinding();
+    postLoadBinding(errlog);
     repaintConn();
 }
 
-void QRenderArea::storeSchematic(QDataStream & stream)
+void QRenderArea::storeSchematic(QDomElement &element)
 {
-    int c=cpComponentCount();
-    stream << c;
     for (int i=0;i<children().count();i++)
     {
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
         if (!base) continue;
-        QString a=base->metaObject()->className();
-        QPoint p=base->pos();
-        QString n=base->objectName();
-        stream << a;
-        stream << p;
-        stream << n;
-        base->storeToStream(stream);
+
+        QDomElement xc = element.ownerDocument().createElement(tr("element%1").arg(i));
+        xc.setAttribute("className",base->metaObject()->className());
+        xc.setAttribute("position",tr("%1,%2").arg(base->pos().x()).arg(base->pos().y()));
+        xc.setAttribute("instanceName",base->objectName());
+        base->storeToStream(xc);
+        element.appendChild(xc);
     }
 }
 

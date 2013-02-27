@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <QtGui>
+#include <QtXml>
 
 #define QPT_INPUT     1
 #define QPT_OUTPUT    2
@@ -45,14 +46,14 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    void postLoadBind();
+    void postLoadBind(QTextStream &errlog);
     void doLogic();
     void redrawPins(QPainter & painter);
     virtual void zoomChanged();
     int getPinSize() const;
 
-    virtual void readFromStream( QDataStream & stream );
-    virtual void storeToStream( QDataStream & stream );
+    virtual void readFromStream(QTextStream &errlog, const QDomElement &element);
+    virtual void storeToStream(QDomElement & element);
     virtual bool canConnectOut(QCPBase * toComponent);
     virtual bool canConnectIn(QCPBase * toComponent);
     void regroupOutputs();
@@ -75,9 +76,9 @@ class QCPOutput : public QObject
     Q_OBJECT
 public:
     QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
-    void readFromStream( QDataStream & stream );
-    void storeToStream( QDataStream & stream );
-    void postLoadBind();
+    void readFromStream(QTextStream & errlog, const QDomElement &element);
+    void storeToStream(QDomElement & element);
+    void postLoadBind(QTextStream &errlog);
     void applyState();
     
     QCPBase *toCmp;
@@ -110,9 +111,9 @@ public:
 
     QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
 
-    void readFromStream( QDataStream & stream );
-    void storeToStream( QDataStream & stream );
-    void postLoadBind();
+    void readFromStream(QTextStream &errlog, const QDomElement &element);
+    void storeToStream(QDomElement & element);
+    void postLoadBind(QTextStream &errlog);
     void applyState(bool aState);
 
 signals:

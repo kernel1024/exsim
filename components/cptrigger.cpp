@@ -41,19 +41,22 @@ QSize QCPTrigger::minimumSizeHint() const
     return QSize(80*zoom()/100,vsz*zoom()/100);
 }
 
-void QCPTrigger::readFromStream(QDataStream &stream)
+void QCPTrigger::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    int lt;
-    stream >> lt;
+    bool ok;
+    int lt = element.attribute("mode","1").toInt(&ok);
+    if ((!ok) || (lt<1) || (lt>2)) {
+        errlog << tr("QCPTrigger: mode value incorrect");
+        lt = 1;
+    }
     setMode((TriggerMode)lt);
-    QCPBase::readFromStream(stream);
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPTrigger::storeToStream(QDataStream &stream)
+void QCPTrigger::storeToStream(QDomElement &element)
 {
-    int imode = (int)mode;
-    stream << imode;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("mode",(int)mode);
+    QCPBase::storeToStream(element);
 }
 
 void QCPTrigger::setMode(QCPTrigger::TriggerMode tMode)

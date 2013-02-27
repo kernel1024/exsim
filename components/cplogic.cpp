@@ -27,20 +27,28 @@ QSize QCPLogic::minimumSizeHint() const
     return QSize(60*zoom()/100,vsz*zoom()/100);
 }
 
-void QCPLogic::readFromStream(QDataStream &stream)
+void QCPLogic::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    int inpcnt, lt;
-    stream >> lt >> inpcnt;
+    bool ok;
+    int inpcnt = element.attribute("inputCount","2").toInt(&ok);
+    if ((!ok) || (inpcnt<1) || (inpcnt>32)) {
+        errlog << tr("QCPLogic: inputCount value incorrect");
+        inpcnt = 2;
+    }
+    int lt = element.attribute("mode","1").toInt(&ok);
+    if ((!ok) || (lt<1) || (lt>4)) {
+        errlog << tr("QCPLogic: mode value incorrect");
+        lt = 1;
+    }
     setMode((LogicType)lt, inpcnt);
-    QCPBase::readFromStream(stream);
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPLogic::storeToStream(QDataStream &stream)
+void QCPLogic::storeToStream(QDomElement &element)
 {
-    int inpcnt = fInputs.count();
-    int imode = (int)mode;
-    stream << imode << inpcnt;
-    QCPBase::storeToStream(stream);
+    element.setAttribute("inputCount",fInputs.count());
+    element.setAttribute("mode",(int)mode);
+    QCPBase::storeToStream(element);
 }
 
 void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)

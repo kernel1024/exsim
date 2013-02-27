@@ -21,16 +21,26 @@ QSize QCPLed::minimumSizeHint() const
                  45*zoom()/100);
 }
 
-void QCPLed::readFromStream(QDataStream &stream)
+void QCPLed::readFromStream(QTextStream &errlog, const QDomElement &element)
 {
-    QCPBase::readFromStream(stream);
-    stream >> onColor >> offColor;
+    onColor = QColor(element.attribute("onColor","green"));
+    offColor = QColor(element.attribute("offColor","darkgreen"));
+    if (!onColor.isValid()) {
+        errlog << tr("QCPLed: onColor value incorrect");
+        onColor = QColor(Qt::green);
+    }
+    if (!offColor.isValid()) {
+        errlog << tr("QCPLed: offColor value incorrect");
+        onColor = QColor(Qt::darkGreen);
+    }
+    QCPBase::readFromStream(errlog,element);
 }
 
-void QCPLed::storeToStream(QDataStream &stream)
+void QCPLed::storeToStream(QDomElement &element)
 {
-    QCPBase::storeToStream(stream);
-    stream << onColor << offColor;
+    element.setAttribute("onColor",onColor.name());
+    element.setAttribute("offColor",offColor.name());
+    QCPBase::storeToStream(element);
 }
 
 void QCPLed::realignPins(QPainter &)
