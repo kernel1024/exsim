@@ -22,6 +22,7 @@ protected:
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     void contextMenuEvent(QContextMenuEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 
 public slots:
     void changeText();

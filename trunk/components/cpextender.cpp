@@ -50,24 +50,15 @@ void QCPExtender::setMode(int outputCount)
     if (icnt<2)
         icnt=2;
 
-    // disconnect and delete all outputs
-    for (int i=0;i<fOutputs.count();i++) {
-        QCPOutput* cbOutput = fOutputs.at(i);
-        if ((cbOutput->toPin!=-1) && (cbOutput->toCmp!=0))
-        {
-            cbOutput->toCmp->fInputs[cbOutput->toPin]->fromCmp=0;
-            cbOutput->toCmp->fInputs[cbOutput->toPin]->fromPin=-1;
-        }
-        cbOutput->toCmp=0;
-        cbOutput->toPin=-1;
-        cbOutput->deleteLater();
-    }
-    fOutputs.clear();
+    deleteOutputs();
     cpOwner->repaintConn();
 
     // create new outputs
     for(int i=0;i<icnt;i++)
         fOutputs << new QCPOutput(this,this);
+
+    savedState=QString();
+    doLogic();
 
     resize(minimumSizeHint());
     update();

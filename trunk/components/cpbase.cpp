@@ -1,6 +1,15 @@
 #include "renderarea.h"
 #include "cpbase.h"
 
+int ipow(int base, int pow)
+{
+    qlonglong t = base;
+    if (pow == 0) t = 1;
+    for (int i=1;i<pow;i++)
+        t = t*base;
+    return t;
+}
+
 QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     : QWidget(parent)
 {
@@ -9,7 +18,7 @@ QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     isDragging=false;
     cpOwner=aOwner;
     oldZoom=100;
-    savedState=0;
+    savedState=QString();
     fInputs.clear();
     fOutputs.clear();
     setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -237,6 +246,38 @@ void QCPBase::checkRecycle(bool forceDelete)
     deleteLater();
 }
 
+void QCPBase::deleteInputs()
+{
+    for (int i=0;i<fInputs.count();i++) {
+        QCPInput* cbInput = fInputs.at(i);
+        if ((cbInput->fromPin!=-1) && (cbInput->fromCmp!=0))
+        {
+            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toCmp=0;
+            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toPin=-1;
+        }
+        cbInput->fromCmp=0;
+        cbInput->fromPin=-1;
+        cbInput->deleteLater();
+    }
+    fInputs.clear();
+}
+
+void QCPBase::deleteOutputs()
+{
+    for (int i=0;i<fOutputs.count();i++) {
+        QCPOutput* cbOutput = fOutputs.at(i);
+        if ((cbOutput->toPin!=-1) && (cbOutput->toCmp!=0))
+        {
+            cbOutput->toCmp->fInputs[cbOutput->toPin]->fromCmp=0;
+            cbOutput->toCmp->fInputs[cbOutput->toPin]->fromPin=-1;
+        }
+        cbOutput->toCmp=0;
+        cbOutput->toPin=-1;
+        cbOutput->deleteLater();
+    }
+    fOutputs.clear();
+}
+
 int QCPBase::zoom() const
 {
     return cpOwner->zoom;
@@ -249,12 +290,15 @@ bool QCPBase::isStateChanged()
     return (calcState()!=savedState);
 }
 
-qint64 QCPBase::calcState()
+QString QCPBase::calcState()
 {
-    qint64 a = 0;
-    for(int i=0;i<fInputs.count();i++)
+    QString a = QString();
+    for(int i=0;i<fInputs.count();i++) {
         if (fInputs.at(i)->state)
-            a = a | (1 << i);
+            a += "1";
+        else
+            a += "0";
+    }
     return a;
 }
 

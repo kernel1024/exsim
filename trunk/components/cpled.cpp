@@ -17,8 +17,8 @@ QCPLed::~QCPLed()
 
 QSize QCPLed::minimumSizeHint() const
 {
-    return QSize(55*zoom()/100,
-                 50*zoom()/100);
+    return QSize(45*zoom()/100+getPinSize()+3*zoom()/100,
+                 45*zoom()/100);
 }
 
 void QCPLed::readFromStream(QDataStream &stream)
@@ -57,6 +57,11 @@ void QCPLed::paintEvent(QPaintEvent *)
 
     redrawPins(p);
 
+    rc = rect();
+    rc.adjust(getPinSize()+3*zoom()/100,0,-1,-1);
+    p.setBrush(QBrush(Qt::black,Qt::SolidPattern));
+    p.drawRect(rc);
+
     if (fInp->state) {
         p.setPen(QPen(onColor));
         p.setBrush(QBrush(onColor,Qt::SolidPattern));
@@ -64,9 +69,7 @@ void QCPLed::paintEvent(QPaintEvent *)
         p.setPen(QPen(offColor));
         p.setBrush(QBrush(offColor,Qt::SolidPattern));
     }
-    rc = rect();
-    rc.adjust(12*zoom()/100,7*zoom()/100,
-              -7*zoom()/100,-7*zoom()/100);
+    rc.adjust(5*zoom()/100,5*zoom()/100,-5*zoom()/100,-5*zoom()/100);
     p.drawEllipse(rc);
 
     p.setFont(of);
