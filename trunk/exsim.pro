@@ -62,3 +62,5 @@ LIBS += -lopenal
 
 FORMS += \
     mainwindow.ui
+
+OTHER_FILES +=
