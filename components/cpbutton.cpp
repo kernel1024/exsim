@@ -23,21 +23,21 @@ QSize QCPButton::minimumSizeHint() const
                  3*QApplication::fontMetrics().height()     * zoom()/100);
 }
 
-void QCPButton::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPButton::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     bool ok;
     pushButton = (element.attribute("pushButton","0").toInt(&ok)!=0);
     if (!ok) {
-        errlog << tr("QCPButton: cannot convert pushButton parameter");
+        errlog << tr("QCPButton: cannot convert pushButton parameter") << endl;
         pushButton = false;
     }
-    QCPBase::readFromStream(errlog,element);
+    QCPBase::readFromXML(errlog,element);
 }
 
-void QCPButton::storeToStream(QDomElement &element)
+void QCPButton::storeToXML(QDomElement &element)
 {
     element.setAttribute("pushButton",(int)pushButton);
-    QCPBase::storeToStream(element);
+    QCPBase::storeToXML(element);
 }
 
 void QCPButton::realignPins(QPainter &)

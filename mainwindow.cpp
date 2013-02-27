@@ -2,6 +2,7 @@
 #include <time.h>
 #include "mainwindow.h"
 #include "components/cpbase.h"
+#include "loadinglogdialog.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 
@@ -220,10 +221,17 @@ void MainWindow::continueLoading()
         connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
     }
     xdoc.clear();
-    if (!errbuf.isEmpty())
-        qDebug() << errbuf;
-    errbuf.clear();
+    errlog.flush();
     repaintTimer=startTimer(500);
+
+    if (!errbuf.isEmpty()) {
+        QLoadingLogDialog* dlg = new QLoadingLogDialog(this);
+        dlg->setLogText(QString::fromUtf8(errbuf));
+        dlg->exec();
+        dlg->setParent(NULL);
+        delete dlg;
+    }
+    errbuf.clear();
 }
 
 void MainWindow::fileNew()

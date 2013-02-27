@@ -12,8 +12,8 @@ public:
     ~QCPLed();
     QSize minimumSizeHint() const;
 
-    void readFromStream(QTextStream &errlog, const QDomElement &element);
-    void storeToStream(QDomElement &element);
+    void readFromXML(QTextStream &errlog, const QDomElement &element);
+    void storeToXML(QDomElement &element);
     
 protected:
     QColor onColor;
