@@ -23,8 +23,6 @@
 #include "components/cpsynth.h"
 #include "components/cplabel.h"
 
-// TODO: Saving and loading from XML, with structured content, for better compatibility between versions
-
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
 {
