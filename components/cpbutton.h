@@ -13,19 +13,24 @@ public:
 
     QSize minimumSizeHint() const;
 
+    void readFromStream(QDataStream &stream);
+    void storeToStream(QDataStream &stream);
+
 protected:
     bool oldPressed;
     bool pressed;
+    bool pushButton;
     QPoint savedClick;
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void realignPins(QPainter & painter);
     void doLogicPrivate();
+    void contextMenuEvent(QContextMenuEvent *);
 
-signals:
-    
 public slots:
+    void modePushButton();
+    void modeTumbler();
     
 };
 

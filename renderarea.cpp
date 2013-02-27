@@ -156,11 +156,6 @@ void QRenderArea::paintEvent ( QPaintEvent * )
     p.setFont(of);
 }
 
-bool rectLessThan(const QRect &r1, const QRect &r2)
-{
-     return r1.top() < r2.top();
-}
-
 void QRenderArea::paintConnections(QPainter* p)
 {
     const int pinSpace = 20*zoom/100;

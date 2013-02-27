@@ -57,19 +57,7 @@ void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
 
     fOut->inversed = (lt==LT_NOT);
 
-    // disconnect and delete all inputs
-    for (int i=0;i<fInputs.count();i++) {
-        QCPInput* cbInput = fInputs.at(i);
-        if ((cbInput->fromPin!=-1) && (cbInput->fromCmp!=0))
-        {
-            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toCmp=0;
-            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toPin=-1;
-        }
-        cbInput->fromCmp=0;
-        cbInput->fromPin=-1;
-        cbInput->deleteLater();
-    }
-    fInputs.clear();
+    deleteInputs();
     cpOwner->repaintConn();
 
     // create new inputs
@@ -92,23 +80,32 @@ void QCPLogic::realignPins(QPainter &)
 
 void QCPLogic::doLogicPrivate()
 {
-    qint32 state = calcState();
     bool outv = false;
     switch (mode) {
         case LT_AND:
-            outv = (state == ((1 << fInputs.count())-1));
+            outv = true;
+            for (int i=0;i<fInputs.count();i++)
+                if (!fInputs[i]->state) {
+                    outv = false;
+                    break;
+                }
             break;
         case LT_OR:
-            outv = (state != 0);
+            outv = false;
+            for (int i=0;i<fInputs.count();i++)
+                if (fInputs[i]->state) {
+                    outv = true;
+                    break;
+                }
             break;
         case LT_XOR:
-            outv = (state==1 || state==2);
+            outv = ((fInputs[0]->state && !fInputs[1]->state) ||
+                    (!fInputs[0]->state && fInputs[1]->state));
             break;
         case LT_NOT:
-            outv = (state==0);
+            outv = (!fInputs[0]->state);
             break;
         default:
-            state = 0;
             outv = false;
             break;
     }

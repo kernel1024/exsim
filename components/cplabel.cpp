@@ -9,7 +9,7 @@ QCPLabel::QCPLabel(QWidget *parent, QRenderArea *aOwner) :
 QSize QCPLabel::minimumSizeHint() const
 {
     QFont n=QApplication::font();
-    n.setPointSize((n.pointSize())* zoom()/100);
+    n.setPointSize((n.pointSize()+2)* zoom()/100);
     QFontMetrics fm(n);
     return QSize(fm.width(labelText),2*fm.height());
 }
@@ -43,19 +43,28 @@ void QCPLabel::contextMenuEvent(QContextMenuEvent *event)
     cm.exec(event->globalPos());
 }
 
+void QCPLabel::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button()==Qt::LeftButton)
+        changeText();
+    else
+        QCPBase::mouseDoubleClickEvent(event);
+}
+
 void QCPLabel::changeText()
 {
     bool ok;
-    QString s = QInputDialog::getText(cpOwner,tr("Text label"),tr("Text"),QLineEdit::Normal,labelText,&ok);
+    QString s = QInputDialog::getText(this,tr("Text label"),tr("Text"),QLineEdit::Normal,labelText,&ok);
     if (ok && !s.isEmpty()) {
         labelText = s;
+        resize(minimumSizeHint());
         update();
     }
 }
 
 void QCPLabel::changeColor()
 {
-    QColor s = QColorDialog::getColor(labelColor,cpOwner);
+    QColor s = QColorDialog::getColor(labelColor,this);
     if (s.isValid()) {
         labelColor = s;
         update();
@@ -68,29 +77,13 @@ void QCPLabel::paintEvent(QPaintEvent *)
     QPen op=p.pen();
     QFont of=p.font();
 
-    p.setPen(QPen(labelColor));
     QRect rc = rect();
+    p.setPen(QPen(labelColor));
     QFont n = QApplication::font();
-    n.setPointSize((n.pointSize()) * zoom()/100);
+    n.setPointSize((n.pointSize()+2) * zoom()/100);
     p.setFont(n);
     p.drawText(rc,Qt::AlignCenter,labelText);
 
     p.setFont(of);
     p.setPen(op);
-}
-
-
-void QCPLabel::setPeriod(int msec)
-{
-    period = msec;
-    mainTimer.setInterval(period/2);
-    mainTimer.start();
-}
-
-
-void QCPLabel::timeImpulse()
-{
-    if (isHidden()) return;
-    genState = !genState;
-    doLogic();
 }

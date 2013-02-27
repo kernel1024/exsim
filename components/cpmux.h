@@ -7,27 +7,25 @@ class QCPMux : public QCPBase
 {
     Q_OBJECT
 public:
-    QCPOutput* fXOut;
-    QCPOutput* fYOut;
-    QCPInput* fX1Inp;
-    QCPInput* fX2Inp;
-    QCPInput* fX3Inp;
-    QCPInput* fX4Inp;
-    QCPInput* fY1Inp;
-    QCPInput* fY2Inp;
-    QCPInput* fY3Inp;
-    QCPInput* fY4Inp;
-    QCPInput* fA0Inp;
-    QCPInput* fA1Inp;
-
+    int dWidth;
+    int dCount;
     explicit QCPMux(QWidget *parent, QRenderArea *aOwner);
     ~QCPMux();
     QSize minimumSizeHint() const;
+
+    void readFromStream(QDataStream &stream);
+    void storeToStream(QDataStream &stream);
 
 protected:
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
+    void updateMuxPins();
+    void contextMenuEvent(QContextMenuEvent *);
+
+public slots:
+    void changeAddrSize();
+    void changeDataSize();
 };
 
 #endif // CPMUX_H

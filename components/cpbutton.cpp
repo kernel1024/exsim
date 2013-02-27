@@ -6,6 +6,7 @@ QCPButton::QCPButton(QWidget *parent, QRenderArea *aOwner) :
 {
     pressed = false;
     savedClick = QPoint();
+    pushButton = false;
     fOut = new QCPOutput(this,this);
     fOutputs.append(fOut);
 }
@@ -22,6 +23,18 @@ QSize QCPButton::minimumSizeHint() const
                  3*QApplication::fontMetrics().height()     * zoom()/100);
 }
 
+void QCPButton::readFromStream(QDataStream &stream)
+{
+    stream >> pushButton;
+    QCPBase::readFromStream(stream);
+}
+
+void QCPButton::storeToStream(QDataStream &stream)
+{
+    stream << pushButton;
+    QCPBase::storeToStream(stream);
+}
+
 void QCPButton::realignPins(QPainter &)
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
@@ -34,20 +47,37 @@ void QCPButton::doLogicPrivate()
 
 void QCPButton::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button()==Qt::LeftButton)
+    if (event->button()==Qt::LeftButton) {
         savedClick=mapToGlobal(event->pos());
+        if (pushButton) {
+            QRect rc = rect();
+            rc.adjust(getPinSize(),getPinSize(),-2*getPinSize(),-getPinSize());
+            QPoint dp = mapToGlobal(event->pos()) - savedClick;
+            if (rc.contains(event->pos()) && (dp.manhattanLength()<3)) {
+                pressed = true;
+                doLogic();
+            }
+        };
+    }
     QCPBase::mousePressEvent(event);
 }
 
 void QCPButton::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button()==Qt::LeftButton) {
-        QRect rc = rect();
-        rc.adjust(getPinSize(),getPinSize(),-2*getPinSize(),-getPinSize());
-        QPoint dp = mapToGlobal(event->pos()) - savedClick;
-        if (rc.contains(event->pos()) && (dp.manhattanLength()<3)) {
-            pressed = !pressed;
-            doLogic();
+        if (pushButton) {
+            if (pressed) {
+                pressed = false;
+                doLogic();
+            }
+        } else {
+            QRect rc = rect();
+            rc.adjust(getPinSize(),getPinSize(),-2*getPinSize(),-getPinSize());
+            QPoint dp = mapToGlobal(event->pos()) - savedClick;
+            if (rc.contains(event->pos()) && (dp.manhattanLength()<3)) {
+                pressed = !pressed;
+                doLogic();
+            }
         }
     }
     QCPBase::mouseReleaseEvent(event);
@@ -117,4 +147,27 @@ void QCPButton::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+}
+
+void QCPButton::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu cm(this);
+    QAction* acm;
+    acm = cm.addAction(tr("Tumbler"),this,SLOT(modeTumbler()));
+    acm->setCheckable(true);
+    acm->setChecked(!pushButton);
+    acm = cm.addAction(tr("Push button"),this,SLOT(modePushButton()));
+    acm->setCheckable(true);
+    acm->setChecked(pushButton);
+    cm.exec(event->globalPos());
+}
+
+void QCPButton::modeTumbler()
+{
+    pushButton = false;
+}
+
+void QCPButton::modePushButton()
+{
+    pushButton = true;
 }

@@ -1,15 +1,6 @@
 #include "cpram.h"
 #include "renderarea.h"
 
-int ipow(int base, int pow)
-{
-    qlonglong t = base;
-    if (pow == 0) t = 1;
-    for (int i=1;i<pow;i++)
-        t = t*base;
-    return t;
-}
-
 QCPRAM::QCPRAM(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
@@ -46,19 +37,7 @@ void QCPRAM::updateInputsCount()
     data.clear();
     data.fill('\x00',ipow(2,addrWidth));
 
-    // disconnect and delete all inputs
-    for (int i=0;i<fInputs.count();i++) {
-        QCPInput* cbInput = fInputs.at(i);
-        if ((cbInput->fromPin!=-1) && (cbInput->fromCmp!=0))
-        {
-            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toCmp=0;
-            cbInput->fromCmp->fOutputs[cbInput->fromPin]->toPin=-1;
-        }
-        cbInput->fromCmp=0;
-        cbInput->fromPin=-1;
-        cbInput->deleteLater();
-    }
-    fInputs.clear();
+    deleteInputs();
 
     // create new inputs
     for(int i=0;i<addrWidth;i++)
@@ -233,7 +212,7 @@ void QCPRAM::saveToFile()
 void QCPRAM::changeSize()
 {
     bool ok;
-    int tmp = QInputDialog::getInt(this,tr("exSim"),tr("RAM address bus width"),addrWidth,1,20,1,&ok);
+    int tmp = QInputDialog::getInt(this,tr("RAM params"),tr("RAM address bus width"),addrWidth,1,20,1,&ok);
     if (ok) {
         addrWidth = tmp;
         updateInputsCount();

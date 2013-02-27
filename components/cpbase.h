@@ -21,9 +21,9 @@ private:
 protected:
     float oldZoom;
     int zoom() const;
-    qint64 savedState;
+    QString savedState;
     bool isStateChanged();
-    qint64 calcState();
+    QString calcState();
 
     virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;
@@ -31,6 +31,8 @@ protected:
     int getDCompHeight(const int divCount) const;
     int getDCompIncrement() const;
     void checkRecycle(bool forceDelete = false);
+    void deleteInputs();
+    void deleteOutputs();
 
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);
@@ -116,5 +118,7 @@ public:
 signals:
     void applyInputState(QCPInput* input, bool state);
 };
+
+int ipow(int base, int pow);
 
 #endif
