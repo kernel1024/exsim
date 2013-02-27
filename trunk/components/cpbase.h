@@ -52,8 +52,8 @@ public:
     virtual void zoomChanged();
     int getPinSize() const;
 
-    virtual void readFromStream(QTextStream &errlog, const QDomElement &element);
-    virtual void storeToStream(QDomElement & element);
+    virtual void readFromXML(QTextStream &errlog, const QDomElement &element);
+    virtual void storeToXML(QDomElement & element);
     virtual bool canConnectOut(QCPBase * toComponent);
     virtual bool canConnectIn(QCPBase * toComponent);
     void regroupOutputs();
@@ -76,8 +76,8 @@ class QCPOutput : public QObject
     Q_OBJECT
 public:
     QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
-    void readFromStream(QTextStream & errlog, const QDomElement &element);
-    void storeToStream(QDomElement & element);
+    void readFromXML(QTextStream & errlog, const QDomElement &element);
+    void storeToXML(QDomElement & element);
     void postLoadBind(QTextStream &errlog);
     void applyState();
     
@@ -111,8 +111,8 @@ public:
 
     QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName = QString());
 
-    void readFromStream(QTextStream &errlog, const QDomElement &element);
-    void storeToStream(QDomElement & element);
+    void readFromXML(QTextStream &errlog, const QDomElement &element);
+    void storeToXML(QDomElement & element);
     void postLoadBind(QTextStream &errlog);
     void applyState(bool aState);
 

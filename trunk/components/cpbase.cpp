@@ -385,16 +385,16 @@ void QCPBase::mouseReleaseEvent(QMouseEvent * event)
     emit componentChanged(this);
 }
 
-void QCPBase::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPBase::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     pinColorOff = QColor(element.attribute("pinColorOff","blue"));
     pinColorOn = QColor(element.attribute("pinColorOn","red"));
     if (!pinColorOff.isValid()) {
-        errlog << tr("QCPBase: pinColorOff has incorrect name");
+        errlog << tr("QCPBase: pinColorOff has incorrect name") << endl;
         pinColorOff = QColor(Qt::blue);
     }
     if (!pinColorOn.isValid()) {
-        errlog << tr("QCPBase: pinColorOn has incorrect name");
+        errlog << tr("QCPBase: pinColorOn has incorrect name") << endl;
         pinColorOn = QColor(Qt::red);
     }
 
@@ -402,12 +402,12 @@ void QCPBase::readFromStream(QTextStream &errlog, const QDomElement &element)
     QDomElement out = element.firstChildElement("outputs");
 
     for (int i=0;i<fInputs.count();i++)
-        fInputs[i]->readFromStream(errlog,inp.firstChildElement(tr("inp%1").arg(i)));
+        fInputs[i]->readFromXML(errlog,inp.firstChildElement(tr("inp%1").arg(i)));
     for (int i=0;i<fOutputs.count();i++)
-        fOutputs[i]->readFromStream(errlog,out.firstChildElement(tr("out%1").arg(i)));
+        fOutputs[i]->readFromXML(errlog,out.firstChildElement(tr("out%1").arg(i)));
 }
 
-void QCPBase::storeToStream(QDomElement &element)
+void QCPBase::storeToXML(QDomElement &element)
 {
     element.setAttribute("pinColorOff",pinColorOff.name());
     element.setAttribute("pinColorOn",pinColorOn.name());
@@ -415,14 +415,14 @@ void QCPBase::storeToStream(QDomElement &element)
     QDomElement inp = element.ownerDocument().createElement("inputs");
     for (int i=0;i<fInputs.count();i++) {
         QDomElement ti = element.ownerDocument().createElement(tr("inp%1").arg(i));
-        fInputs[i]->storeToStream(ti);
+        fInputs[i]->storeToXML(ti);
         inp.appendChild(ti);
     }
     element.appendChild(inp);
     QDomElement out = element.ownerDocument().createElement("outputs");
     for (int i=0;i<fOutputs.count();i++) {
         QDomElement ti = element.ownerDocument().createElement(tr("out%1").arg(i));
-        fOutputs[i]->storeToStream(ti);
+        fOutputs[i]->storeToXML(ti);
         out.appendChild(ti);
     }
     element.appendChild(out);
@@ -472,19 +472,21 @@ QCPOutput::QCPOutput(QObject * parent, QCPBase * aOwner, QString aPinName)
     groupId=QUuid();
 }
 
-void QCPOutput::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPOutput::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
+    if (element.isNull())
+        errlog << tr("QCPOutput: NULL element passed") << endl;
     bool ok;
     toPin = element.attribute("toPin","0").toInt(&ok);
     if (!ok) {
-        errlog << tr("QCPOutput: cannot read pin number");
+        errlog << tr("QCPOutput: cannot read pin number") << endl;
         toPin = 0;
     }
     toCmp=NULL;
     QString q = element.attribute("toCmp","NONE");
     inversed = (element.attribute("inversed","0").toInt(&ok)!=0);
     if (!ok) {
-        errlog << tr("QCPInput: cannot read pin inversion mark");
+        errlog << tr("QCPInput: cannot read pin inversion mark") << endl;
         inversed = false;
     }
     if (q!="NONE")
@@ -494,7 +496,7 @@ void QCPOutput::readFromStream(QTextStream &errlog, const QDomElement &element)
     groupId=QUuid();
 }
 
-void QCPOutput::storeToStream(QDomElement &element )
+void QCPOutput::storeToXML(QDomElement &element )
 {
     element.setAttribute("toPin",toPin);
     QString q;
@@ -511,7 +513,7 @@ void QCPOutput::postLoadBind(QTextStream &errlog)
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
     if (b==0)
-        errlog << tr("QCPOutput: binding error in component %1").arg(ownerCmp->objectName());
+        errlog << tr("QCPOutput: binding error in component %1").arg(ownerCmp->objectName()) << endl;
     else {
         toCmp=b;
         oldState = !state;
@@ -552,19 +554,21 @@ QCPInput::QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName)
             Qt::QueuedConnection);
 }
 
-void QCPInput::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPInput::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
+    if (element.isNull())
+        errlog << tr("QCPInput: NULL element passed") << endl;
     bool ok;
     fromPin = element.attribute("fromPin","0").toInt(&ok);
     if (!ok) {
-        errlog << tr("QCPInput: cannot read pin number");
+        errlog << tr("QCPInput: cannot read pin number") << endl;
         fromPin = 0;
     }
     fromCmp=NULL;
     QString q = element.attribute("fromCmp","NONE");
     inversed = element.attribute("inversed","0").toInt(&ok);
     if (!ok) {
-        errlog << tr("QCPInput: cannot read pin inversion mark");
+        errlog << tr("QCPInput: cannot read pin inversion mark") << endl;
         inversed = false;
     }
     if (q!="NONE")
@@ -573,7 +577,7 @@ void QCPInput::readFromStream(QTextStream &errlog, const QDomElement &element)
         ffLogic="";
 }
 
-void QCPInput::storeToStream(QDomElement & element)
+void QCPInput::storeToXML(QDomElement & element)
 {
     element.setAttribute("fromPin",fromPin);
     QString q;
@@ -590,7 +594,7 @@ void QCPInput::postLoadBind(QTextStream &errlog)
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
     if (b==0)
-        errlog << tr("QCPInput: binding error in component %1").arg(ownerCmp->objectName());
+        errlog << tr("QCPInput: binding error in component %1").arg(ownerCmp->objectName()) << endl;
     else
         fromCmp=b;
 }

@@ -101,22 +101,22 @@ QSize QCPBeeper::minimumSizeHint() const
                  2*fm.height());
 }
 
-void QCPBeeper::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPBeeper::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     bool ok;
     freq = element.attribute("freq","2000.0").toFloat(&ok);
     if ((!ok) || (freq<20.0) || (freq>20000.0)) {
-        errlog << tr("QCPBeeper: freq value incorrect");
+        errlog << tr("QCPBeeper: freq value incorrect") << endl;
         freq = 2000.0;
     }
     updateFreq(freq);
-    QCPBase::readFromStream(errlog,element);
+    QCPBase::readFromXML(errlog,element);
 }
 
-void QCPBeeper::storeToStream(QDomElement &element)
+void QCPBeeper::storeToXML(QDomElement &element)
 {
     element.setAttribute("freq",tr("%1").arg(freq,1,'f',1));
-    QCPBase::storeToStream(element);
+    QCPBase::storeToXML(element);
 }
 
 void QCPBeeper::realignPins(QPainter &)

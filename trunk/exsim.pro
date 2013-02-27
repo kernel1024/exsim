@@ -30,7 +30,8 @@ HEADERS       = components/cpbase.h \
     components/cprndgen.h \
     components/cpram.h \
     components/cpsynth.h \
-    components/cplabel.h
+    components/cplabel.h \
+    loadinglogdialog.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -55,7 +56,8 @@ SOURCES       = main.cpp \
     components/cprndgen.cpp \
     components/cpram.cpp \
     components/cpsynth.cpp \
-    components/cplabel.cpp
+    components/cplabel.cpp \
+    loadinglogdialog.cpp
 
 RESOURCES     = exsim.qrc
 
@@ -64,4 +66,5 @@ CONFIG += warn_on link_pkgconfig
 LIBS += -lopenal
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    loadinglogdialog.ui

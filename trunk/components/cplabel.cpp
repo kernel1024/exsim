@@ -15,29 +15,29 @@ QSize QCPLabel::minimumSizeHint() const
     return QSize(fm.width(labelText),2*fm.height());
 }
 
-void QCPLabel::readFromStream(QTextStream &errlog, const QDomElement &element)
+void QCPLabel::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     labelText = element.attribute("labelText","text");
     labelColor = element.attribute("labelColor","black");
     if (!labelColor.isValid()) {
-        errlog << tr("QCPLabel: incorrect labelColor value");
+        errlog << tr("QCPLabel: incorrect labelColor value") << endl;
         labelColor = QColor(Qt::black);
     }
     if (!labelFont.fromString(element.attribute("labelFont",""))) {
-        errlog << tr("QCPLabel: incorrect labelFont value");
+        errlog << tr("QCPLabel: incorrect labelFont value") << endl;
         labelFont = QApplication::font();
         labelFont.setPointSize((labelFont.pointSize()+2)*zoom()/100);
     }
-    QCPBase::readFromStream(errlog,element);
+    QCPBase::readFromXML(errlog,element);
     if (labelText.isEmpty()) checkRecycle(true);
 }
 
-void QCPLabel::storeToStream(QDomElement &element)
+void QCPLabel::storeToXML(QDomElement &element)
 {
     element.setAttribute("labelText",labelText);
     element.setAttribute("labelColor",labelColor.name());
     element.setAttribute("labelFont",labelFont.toString());
-    QCPBase::storeToStream(element);
+    QCPBase::storeToXML(element);
 }
 
 void QCPLabel::realignPins(QPainter &)

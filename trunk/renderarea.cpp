@@ -427,7 +427,7 @@ void QRenderArea::setZoom(int zoomFactor)
 void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
 {
     if (element.isNull())
-        errlog << tr("readSchematic: NULL element passed");
+        errlog << tr("readSchematic: NULL element passed") << endl;
 
     for (int i=0;i<element.childNodes().count();i++)
     {
@@ -437,18 +437,18 @@ void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
         QCPBase* b=createCpInstance(clName);
         if (b==0)
         {
-            errlog << tr("Loading error. Class '%1' not found.").arg(clName);
+            errlog << tr("Loading error. Class '%1' not found.").arg(clName) << endl;
         } else {
             QPoint pos = QPoint(200,200);
             QStringList spos = xc.attribute("position","200,200").split(',',QString::SkipEmptyParts);
             if (spos.count()!=2)
-                errlog << tr("readSchematic: wrong element '%1' position").arg(clName);
+                errlog << tr("readSchematic: wrong element '%1' position").arg(clName) << endl;
             else {
                 bool ok1, ok2;
                 int x = spos.first().toInt(&ok1);
                 int y = spos.last().toInt(&ok2);
                 if (!ok1 || !ok2) {
-                    errlog << tr("readSchematic: wrong element '%1' position").arg(clName);
+                    errlog << tr("readSchematic: wrong element '%1' position").arg(clName) << endl;
                     x = 200; y = 200;
                 }
                 pos = QPoint(x,y);
@@ -456,7 +456,7 @@ void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
             QString instName = xc.attribute("instanceName",tr("QCPBase%1").arg(i+1));
             b->move(pos);
             b->setObjectName(instName);
-            b->readFromStream(errlog, xc);
+            b->readFromXML(errlog, xc);
             b->show();
         }
     }
@@ -476,7 +476,7 @@ void QRenderArea::storeSchematic(QDomElement &element)
         xc.setAttribute("className",base->metaObject()->className());
         xc.setAttribute("position",tr("%1,%2").arg(base->pos().x()).arg(base->pos().y()));
         xc.setAttribute("instanceName",base->objectName());
-        base->storeToStream(xc);
+        base->storeToXML(xc);
         element.appendChild(xc);
     }
 }
