@@ -96,6 +96,8 @@ void QCPGen::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+
+    drawSelection(p);
 }
 
 

@@ -110,6 +110,8 @@ void QCPExtender::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+
+    drawSelection(p);
 }
 
 void QCPExtender::contextMenuEvent(QContextMenuEvent *event)

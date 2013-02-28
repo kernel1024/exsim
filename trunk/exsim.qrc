@@ -28,5 +28,6 @@
         <file>images/sum.png</file>
         <file>images/synth.png</file>
         <file>images/label.png</file>
+        <file>images/intextender.png</file>
     </qresource>
 </RCC>

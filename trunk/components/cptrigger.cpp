@@ -151,6 +151,8 @@ void QCPTrigger::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+
+    drawSelection(p);
 }
 
 void QCPTrigger::contextMenuEvent(QContextMenuEvent *event)

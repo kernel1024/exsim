@@ -182,6 +182,8 @@ void QCPSynth::paintEvent(QPaintEvent *)
     p.setBrush(ob);
     p.setPen(op);
 
+    drawSelection(p);
+
     if (!alPlaying && fOEInp->state) {
         alsrc = 0;
         alGenSources(1, &alsrc);

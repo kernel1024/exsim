@@ -85,6 +85,8 @@ void QCPLed::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+
+    drawSelection(p);
 }
 
 void QCPLed::contextMenuEvent(QContextMenuEvent *event)

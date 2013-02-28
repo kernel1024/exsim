@@ -29,7 +29,7 @@ void QCPLabel::readFromXML(QTextStream &errlog, const QDomElement &element)
         labelFont.setPointSize((labelFont.pointSize()+2)*zoom()/100);
     }
     QCPBase::readFromXML(errlog,element);
-    if (labelText.isEmpty()) checkRecycle(true);
+    if (labelText.isEmpty()) deleteComponent();
 }
 
 void QCPLabel::storeToXML(QDomElement &element)
@@ -109,4 +109,6 @@ void QCPLabel::paintEvent(QPaintEvent *)
 
     p.setFont(of);
     p.setPen(op);
+
+    drawSelection(p);
 }

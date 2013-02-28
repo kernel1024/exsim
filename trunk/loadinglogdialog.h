@@ -14,7 +14,7 @@ class QLoadingLogDialog : public QDialog
 public:
     explicit QLoadingLogDialog(QWidget *parent = 0);
     ~QLoadingLogDialog();
-    void setLogText(QString log);
+    void setLogText(const QString &log);
     
 private:
     Ui::QLoadingLogDialog *ui;

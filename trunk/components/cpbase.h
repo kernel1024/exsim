@@ -18,6 +18,7 @@ class QCPBase : public QWidget
 
 private:
     void mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase * &aFilter);
+    void moveComponent(QMouseEvent *event);
 
 protected:
     float oldZoom;
@@ -31,9 +32,9 @@ protected:
 
     int getDCompHeight(const int divCount) const;
     int getDCompIncrement() const;
-    void checkRecycle(bool forceDelete = false);
     void deleteInputs();
     void deleteOutputs();
+    void drawSelection(QPainter & painter);
 
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);
@@ -51,11 +52,12 @@ public:
     void redrawPins(QPainter & painter);
     virtual void zoomChanged();
     int getPinSize() const;
+    void deleteComponent();
 
     virtual void readFromXML(QTextStream &errlog, const QDomElement &element);
     virtual void storeToXML(QDomElement & element);
-    virtual bool canConnectOut(QCPBase * toComponent);
-    virtual bool canConnectIn(QCPBase * toComponent);
+    virtual bool canConnectOut(const QCPBase * toComponent);
+    virtual bool canConnectIn(const QCPBase * toComponent);
     void regroupOutputs();
 
     QRenderArea *cpOwner;
@@ -63,8 +65,6 @@ public:
     QList<QCPOutput*> fOutputs;
     QPoint relCorner;
     bool isDragging;
-    QColor pinColorOff;
-    QColor pinColorOn;
 signals:
     void componentChanged(QCPBase * obj);
 private slots:
@@ -114,7 +114,7 @@ public:
     void readFromXML(QTextStream &errlog, const QDomElement &element);
     void storeToXML(QDomElement & element);
     void postLoadBind(QTextStream &errlog);
-    void applyState(bool aState);
+    void applyState(const bool aState);
 
 signals:
     void applyInputState(QCPInput* input, bool state);
