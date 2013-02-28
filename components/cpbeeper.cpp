@@ -171,6 +171,8 @@ void QCPBeeper::paintEvent(QPaintEvent *)
     p.setBrush(ob);
     p.setPen(op);
 
+    drawSelection(p);
+
     if (!alPlaying && fInp->state) {
         alsrc = 0;
         alGenSources(1, &alsrc);

@@ -1,6 +1,6 @@
-#include "cpmux.h"
+#include "cpintextender.h"
 
-QCPMux::QCPMux(QWidget *parent, QRenderArea *aOwner) :
+QCPIntExtender::QCPIntExtender(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
 {
     dWidth = 4;
@@ -8,7 +8,7 @@ QCPMux::QCPMux(QWidget *parent, QRenderArea *aOwner) :
     updateMuxPins();
 }
 
-QCPMux::~QCPMux()
+QCPIntExtender::~QCPIntExtender()
 {
     while (!fInputs.isEmpty()) {
         QCPInput* inp = fInputs.takeFirst();
@@ -20,42 +20,40 @@ QCPMux::~QCPMux()
     }
 }
 
-void QCPMux::updateMuxPins()
+void QCPIntExtender::updateMuxPins()
 {
     deleteInputs();
     deleteOutputs();
     for (int i=0;i<ipow(2,dCount);i++) {
         for (int j=0;j<dWidth;j++) {
             if (i==0) {
-                QCPOutput* out = new QCPOutput(this,this,tr("Q%1").arg(j)); fOutputs.append(out);
+                QCPInput* in = new QCPInput(this,this,tr("%1").arg(j)); fInputs.append(in);
             }
-            QCPInput* in = new QCPInput(this,this,tr("P%1%2").arg(QChar(0x41+i)).arg(j)); fInputs.append(in);
+            QCPOutput* out = new QCPOutput(this,this,tr("%1%2").arg(QChar(0x41+i)).arg(j));
+            fOutputs.append(out);
         }
-    }
-    for (int i=0;i<dCount;i++) {
-        QCPInput* in = new QCPInput(this,this,tr("A%1").arg(i)); fInputs.append(in);
     }
     resize(minimumSizeHint());
     update();
 }
 
 
-QSize QCPMux::minimumSizeHint() const
+QSize QCPIntExtender::minimumSizeHint() const
 {
-    return QSize(110*zoom()/100,getDCompHeight(ipow(2,dCount)));
+    return QSize(100*zoom()/100,getDCompHeight(ipow(2,dCount)-1));
 }
 
-void QCPMux::readFromXML(QTextStream &errlog, const QDomElement &element)
+void QCPIntExtender::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     bool ok;
     dCount = element.attribute("channels","2").toInt(&ok);
     if ((!ok) || (dCount>8) || (dCount<1)) {
-        errlog << tr("QCPMux: channels value incorrect") << endl;
+        errlog << tr("QCPIntExtender: channels value incorrect") << endl;
         dCount = 2;
     }
     dWidth = element.attribute("dataWidth","2").toInt(&ok);
     if ((!ok) || (dWidth<1) || (dWidth>8)) {
-        errlog << tr("QCPMux: dataWidth value incorrect") << endl;
+        errlog << tr("QCPIntExtender: dataWidth value incorrect") << endl;
         dWidth = 2;
     }
 
@@ -63,44 +61,38 @@ void QCPMux::readFromXML(QTextStream &errlog, const QDomElement &element)
     QCPBase::readFromXML(errlog,element);
 }
 
-void QCPMux::storeToXML(QDomElement &element)
+void QCPIntExtender::storeToXML(QDomElement &element)
 {
     element.setAttribute("channels",dCount);
     element.setAttribute("dataWidth",dWidth);
     QCPBase::storeToXML(element);
 }
 
-void QCPMux::realignPins(QPainter &)
+void QCPIntExtender::realignPins(QPainter &)
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;
     int ddyc = 0;
-    for (int i=0;i<fInputs.count();i++) {
+    for (int i=0;i<fOutputs.count();i++) {
         if (i>0) {
-            if (fInputs[i-1]->pinName.at(0)!='A')
-                if (fInputs[i]->pinName.left(2)!=fInputs[i-1]->pinName.left(2)) ddyc+=ddy;
+            if (fOutputs[i]->pinName.at(0)!=fOutputs[i-1]->pinName.at(0)) ddyc+=ddy;
         }
-        fInputs[i]->relCoord = QPoint(getPinSize()/2,(i+1)*dy+ddyc);
-        if (i<fOutputs.count())
-            fOutputs[i]->relCoord = QPoint(width()-getPinSize()/2,(i+1)*dy+ddyc);
+        fOutputs[i]->relCoord = QPoint(width()-getPinSize()/2,(i+1)*dy+ddyc);
+        if (i<fInputs.count())
+            fInputs[i]->relCoord = QPoint(getPinSize()/2,(i+1)*dy+ddyc);
     }
 }
 
-void QCPMux::doLogicPrivate()
+void QCPIntExtender::doLogicPrivate()
 {
-    qint32 di = 0;
-    for (int i=0;i<dCount;i++)
-        di = di | ((fInputs[i+ipow(2,dCount)*dWidth]->state & 0x1) << i);
-
-    for (int i=0;i<dWidth;i++) {
-        if ((di*dWidth+i)<fInputs.count())
-            fOutputs[i]->state = fInputs[di*dWidth+i]->state;
-        else
-            fOutputs[i]->state = false;
-    }
+    for (int i=0;i<ipow(2,dCount);i++)
+        for (int j=0;j<dWidth;j++) {
+            if ((i*dWidth+j)<fOutputs.count())
+                fOutputs[i*dWidth+j]->state = fInputs[j]->state;
+        }
 }
 
-void QCPMux::paintEvent(QPaintEvent *)
+void QCPIntExtender::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QPen op=p.pen();
@@ -122,34 +114,32 @@ void QCPMux::paintEvent(QPaintEvent *)
     p.setFont(n);
 
     rc = rect();
-    rc.adjust(p.fontMetrics().width("PA0")+getPinSize()/2,0,-1,-1);
+    rc.adjust(p.fontMetrics().width("A0")+getPinSize()/2,0,-1,-1);
     p.drawLine(rc.topLeft(),rc.bottomLeft());
 
     int dy = getDCompIncrement();
     int ddy = dy/2;
     int ddyc = 0;
-    for (int i=0;i<fInputs.count();i++) {
+    rc = rect();
+    rc.adjust(width()-p.fontMetrics().width("A0")-getPinSize()/2,0,-1,-1);
+    p.drawLine(rc.topLeft(),rc.bottomLeft());
+    for (int i=0;i<fOutputs.count();i++) {
         if (i>0) {
-            if (fInputs[i-1]->pinName.at(0)!='A')
-                if (fInputs[i]->pinName.left(2)!=fInputs[i-1]->pinName.left(2)) {
-                    ddyc+=ddy;
-                    p.drawLine(0,i*dy+ddyc+getPinSize()/2,rc.left(),i*dy+ddyc+getPinSize()/2);
-                }
+            if (fOutputs[i]->pinName.at(0)!=fOutputs[i-1]->pinName.at(0)) {
+                ddyc+=ddy;
+                p.drawLine(rc.left(),i*dy+ddyc+getPinSize()/2,rc.right(),i*dy+ddyc+getPinSize()/2);
+            }
         }
     }
 
     rc = rect();
-    rc.adjust(width()-p.fontMetrics().width("A0")-getPinSize()/2,0,-1,-1);
-    p.drawLine(rc.topLeft(),rc.bottomLeft());
-
-    rc = rect();
     rc.adjust(0,0,-1,0);
-    rc.adjust(p.fontMetrics().width("PA0")+getPinSize()/2,0,
+    rc.adjust(p.fontMetrics().width("A0")+getPinSize()/2,0,
               -p.fontMetrics().width("A0")-getPinSize()/2,0);
     rc.setHeight(getDCompIncrement()*3);
     n.setBold(false);
     p.setFont(n);
-    p.drawText(rc,Qt::AlignCenter,"MX");
+    p.drawText(rc,Qt::AlignCenter,"EX");
 
     p.setFont(of);
     p.setBrush(ob);
@@ -158,7 +148,7 @@ void QCPMux::paintEvent(QPaintEvent *)
     drawSelection(p);
 }
 
-void QCPMux::contextMenuEvent(QContextMenuEvent *event)
+void QCPIntExtender::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu cm(this);
     cm.addAction(tr("Change address width..."),this,SLOT(changeAddrSize()));
@@ -166,20 +156,20 @@ void QCPMux::contextMenuEvent(QContextMenuEvent *event)
     cm.exec(event->globalPos());
 }
 
-void QCPMux::changeAddrSize()
+void QCPIntExtender::changeAddrSize()
 {
     bool ok;
-    int tmp = QInputDialog::getInt(this,tr("Multiplexer params"),tr("Address bus width"),dCount,1,8,1,&ok);
+    int tmp = QInputDialog::getInt(this,tr("Extender params"),tr("Address bus width"),dCount,1,8,1,&ok);
     if (ok) {
         dCount = tmp;
         updateMuxPins();
     }
 }
 
-void QCPMux::changeDataSize()
+void QCPIntExtender::changeDataSize()
 {
     bool ok;
-    int tmp = QInputDialog::getInt(this,tr("Multiplexer params"),tr("Data bus width"),dWidth,1,8,1,&ok);
+    int tmp = QInputDialog::getInt(this,tr("Extender params"),tr("Data bus width"),dWidth,1,8,1,&ok);
     if (ok) {
         dWidth = tmp;
         updateMuxPins();

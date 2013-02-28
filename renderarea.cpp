@@ -22,6 +22,7 @@
 #include "components/cpram.h"
 #include "components/cpsynth.h"
 #include "components/cplabel.h"
+#include "components/cpintextender.h"
 
 QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
     : QFrame(parent)
@@ -46,6 +47,16 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
     cbOutput=0;
     cbBuilding=false;
     cbCurrent=QPoint(0,0);
+    pinColorOff=Qt::blue;
+    pinColorOn=Qt::red;
+
+    selectionPoint=QPoint();
+    selectionBox = new QRubberBand(QRubberBand::Rectangle,this);
+    selectionBox->hide();
+    selectionBox->setGeometry(QRect());
+    selection.clear();
+
+    setMouseTracking(true);
 
     lcdFont=QApplication::font();
     if (aLcdFontIdx>=0) {
@@ -65,7 +76,8 @@ QSize QRenderArea::minimumSizeHint() const
     QRect r(0,0,0,0);
     for (int i=0;i<children().count();i++)
         if (QWidget* w=qobject_cast<QWidget*>(children().at(i)))
-            r=r.unite(w->geometry());
+            r=r.united(w->geometry());
+    r.adjust(-200,-200,200,200);
     QSize cmSize=QSize(r.width(),r.height());
     return QSize(x,y).expandedTo(cmSize);
 }
@@ -154,6 +166,46 @@ void QRenderArea::paintEvent ( QPaintEvent * )
 
     p.setPen(op);
     p.setFont(of);
+}
+
+void QRenderArea::mouseMoveEvent(QMouseEvent *event)
+{
+    if ((event->buttons() & Qt::LeftButton)>0 && !selectionPoint.isNull()) {
+        selectionBox->setGeometry(QRect(event->pos(),selectionPoint).normalized());
+        event->accept();
+    }
+}
+
+void QRenderArea::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button()==Qt::LeftButton) {
+        selectionPoint = event->pos();
+        selectionBox->setGeometry(selectionPoint.x(),selectionPoint.y(),0,0);
+        selectionBox->show();
+        event->accept();
+    }
+}
+
+void QRenderArea::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button()==Qt::LeftButton) {
+        selection.clear();
+        if (!selectionPoint.isNull()) {
+            QRect cp = QRect(event->pos(),selectionPoint).normalized();
+            for (int i=0;i<children().count();i++)
+            {
+                QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
+                if (base==NULL) continue;
+                if (cp.contains(base->geometry(),true))
+                    selection << base;
+            }
+        }
+        event->accept();
+        update();
+    }
+    selectionPoint=QPoint();
+    selectionBox->setGeometry(QRect());
+    selectionBox->hide();
 }
 
 void QRenderArea::paintConnections(QPainter* p)
@@ -424,10 +476,26 @@ void QRenderArea::setZoom(int zoomFactor)
     repaintConn();
 }
 
-void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
+void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element,
+                                const QPoint indent, const bool addBlock)
 {
+    selection.clear();
+
     if (element.isNull())
         errlog << tr("readSchematic: NULL element passed") << endl;
+
+    if (!addBlock) {
+        pinColorOff = QColor(element.attribute("pinColorOff","blue"));
+        pinColorOn = QColor(element.attribute("pinColorOn","red"));
+        if (!pinColorOff.isValid()) {
+            errlog << tr("readSchematic: pinColorOff has incorrect name") << endl;
+            pinColorOff = QColor(Qt::blue);
+        }
+        if (!pinColorOn.isValid()) {
+            errlog << tr("readSchematic: pinColorOn has incorrect name") << endl;
+            pinColorOn = QColor(Qt::red);
+        }
+    }
 
     for (int i=0;i<element.childNodes().count();i++)
     {
@@ -437,7 +505,7 @@ void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
         QCPBase* b=createCpInstance(clName);
         if (b==0)
         {
-            errlog << tr("Loading error. Class '%1' not found.").arg(clName) << endl;
+            errlog << tr("readSchematic: class '%1' not found.").arg(clName) << endl;
         } else {
             QPoint pos = QPoint(200,200);
             QStringList spos = xc.attribute("position","200,200").split(',',QString::SkipEmptyParts);
@@ -451,22 +519,31 @@ void QRenderArea::readSchematic(QTextStream &errlog, const QDomElement &element)
                     errlog << tr("readSchematic: wrong element '%1' position").arg(clName) << endl;
                     x = 200; y = 200;
                 }
-                pos = QPoint(x,y);
+                pos = QPoint(x,y) + indent;
             }
             QString instName = xc.attribute("instanceName",tr("QCPBase%1").arg(i+1));
             b->move(pos);
             b->setObjectName(instName);
             b->readFromXML(errlog, xc);
             b->show();
+            if (addBlock)
+                selection << b;
         }
     }
     resReading=false;
-    postLoadBinding(errlog);
+    if (addBlock) {
+        for(int i=0;i<selection.count();i++)
+            selection[i]->postLoadBind(errlog);
+    } else
+        postLoadBinding(errlog);
     repaintConn();
 }
 
 void QRenderArea::storeSchematic(QDomElement &element)
 {
+    element.setAttribute("pinColorOff",pinColorOff.name());
+    element.setAttribute("pinColorOn",pinColorOn.name());
+
     for (int i=0;i<children().count();i++)
     {
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
@@ -483,6 +560,7 @@ void QRenderArea::storeSchematic(QDomElement &element)
 
 void QRenderArea::deleteComponents()
 {
+    selection.clear();
     for (int i=0;i<children().count();i++)
     {
         QCPBase* base=qobject_cast<QCPBase*>(children().at(i));
@@ -514,5 +592,6 @@ QCPBase* QRenderArea::createCpInstance(const QString &className)
     else if (className=="QCPRAM")      return new QCPRAM(this,this);
     else if (className=="QCPSynth")      return new QCPSynth(this,this);
     else if (className=="QCPLabel")      return new QCPLabel(this,this);
+    else if (className=="QCPIntExtender")      return new QCPIntExtender(this,this);
     else return NULL;
 }

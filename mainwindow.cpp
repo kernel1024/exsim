@@ -69,6 +69,10 @@ MainWindow::MainWindow(QWidget * parent) :
     ui->toolBarFile->addAction(ui->actionNew);
     ui->toolBarFile->addAction(ui->actionOpen);
     ui->toolBarFile->addAction(ui->actionSave);
+    ui->toolBarFile->addSeparator();
+    ui->toolBarFile->addAction(ui->actionCut);
+    ui->toolBarFile->addAction(ui->actionCopy);
+    ui->toolBarFile->addAction(ui->actionPaste);
 
     connect(ui->actionNew,SIGNAL(triggered()),this,SLOT(fileNew()));
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(fileOpen()));
@@ -78,6 +82,10 @@ MainWindow::MainWindow(QWidget * parent) :
     connect(ui->actionZoom,SIGNAL(triggered()),this,SLOT(setZoom()));
     connect(ui->actionCompact_layout,SIGNAL(triggered()),this,SLOT(toolAllocate()));
     connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(helpAbout()));
+    connect(ui->actionCut,SIGNAL(triggered()),this,SLOT(editCut()));
+    connect(ui->actionCopy,SIGNAL(triggered()),this,SLOT(editCopy()));
+    connect(ui->actionPaste,SIGNAL(triggered()),this,SLOT(editPaste()));
+    connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(editDelete()));
 
     for(int i=0;i<ui->menuComponents->actions().count();i++) {
         QAction* acm = ui->menuComponents->actions().at(i);
@@ -158,7 +166,7 @@ void MainWindow::timerEvent(QTimerEvent * event)
     }
 }
 
-void MainWindow::loadFile(QString & fname)
+void MainWindow::loadFile(const QString & fname)
 {
     loadingFile=fname;
     if (renderArea->cpComponentCount()>0)
@@ -174,7 +182,7 @@ void MainWindow::loadFile(QString & fname)
         continueLoading();
 }
 
-bool MainWindow::saveFile(QString & fname)
+bool MainWindow::saveFile(const QString &fname)
 {
     QFile file(fname);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -380,7 +388,7 @@ void MainWindow::addComponent()
     QCPBase* a= renderArea->createCpInstance(ac->whatsThis());
     if (a==NULL) return;
     a->move(100,100);
-    a->setObjectName(ac->whatsThis()+QString::number(renderArea->cpComponentCount(),16));
+    a->setObjectName(ac->whatsThis()+QString::number(renderArea->cpComponentCount(),10));
     a->show();
     connect(a,SIGNAL(componentChanged(QCPBase *)),this,SLOT(changingComponents(QCPBase *)));
     changingComponents(a);
@@ -409,4 +417,114 @@ void MainWindow::setZoom()
     if (ok)
         renderArea->setZoom(z);
 
+}
+
+void MainWindow::editCut()
+{
+    editCopy();
+    editDelete();
+}
+
+void MainWindow::editCopy()
+{
+    QDomDocument xdoc;
+    QDomElement clist = xdoc.createElement("components");
+    for(int i=0;i<renderArea->selection.count();i++) {
+        QDomElement xc = xdoc.createElement(tr("element%1").arg(i));
+        QCPBase* base = renderArea->selection.at(i);
+        xc.setAttribute("className",base->metaObject()->className());
+        xc.setAttribute("position",tr("%1,%2").arg(base->pos().x()).arg(base->pos().y()));
+        xc.setAttribute("instanceName",base->objectName());
+        base->storeToXML(xc);
+        clist.appendChild(xc);
+    }
+    xdoc.appendChild(clist);
+    QApplication::clipboard()->setText(xdoc.toString());
+    xdoc.clear();
+}
+
+void MainWindow::cleanupBlock(QDomElement &block)
+{
+    int aidx = renderArea->cpComponentCount();
+    QHash<QString,QString> rhash;
+    rhash.clear();
+
+    // rename new components to prevent collisions with schematic
+    for (int i=0;i<block.childNodes().count();i++)
+    {
+        if (!block.childNodes().at(i).isElement()) continue;
+        QDomElement xc = block.childNodes().at(i).toElement();
+        QString newName = tr("%1%2").arg(xc.attribute("className","NULL")).arg(aidx+i);
+        QString oldName = xc.attribute("instanceName","NULL");
+        rhash[oldName]=newName;
+        xc.setAttribute("instanceName",newName);
+    }
+
+    // remove external connections, update internal connections
+    for (int i=0;i<block.childNodes().count();i++)
+    {
+        if (!block.childNodes().at(i).isElement()) continue;
+        QDomElement xc = block.childNodes().at(i).toElement();
+
+        QDomElement inp = xc.firstChildElement("inputs");
+        QDomElement out = xc.firstChildElement("outputs");
+
+        for (int i=0;i<inp.childNodes().count();i++)
+        {
+            if (!inp.childNodes().at(i).isElement()) continue;
+            QDomElement xci = inp.childNodes().at(i).toElement();
+            QString fromCmp = xci.attribute("fromCmp","NONE");
+            if (!rhash.contains(fromCmp)) {
+                xci.setAttribute("fromCmp","NONE");
+                xci.setAttribute("fromPin","-1");
+            } else
+                xci.setAttribute("fromCmp",rhash[fromCmp]);
+        }
+        for (int i=0;i<out.childNodes().count();i++)
+        {
+            if (!out.childNodes().at(i).isElement()) continue;
+            QDomElement xci = out.childNodes().at(i).toElement();
+            QString toCmp = xci.attribute("toCmp","NONE");
+            if (!rhash.contains(toCmp)) {
+                xci.setAttribute("toCmp","NONE");
+                xci.setAttribute("toPin","-1");
+            } else
+                xci.setAttribute("toCmp",rhash[toCmp]);
+        }
+    }
+    rhash.clear();
+}
+
+void MainWindow::editPaste()
+{
+    QDomDocument xdoc;
+    if (!xdoc.setContent(QApplication::clipboard()->text()))
+        return;
+
+    QByteArray errbuf;
+    errbuf.clear();
+    QTextStream errlog(&errbuf);
+
+    QDomElement clist = xdoc.firstChildElement("components");
+    cleanupBlock(clist);
+    renderArea->readSchematic(errlog,clist,QPoint(50,50),true);
+
+    for (int i=0;i<renderArea->selection.count();i++) {
+        QCPBase* base = renderArea->selection.at(i);
+        connect(base,SIGNAL(componentChanged(QCPBase*)),this,SLOT(changingComponents(QCPBase*)));
+    }
+    xdoc.clear();
+    errlog.flush();
+    if (!errbuf.isEmpty())
+        qDebug() << errbuf;
+    repaintTimer=startTimer(500);
+}
+
+void MainWindow::editDelete()
+{
+    for(int i=0;i<renderArea->selection.count();i++) {
+        renderArea->selection[i]->deleteComponent();
+    }
+    renderArea->update();
+    renderArea->repaintConn();
 }

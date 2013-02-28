@@ -13,8 +13,6 @@ int ipow(int base, int pow)
 QCPBase::QCPBase(QWidget *parent, QRenderArea *aOwner)
     : QWidget(parent)
 {
-    pinColorOff=Qt::blue;
-    pinColorOn=Qt::red;
     isDragging=false;
     cpOwner=aOwner;
     oldZoom=100;
@@ -34,12 +32,12 @@ QSize QCPBase::sizeHint() const
     return minimumSizeHint();
 }
 
-bool QCPBase::canConnectOut(QCPBase *)
+bool QCPBase::canConnectOut(const QCPBase *)
 {
     return true;
 }
 
-bool QCPBase::canConnectIn(QCPBase *)
+bool QCPBase::canConnectIn(const QCPBase *)
 {
     return true;
 }
@@ -108,9 +106,9 @@ void QCPBase::redrawPins(QPainter & painter)
     {
         QCPInput* a=fInputs[i];
         if (a->state)
-            pc = pinColorOn;
+            pc = cpOwner->pinColorOn;
         else
-            pc = pinColorOff;
+            pc = cpOwner->pinColorOff;
         painter.setPen(QPen(pc));
         QBrush brshPin = QBrush(pc,Qt::SolidPattern);
         painter.setBrush(brshPin);
@@ -138,9 +136,9 @@ void QCPBase::redrawPins(QPainter & painter)
     {
         QCPOutput* a=fOutputs[i];
         if (a->state)
-            pc = pinColorOn;
+            pc = cpOwner->pinColorOn;
         else
-            pc = pinColorOff;
+            pc = cpOwner->pinColorOff;
         painter.setPen(QPen(pc));
         QBrush brshPin = QBrush(pc,Qt::SolidPattern);
         painter.setBrush(brshPin);
@@ -217,9 +215,8 @@ void QCPBase::regroupOutputs()
     }
 }
 
-void QCPBase::checkRecycle(bool forceDelete)
+void QCPBase::deleteComponent()
 {
-    if ((!forceDelete) && (!(frameGeometry().intersects(cpOwner->recycle->frameGeometry())))) return;
     for (int i=0;i<fInputs.count();i++)
     {
         if (fInputs[i]->fromPin!=-1)
@@ -278,6 +275,22 @@ void QCPBase::deleteOutputs()
     fOutputs.clear();
 }
 
+void QCPBase::drawSelection(QPainter &painter)
+{
+    if (cpOwner->selection.indexOf(this)<0) return;
+
+    QPen op=painter.pen();
+    QBrush ob=painter.brush();
+
+    QColor c = QApplication::palette().highlight().color();
+    c.setAlpha(128);
+    painter.setPen(QPen(c));
+    painter.fillRect(rect(),QBrush(c));
+
+    painter.setBrush(ob);
+    painter.setPen(op);
+}
+
 int QCPBase::zoom() const
 {
     return cpOwner->zoom;
@@ -319,14 +332,23 @@ void QCPBase::mouseMoveEvent(QMouseEvent * event)
 {
     if (isDragging)
     {
-        move(QPoint(x()+event->x()-relCorner.x(),y()+event->y()-relCorner.y()));
-        cpOwner->repaintConn();
-        cpOwner->resize(cpOwner->minimumSizeHint());
-        update();
-        emit componentChanged(this);
+        if (!cpOwner->selection.isEmpty()) {
+            for(int i=0;i<cpOwner->selection.count();i++)
+                cpOwner->selection[i]->moveComponent(event);
+        } else
+            moveComponent(event);
     } else
         cpOwner->refreshConnBuilder(event->pos());
 
+    cpOwner->repaintConn();
+    cpOwner->resize(cpOwner->minimumSizeHint());
+}
+
+void QCPBase::moveComponent(QMouseEvent *event)
+{
+    move(QPoint(x()+event->x()-relCorner.x(),y()+event->y()-relCorner.y()));
+    update();
+    emit componentChanged(this);
 }
 
 void QCPBase::paintEvent ( QPaintEvent * )
@@ -352,8 +374,18 @@ void QCPBase::mousePressEvent(QMouseEvent * event)
     {
         relCorner=event->pos();
         isDragging=true;
+        for(int i=0;i<cpOwner->selection.count();i++) {
+            cpOwner->selection[i]->relCorner=event->pos();
+            cpOwner->selection[i]->isDragging=true;
+        }
         return;
     }
+    for(int i=0;i<cpOwner->selection.count();i++) {
+        cpOwner->selection[i]->relCorner=QPoint();
+        cpOwner->selection[i]->isDragging=false;
+    }
+    cpOwner->selection.clear();
+    cpOwner->update();
     isDragging=false;
     if (pType==QPT_INPUT)
         cpOwner->initConnBuilder(QPT_INPUT,pNum,dFlt->fInputs[pNum],0);
@@ -369,13 +401,31 @@ void QCPBase::mouseReleaseEvent(QMouseEvent * event)
     mouseInPin(mx,pNum,pType,dFlt);
     if (pNum==-1)
     {
-        bool f=isDragging;
-        isDragging=false;
-        if (!f)
+        if (isDragging) {
+            if (!cpOwner->selection.isEmpty()) {
+                bool toBin = false;
+                for(int i=0;i<cpOwner->selection.count();i++)
+                    toBin = toBin || cpOwner->selection[i]->
+                            frameGeometry().intersects(cpOwner->recycle->frameGeometry());
+                if (toBin) {
+                    for(int i=0;i<cpOwner->selection.count();i++) {
+                        cpOwner->selection[i]->isDragging=false;
+                        cpOwner->selection[i]->deleteComponent();
+                    }
+                    cpOwner->selection.clear();
+                } else {
+                    for(int i=0;i<cpOwner->selection.count();i++) {
+                        cpOwner->selection[i]->isDragging=false;
+                        cpOwner->selection[i]->relCorner=QPoint();
+                    }
+                }
+            } else {
+                isDragging=false;
+                if (frameGeometry().intersects(cpOwner->recycle->frameGeometry()))
+                    deleteComponent();
+            }
+        } else
             cpOwner->doneConnBuilder(true,QPT_INPUT,-1,0,0);
-        else
-            checkRecycle();
-        isDragging=f;
         return;
     }
     if (pType==QPT_INPUT)
@@ -387,17 +437,6 @@ void QCPBase::mouseReleaseEvent(QMouseEvent * event)
 
 void QCPBase::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
-    pinColorOff = QColor(element.attribute("pinColorOff","blue"));
-    pinColorOn = QColor(element.attribute("pinColorOn","red"));
-    if (!pinColorOff.isValid()) {
-        errlog << tr("QCPBase: pinColorOff has incorrect name") << endl;
-        pinColorOff = QColor(Qt::blue);
-    }
-    if (!pinColorOn.isValid()) {
-        errlog << tr("QCPBase: pinColorOn has incorrect name") << endl;
-        pinColorOn = QColor(Qt::red);
-    }
-
     QDomElement inp = element.firstChildElement("inputs");
     QDomElement out = element.firstChildElement("outputs");
 
@@ -409,9 +448,6 @@ void QCPBase::readFromXML(QTextStream &errlog, const QDomElement &element)
 
 void QCPBase::storeToXML(QDomElement &element)
 {
-    element.setAttribute("pinColorOff",pinColorOff.name());
-    element.setAttribute("pinColorOn",pinColorOn.name());
-
     QDomElement inp = element.ownerDocument().createElement("inputs");
     for (int i=0;i<fInputs.count();i++) {
         QDomElement ti = element.ownerDocument().createElement(tr("inp%1").arg(i));
@@ -512,6 +548,7 @@ void QCPOutput::postLoadBind(QTextStream &errlog)
 {
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
+    ffLogic="";
     if (b==0)
         errlog << tr("QCPOutput: binding error in component %1").arg(ownerCmp->objectName()) << endl;
     else {
@@ -593,13 +630,14 @@ void QCPInput::postLoadBind(QTextStream &errlog)
 {
     if (ffLogic=="") return;
     QCPBase* b=ownerCmp->cpOwner->findChild<QCPBase *>(ffLogic);
+    ffLogic="";
     if (b==0)
         errlog << tr("QCPInput: binding error in component %1").arg(ownerCmp->objectName()) << endl;
     else
         fromCmp=b;
 }
 
-void QCPInput::applyState(bool aState)
+void QCPInput::applyState(const bool aState)
 {
     emit applyInputState(this,aState);
 }

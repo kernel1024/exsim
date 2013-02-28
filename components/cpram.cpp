@@ -176,6 +176,8 @@ void QCPRAM::paintEvent(QPaintEvent *)
     p.setFont(of);
     p.setBrush(ob);
     p.setPen(op);
+
+    drawSelection(p);
 }
 
 void QCPRAM::contextMenuEvent(QContextMenuEvent *event)

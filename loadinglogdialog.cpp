@@ -13,7 +13,7 @@ QLoadingLogDialog::~QLoadingLogDialog()
     delete ui;
 }
 
-void QLoadingLogDialog::setLogText(QString log)
+void QLoadingLogDialog::setLogText(const QString &log)
 {
     ui->logViewer->clear();
     ui->logViewer->append(log);

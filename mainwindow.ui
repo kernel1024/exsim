@@ -85,6 +85,7 @@
     <addaction name="actionEncoder"/>
     <addaction name="actionCounter"/>
     <addaction name="actionMultiplexer"/>
+    <addaction name="actionIntExtender"/>
     <addaction name="actionAdder"/>
     <addaction name="actionComparator"/>
     <addaction name="actionRandom_generator"/>
@@ -102,7 +103,18 @@
     </property>
     <addaction name="actionCompact_layout"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuComponents"/>
    <addaction name="menuTools"/>
    <addaction name="menuView"/>
@@ -478,6 +490,58 @@
    </property>
    <property name="whatsThis">
     <string>QCPLabel</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset theme="edit-cut">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset theme="edit-copy">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset theme="edit-paste">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset theme="edit-delete">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionIntExtender">
+   <property name="icon">
+    <iconset resource="exsim.qrc">
+     <normaloff>:/images/intextender.png</normaloff>:/images/intextender.png</iconset>
+   </property>
+   <property name="text">
+    <string>Integrated extender</string>
+   </property>
+   <property name="whatsThis">
+    <string>QCPIntExtender</string>
    </property>
   </action>
  </widget>

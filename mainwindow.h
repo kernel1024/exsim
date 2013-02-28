@@ -38,6 +38,11 @@ public slots:
     void addComponent();
     void toolAllocate();
     void setZoom();
+
+    void editCut();
+    void editCopy();
+    void editPaste();
+    void editDelete();
     
     void helpAbout();
 protected:
@@ -45,11 +50,12 @@ protected:
     QString programTitle;
     QString loadingFile;
 
-    void loadFile(QString & fname);
-    bool saveFile(QString & fname);
+    void loadFile(const QString &fname);
+    bool saveFile(const QString &fname);
     void closeEvent(QCloseEvent *event);
     void continueLoading();
     void updateStatus();
     void centerWindow();
+    void cleanupBlock(QDomElement & block);
 };
 #endif

@@ -31,7 +31,8 @@ HEADERS       = components/cpbase.h \
     components/cpram.h \
     components/cpsynth.h \
     components/cplabel.h \
-    loadinglogdialog.h
+    loadinglogdialog.h \
+    components/cpintextender.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -57,7 +58,8 @@ SOURCES       = main.cpp \
     components/cpram.cpp \
     components/cpsynth.cpp \
     components/cplabel.cpp \
-    loadinglogdialog.cpp
+    loadinglogdialog.cpp \
+    components/cpintextender.cpp
 
 RESOURCES     = exsim.qrc
 
