@@ -387,7 +387,8 @@ void MainWindow::addComponent()
     if (ac->whatsThis().isEmpty()) return;
     QCPBase* a= renderArea->createCpInstance(ac->whatsThis());
     if (a==NULL) return;
-    a->move(100,100);
+    a->move(100+ui->scrollArea->horizontalScrollBar()->value()+(qrand()%50-25),
+            100+ui->scrollArea->verticalScrollBar()->value()+(qrand()%50-25));
     a->setObjectName(ac->whatsThis()+QString::number(renderArea->cpComponentCount(),10));
     a->show();
     connect(a,SIGNAL(componentChanged(QCPBase *)),this,SLOT(changingComponents(QCPBase *)));

@@ -77,7 +77,7 @@ QSize QRenderArea::minimumSizeHint() const
     for (int i=0;i<children().count();i++)
         if (QWidget* w=qobject_cast<QWidget*>(children().at(i)))
             r=r.united(w->geometry());
-    r.adjust(-200,-200,200,200);
+    r.adjust(0,0,200,200);
     QSize cmSize=QSize(r.width(),r.height());
     return QSize(x,y).expandedTo(cmSize);
 }
