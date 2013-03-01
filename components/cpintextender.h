@@ -24,7 +24,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
 
 public slots:
-    void changeAddrSize();
+    void changeChannelsCount();
     void changeDataSize();
 };
 

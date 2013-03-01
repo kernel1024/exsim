@@ -8,7 +8,7 @@ QCPGen::QCPGen(QWidget *parent, QRenderArea *aOwner) :
     fOutputs.append(fOut);
     genState = false;
     connect(&mainTimer,SIGNAL(timeout()),this,SLOT(timeImpulse()));
-    setPeriod(2000);
+    setPeriod(1000);
 }
 
 QCPGen::~QCPGen()
@@ -61,10 +61,16 @@ void QCPGen::contextMenuEvent(QContextMenuEvent *event)
     cm.exec(event->globalPos());
 }
 
+void QCPGen::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button()==Qt::LeftButton)
+        adjustPeriod();
+}
+
 void QCPGen::adjustPeriod()
 {
     bool ok;
-    int cnt = QInputDialog::getInt(this,tr("Generation period"),tr("Milliseconds"),period,20,60000,10,&ok);
+    int cnt = QInputDialog::getInt(this,tr("Generator"),tr("Period (milliseconds)"),period,20,60000,10,&ok);
     if (ok)
         setPeriod(cnt);
 }
@@ -88,7 +94,7 @@ void QCPGen::paintEvent(QPaintEvent *)
     QFont n=QApplication::font();
     n.setPointSize((n.pointSize()) * zoom()/100);
     p.setFont(n);
-    if (period>1500)
+    if (period>=1000)
         p.drawText(rc,Qt::AlignCenter,tr("OSC: %1 s").arg((double)period/1000,1,'f',1));
     else
         p.drawText(rc,Qt::AlignCenter,tr("OSC: %1 ms").arg(period));

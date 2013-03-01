@@ -24,7 +24,7 @@ void QCPIntExtender::updateMuxPins()
 {
     deleteInputs();
     deleteOutputs();
-    for (int i=0;i<ipow(2,dCount);i++) {
+    for (int i=0;i<dCount;i++) {
         for (int j=0;j<dWidth;j++) {
             if (i==0) {
                 QCPInput* in = new QCPInput(this,this,tr("%1").arg(j)); fInputs.append(in);
@@ -40,14 +40,14 @@ void QCPIntExtender::updateMuxPins()
 
 QSize QCPIntExtender::minimumSizeHint() const
 {
-    return QSize(100*zoom()/100,getDCompHeight(ipow(2,dCount)-1));
+    return QSize(100*zoom()/100,getDCompHeight(dCount-1));
 }
 
 void QCPIntExtender::readFromXML(QTextStream &errlog, const QDomElement &element)
 {
     bool ok;
     dCount = element.attribute("channels","2").toInt(&ok);
-    if ((!ok) || (dCount>8) || (dCount<1)) {
+    if ((!ok) || (dCount>16) || (dCount<1)) {
         errlog << tr("QCPIntExtender: channels value incorrect") << endl;
         dCount = 2;
     }
@@ -85,7 +85,7 @@ void QCPIntExtender::realignPins(QPainter &)
 
 void QCPIntExtender::doLogicPrivate()
 {
-    for (int i=0;i<ipow(2,dCount);i++)
+    for (int i=0;i<dCount;i++)
         for (int j=0;j<dWidth;j++) {
             if ((i*dWidth+j)<fOutputs.count())
                 fOutputs[i*dWidth+j]->state = fInputs[j]->state;
@@ -151,15 +151,15 @@ void QCPIntExtender::paintEvent(QPaintEvent *)
 void QCPIntExtender::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu cm(this);
-    cm.addAction(tr("Change address width..."),this,SLOT(changeAddrSize()));
+    cm.addAction(tr("Change channels count..."),this,SLOT(changeChannelsCount()));
     cm.addAction(tr("Change data width..."),this,SLOT(changeDataSize()));
     cm.exec(event->globalPos());
 }
 
-void QCPIntExtender::changeAddrSize()
+void QCPIntExtender::changeChannelsCount()
 {
     bool ok;
-    int tmp = QInputDialog::getInt(this,tr("Extender params"),tr("Address bus width"),dCount,1,8,1,&ok);
+    int tmp = QInputDialog::getInt(this,tr("Extender params"),tr("Address bus width"),dCount,1,16,1,&ok);
     if (ok) {
         dCount = tmp;
         updateMuxPins();
