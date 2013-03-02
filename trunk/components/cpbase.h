@@ -68,7 +68,7 @@ public:
 signals:
     void componentChanged(QCPBase * obj);
 private slots:
-    void applyInputState(QCPInput* input, bool state);
+    void applyInputState(QCPInput* input);
 };
 
 class QCPOutput : public QObject
@@ -114,10 +114,10 @@ public:
     void readFromXML(QTextStream &errlog, const QDomElement &element);
     void storeToXML(QDomElement & element);
     void postLoadBind(QTextStream &errlog);
-    void applyState(const bool aState);
+    void applyState(bool aState);
 
 signals:
-    void applyInputState(QCPInput* input, bool state);
+    void applyInputState(QCPInput* input);
 };
 
 int ipow(int base, int pow);
