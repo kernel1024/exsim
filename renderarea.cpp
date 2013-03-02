@@ -32,7 +32,6 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
 
     resReading=false;
     zoom = 100;
-    nodeLocks.clear();
 
     recycle=new QLabel(this);
     recycle->setGeometry(QRect(10, 10, 48, 48));

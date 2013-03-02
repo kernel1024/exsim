@@ -363,14 +363,12 @@ void QCPBase::paintEvent ( QPaintEvent * )
 void QCPBase::mousePressEvent(QMouseEvent * event)
 {
     raise();
-//    if (event->button()==Qt::RightButton)
-//        QWidget::mousePressEvent(event);
     QPoint mx=mapToGlobal(event->pos());
     QCPBase* dFlt;
     int pNum,pType;
     mouseInPin(mx,pNum,pType,dFlt);
     emit componentChanged(this);
-    if (pNum==-1)
+    if ((pNum==-1) || (dFlt!=this))
     {
         relCorner=event->pos();
         isDragging=true;
@@ -387,10 +385,12 @@ void QCPBase::mousePressEvent(QMouseEvent * event)
     cpOwner->selection.clear();
     cpOwner->update();
     isDragging=false;
-    if (pType==QPT_INPUT)
-        cpOwner->initConnBuilder(QPT_INPUT,pNum,dFlt->fInputs[pNum],0);
-    else
-        cpOwner->initConnBuilder(QPT_OUTPUT,pNum,0,dFlt->fOutputs[pNum]);
+    if (dFlt==this) {
+        if (pType==QPT_INPUT)
+            cpOwner->initConnBuilder(QPT_INPUT,pNum,dFlt->fInputs[pNum],0);
+        else
+            cpOwner->initConnBuilder(QPT_OUTPUT,pNum,0,dFlt->fOutputs[pNum]);
+    }
 }
 
 void QCPBase::mouseReleaseEvent(QMouseEvent * event)
@@ -428,10 +428,12 @@ void QCPBase::mouseReleaseEvent(QMouseEvent * event)
             cpOwner->doneConnBuilder(true,QPT_INPUT,-1,0,0);
         return;
     }
-    if (pType==QPT_INPUT)
-        cpOwner->doneConnBuilder(false,QPT_INPUT,pNum,dFlt->fInputs[pNum],0);
-    else
-        cpOwner->doneConnBuilder(false,QPT_OUTPUT,pNum,0,dFlt->fOutputs[pNum]);
+    if (cpOwner->cbBuilding) {
+        if (pType==QPT_INPUT)
+            cpOwner->doneConnBuilder(false,QPT_INPUT,pNum,dFlt->fInputs[pNum],0);
+        else
+            cpOwner->doneConnBuilder(false,QPT_OUTPUT,pNum,0,dFlt->fOutputs[pNum]);
+    }
     emit componentChanged(this);
 }
 
@@ -466,31 +468,24 @@ void QCPBase::storeToXML(QDomElement &element)
 
 void QCPBase::doLogic()
 {
-    if (cpOwner->nodeLocks.contains(objectName()))
-        return;
     if (isStateChanged()) {
-        cpOwner->nodeLocks.append(objectName());
         doLogicPrivate();
         for (int i=0;i<fOutputs.count();i++) {
             if (fOutputs.at(i)->state!=fOutputs.at(i)->oldState)
                 fOutputs.at(i)->applyState();
         }
-        cpOwner->nodeLocks.removeAt(cpOwner->nodeLocks.indexOf(QRegExp(objectName())));
         update();
         savedState = calcState();
     }
 }
 
-void QCPBase::applyInputState(QCPInput *input, bool state)
+void QCPBase::applyInputState(QCPInput *input)
 {
     if (input==NULL) return;
     if (input->fromCmp!=NULL) {
         QUuid id = input->fromCmp->fOutputs[input->fromPin]->groupId;
         cpOwner->pendingLogicLinks.removeOne(id);
     }
-    input->state = state;
-    if (input->oldState == state) return;
-    input->oldState = state;
     doLogic();
 }
 
@@ -586,8 +581,8 @@ QCPInput::QCPInput(QObject * parent, QCPBase * aOwner, QString aPinName)
     state=false;
     relCoord=QPoint(0,0);
     ownerCmp=aOwner;
-    connect(this,SIGNAL(applyInputState(QCPInput*,bool)),
-            aOwner,SLOT(applyInputState(QCPInput*,bool)),
+    connect(this,SIGNAL(applyInputState(QCPInput*)),
+            aOwner,SLOT(applyInputState(QCPInput*)),
             Qt::QueuedConnection);
 }
 
@@ -637,7 +632,9 @@ void QCPInput::postLoadBind(QTextStream &errlog)
         fromCmp=b;
 }
 
-void QCPInput::applyState(const bool aState)
+void QCPInput::applyState(bool aState)
 {
-    emit applyInputState(this,aState);
+    oldState = aState;
+    state = aState;
+    emit applyInputState(this);
 }

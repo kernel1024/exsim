@@ -20,7 +20,6 @@ public:
     QList<QUuid> pendingLogicLinks;
     
     bool resReading;
-    QStringList nodeLocks;
     QLabel* recycle;
     QPoint selectionPoint;
     QRubberBand* selectionBox;
