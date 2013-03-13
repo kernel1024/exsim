@@ -1,7 +1,6 @@
 #ifndef CPLABEL_H
 #define CPLABEL_H
 
-#include <QtCore>
 #include "cpbase.h"
 
 class QCPLabel : public QCPBase

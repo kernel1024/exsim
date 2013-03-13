@@ -1,8 +1,8 @@
 #ifndef CPGEN_H
 #define CPGEN_H
 
-#include <QtCore>
 #include "cpbase.h"
+#include <QTimer>
 
 class QCPGen : public QCPBase
 {

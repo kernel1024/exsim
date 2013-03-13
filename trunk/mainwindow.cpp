@@ -1,8 +1,5 @@
 #include <stdlib.h>
 #include <time.h>
-#include "mainwindow.h"
-#include "components/cpbase.h"
-#include "loadinglogdialog.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <QDesktopWidget>
@@ -10,6 +7,12 @@
 #include <QFileDialog>
 #include <QScrollBar>
 #include <QInputDialog>
+#include <QFontDatabase>
+#include <QClipboard>
+
+#include "mainwindow.h"
+#include "components/cpbase.h"
+#include "loadinglogdialog.h"
 
 void init_al() {
     ALCdevice *dev = NULL;

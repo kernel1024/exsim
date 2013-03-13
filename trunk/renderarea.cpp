@@ -1,5 +1,6 @@
 #include "renderarea.h"
 #include "mainwindow.h"
+#include <QFontDatabase>
 
 #include "components/cpbutton.h"
 #include "components/cpled.h"
