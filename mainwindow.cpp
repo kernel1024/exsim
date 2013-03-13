@@ -5,6 +5,11 @@
 #include "loadinglogdialog.h"
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <QDesktopWidget>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QScrollBar>
+#include <QInputDialog>
 
 void init_al() {
     ALCdevice *dev = NULL;

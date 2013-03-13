@@ -1,4 +1,5 @@
 #include "cpintextender.h"
+#include <QInputDialog>
 
 QCPIntExtender::QCPIntExtender(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

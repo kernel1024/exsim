@@ -1,5 +1,6 @@
 #include "cplogic.h"
 #include "renderarea.h"
+#include <QInputDialog>
 
 QCPLogic::QCPLogic(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

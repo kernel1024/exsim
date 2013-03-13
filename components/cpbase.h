@@ -1,9 +1,21 @@
 #ifndef CPBASE_H
 #define CPBASE_H 1
 
-#include <QtCore>
-#include <QtGui>
-#include <QtXml>
+#include <QWidget>
+#include <QPoint>
+#include <QMouseEvent>
+#include <QString>
+#include <QPainter>
+#include <QScrollArea>
+#include <QDomElement>
+#include <QDomDocument>
+#include <QUuid>
+#include <QTextStream>
+
+#include <QApplication>
+#include <QMenu>
+#include <QAction>
+#include <QDebug>
 
 #define QPT_INPUT     1
 #define QPT_OUTPUT    2

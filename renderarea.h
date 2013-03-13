@@ -1,9 +1,13 @@
 #ifndef RENDERAREA_H
 #define RENDERAREA_H 1
 
-#include <QtCore>
-#include <QtGui>
-#include <QtXml>
+#include <QFrame>
+#include <QLabel>
+#include <QRubberBand>
+#include <QList>
+#include <QStringList>
+#include <QScrollArea>
+
 #include "components/cpbase.h"
 
 class QRenderArea : public QFrame

@@ -1,4 +1,8 @@
 #include "cplabel.h"
+#include <QInputDialog>
+#include <QFontDialog>
+#include <QColorDialog>
+#include <QLineEdit>
 
 QCPLabel::QCPLabel(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

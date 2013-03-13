@@ -1,5 +1,8 @@
 #include "cpram.h"
 #include "renderarea.h"
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QInputDialog>
 
 QCPRAM::QCPRAM(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
@@ -74,7 +77,7 @@ void QCPRAM::readFromXML(QTextStream &errlog, const QDomElement &element)
         addrWidth = 10;
     }
     updateInputsCount();
-    data = QByteArray::fromHex(element.attribute("data","").toAscii());
+    data = QByteArray::fromHex(element.attribute("data","").toLatin1());
     if (data.size()!=ipow(2,addrWidth)) {
         errlog << tr("QCPRAM: data is empty or has incorrect size") << endl;
         data.clear();
@@ -86,7 +89,7 @@ void QCPRAM::readFromXML(QTextStream &errlog, const QDomElement &element)
 void QCPRAM::storeToXML(QDomElement &element)
 {
     element.setAttribute("addrWidth",addrWidth);
-    element.setAttribute("data",QString::fromAscii(data.toHex()));
+    element.setAttribute("data",QString::fromLatin1(data.toHex()));
     QCPBase::storeToXML(element);
 }
 
