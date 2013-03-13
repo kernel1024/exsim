@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H 1
 
-#include <QtCore>
-#include <QtGui>
-
+#include <QMainWindow>
+#include <QWidget>
+#include <QLabel>
 #include "renderarea.h"
 #include "ui_mainwindow.h"
 
