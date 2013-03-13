@@ -1,5 +1,6 @@
 #include "cpgen.h"
 #include "renderarea.h"
+#include <QInputDialog>
 
 QCPGen::QCPGen(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

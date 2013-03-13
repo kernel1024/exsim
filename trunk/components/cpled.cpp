@@ -1,4 +1,5 @@
 #include "cpled.h"
+#include <QColorDialog>
 
 QCPLed::QCPLed(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

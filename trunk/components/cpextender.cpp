@@ -1,5 +1,6 @@
 #include "cpextender.h"
 #include "renderarea.h"
+#include <QInputDialog>
 
 QCPExtender::QCPExtender(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

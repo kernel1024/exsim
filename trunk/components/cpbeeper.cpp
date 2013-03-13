@@ -1,6 +1,8 @@
 #include "cpbeeper.h"
+#include <math.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <QInputDialog>
 
 bool al_check_error(QString where) {
     ALenum err = alGetError();

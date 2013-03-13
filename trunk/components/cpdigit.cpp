@@ -1,5 +1,6 @@
 #include "cpdigit.h"
 #include "../renderarea.h"
+#include <QColorDialog>
 
 QCPDigit::QCPDigit(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)

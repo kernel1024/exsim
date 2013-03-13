@@ -1,4 +1,5 @@
 #include "cpmux.h"
+#include <QInputDialog>
 
 QCPMux::QCPMux(QWidget *parent, QRenderArea *aOwner) :
     QCPBase(parent,aOwner)
