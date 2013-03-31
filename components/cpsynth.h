@@ -2,8 +2,13 @@
 #define CPSYNTH_H
 
 #include "cpbase.h"
+#if WIN32
+#include "AL/al.h"
+#include "AL/alc.h"
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 class QCPSynth : public QCPBase
 {

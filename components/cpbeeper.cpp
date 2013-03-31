@@ -1,13 +1,12 @@
 #include "cpbeeper.h"
 #include <math.h>
-#include <AL/al.h>
-#include <AL/alc.h>
 #include <QInputDialog>
+#include "openal.h"
 
 bool al_check_error(QString where) {
-    ALenum err = alGetError();
+    ALenum err = alGetError_();
     if (err==AL_NO_ERROR) return true;
-    for(; err!=AL_NO_ERROR; err=alGetError())
+    for(; err!=AL_NO_ERROR; err=alGetError_())
         qDebug() << "AL Error " << QString("%1").arg(err,0,16) << " at " << where;
     return false;
 }
@@ -28,10 +27,10 @@ QCPBeeper::QCPBeeper(QWidget *parent, QRenderArea *aOwner) :
 QCPBeeper::~QCPBeeper()
 {
     if (alPlaying) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error("alSourceStop"))
             alError=true;
-        alDeleteSources(1,&alsrc);
+        alDeleteSources_(1,&alsrc);
         if (!al_check_error("alDeleteSources"))
             alError=true;
         alsrc=0;
@@ -43,10 +42,10 @@ QCPBeeper::~QCPBeeper()
 void QCPBeeper::updateFreq(float aFreq)
 {
     if (alPlaying) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error("alSourceStop"))
             alError=true;
-        alDeleteSources(1,&alsrc);
+        alDeleteSources_(1,&alsrc);
         if (!al_check_error("alDeleteSources"))
             alError=true;
         alsrc=0;
@@ -65,28 +64,28 @@ void QCPBeeper::updateFreq(float aFreq)
 
     /* Download buffer to OpenAL */
     if (albuf!=0)
-        alDeleteBuffers(1,&albuf);
-    alGetError();
+        alDeleteBuffers_(1,&albuf);
+    alGetError_();
     albuf=0;
-    alGenBuffers(1, &albuf);
+    alGenBuffers_(1, &albuf);
     if (!al_check_error("alGenSources"))
         alError=true;
     else {
-        alBufferData(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+        alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
         if (!al_check_error("alBufferData"))
             alError=true;
     }
     if (alPlaying) {
-        alGenSources(1, &alsrc);
+        alGenSources_(1, &alsrc);
         if (!al_check_error("alGenSources"))
             alError=true;
-        alSourcei(alsrc, AL_BUFFER, albuf);
+        alSourcei_(alsrc, AL_BUFFER, albuf);
         if (!al_check_error("alSourcei"))
             alError=true;
-        alSourcei(alsrc, AL_LOOPING, AL_TRUE);
+        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
         if (!al_check_error("alSourcei loop"))
             alError=true;
-        alSourcePlay(alsrc);
+        alSourcePlay_(alsrc);
         if (!al_check_error("alSourcePlay"))
             alError=true;
     }
@@ -177,15 +176,15 @@ void QCPBeeper::paintEvent(QPaintEvent *)
 
     if (!alPlaying && fInp->state) {
         alsrc = 0;
-        alGenSources(1, &alsrc);
-        alSourcei(alsrc, AL_BUFFER, albuf);
-        alSourcei(alsrc, AL_LOOPING, AL_TRUE);
-        alSourcePlay(alsrc);
+        alGenSources_(1, &alsrc);
+        alSourcei_(alsrc, AL_BUFFER, albuf);
+        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+        alSourcePlay_(alsrc);
         if (!al_check_error("alSourcePlay paint"))
             alError=true;
         alPlaying=true;
     } else if (alPlaying && !fInp->state) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error("alSourceStop paint"))
             alError=true;
         alPlaying=false;
