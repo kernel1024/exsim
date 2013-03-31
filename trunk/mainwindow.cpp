@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <time.h>
-#include <AL/al.h>
-#include <AL/alc.h>
 #include <QDesktopWidget>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -9,7 +7,7 @@
 #include <QInputDialog>
 #include <QFontDatabase>
 #include <QClipboard>
-
+#include "openal.h"
 #include "mainwindow.h"
 #include "components/cpbase.h"
 #include "loadinglogdialog.h"
@@ -18,22 +16,22 @@ void init_al() {
     ALCdevice *dev = NULL;
     ALCcontext *ctx = NULL;
 
-    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    const char *defname = alcGetString_(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    dev = alcOpenDevice(defname);
-    ctx = alcCreateContext(dev, NULL);
-    alcMakeContextCurrent(ctx);
+    dev = alcOpenDevice_(defname);
+    ctx = alcCreateContext_(dev, NULL);
+    alcMakeContextCurrent_(ctx);
 }
 
 void exit_al() {
     ALCdevice *dev = NULL;
     ALCcontext *ctx = NULL;
-    ctx = alcGetCurrentContext();
-    dev = alcGetContextsDevice(ctx);
+    ctx = alcGetCurrentContext_();
+    dev = alcGetContextsDevice_(ctx);
 
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(ctx);
-    alcCloseDevice(dev);
+    alcMakeContextCurrent_(NULL);
+    alcDestroyContext_(ctx);
+    alcCloseDevice_(dev);
 }
 
 MainWindow::MainWindow(QWidget * parent) :

@@ -32,7 +32,8 @@ HEADERS       = components/cpbase.h \
     components/cpsynth.h \
     components/cplabel.h \
     loadinglogdialog.h \
-    components/cpintextender.h
+    components/cpintextender.h \
+    openal.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -59,13 +60,16 @@ SOURCES       = main.cpp \
     components/cpsynth.cpp \
     components/cplabel.cpp \
     loadinglogdialog.cpp \
-    components/cpintextender.cpp
+    components/cpintextender.cpp \
+    openal.cpp
 
 RESOURCES     = exsim.qrc
 
 CONFIG += warn_on link_pkgconfig
 
-LIBS += -lopenal
+unix {
+    LIBS += -lopenal
+}
 
 FORMS += \
     mainwindow.ui \

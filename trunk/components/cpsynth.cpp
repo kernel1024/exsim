@@ -1,7 +1,6 @@
 #include "cpsynth.h"
 #include <math.h>
-#include <AL/al.h>
-#include <AL/alc.h>
+#include "openal.h"
 
 const float notes[32] = {130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94,
                          261.63, 293.67, 329.63, 349.23, 392.00, 440.00, 493.88,
@@ -10,9 +9,9 @@ const float notes[32] = {130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94,
                          2093.0, 2349.3, 2637.0, 2793.8};
 
 bool al_check_error_synth(QString where) {
-    ALenum err = alGetError();
+    ALenum err = alGetError_();
     if (err==AL_NO_ERROR) return true;
-    for(; err!=AL_NO_ERROR; err=alGetError())
+    for(; err!=AL_NO_ERROR; err=alGetError_())
         qDebug() << "AL Error " << QString("%1").arg(err,0,16) << " at " << where;
     return false;
 }
@@ -47,10 +46,10 @@ QCPSynth::QCPSynth(QWidget *parent, QRenderArea *aOwner) :
 QCPSynth::~QCPSynth()
 {
     if (alPlaying) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error_synth("alSourceStop"))
             alError=true;
-        alDeleteSources(1,&alsrc);
+        alDeleteSources_(1,&alsrc);
         if (!al_check_error_synth("alDeleteSources"))
             alError=true;
         alsrc=0;
@@ -68,10 +67,10 @@ void QCPSynth::updateFreq(int code)
 {
     if ((code<0) || (code>31)) return;
     if (alPlaying) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error_synth("alSourceStop"))
             alError=true;
-        alDeleteSources(1,&alsrc);
+        alDeleteSources_(1,&alsrc);
         if (!al_check_error_synth("alDeleteSources"))
             alError=true;
         alsrc=0;
@@ -90,28 +89,28 @@ void QCPSynth::updateFreq(int code)
 
     /* Download buffer to OpenAL */
     if (albuf!=0)
-        alDeleteBuffers(1,&albuf);
-    alGetError();
+        alDeleteBuffers_(1,&albuf);
+    alGetError_();
     albuf=0;
-    alGenBuffers(1, &albuf);
+    alGenBuffers_(1, &albuf);
     if (!al_check_error_synth("alGenSources"))
         alError=true;
     else {
-        alBufferData(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+        alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
         if (!al_check_error_synth("alBufferData"))
             alError=true;
     }
     if (alPlaying) {
-        alGenSources(1, &alsrc);
+        alGenSources_(1, &alsrc);
         if (!al_check_error_synth("alGenSources"))
             alError=true;
-        alSourcei(alsrc, AL_BUFFER, albuf);
+        alSourcei_(alsrc, AL_BUFFER, albuf);
         if (!al_check_error_synth("alSourcei"))
             alError=true;
-        alSourcei(alsrc, AL_LOOPING, AL_TRUE);
+        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
         if (!al_check_error_synth("alSourcei loop"))
             alError=true;
-        alSourcePlay(alsrc);
+        alSourcePlay_(alsrc);
         if (!al_check_error_synth("alSourcePlay"))
             alError=true;
     }
@@ -187,15 +186,15 @@ void QCPSynth::paintEvent(QPaintEvent *)
 
     if (!alPlaying && fOEInp->state) {
         alsrc = 0;
-        alGenSources(1, &alsrc);
-        alSourcei(alsrc, AL_BUFFER, albuf);
-        alSourcei(alsrc, AL_LOOPING, AL_TRUE);
-        alSourcePlay(alsrc);
+        alGenSources_(1, &alsrc);
+        alSourcei_(alsrc, AL_BUFFER, albuf);
+        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+        alSourcePlay_(alsrc);
         if (!al_check_error_synth("alSourcePlay paint"))
             alError=true;
         alPlaying=true;
     } else if (alPlaying && !fOEInp->state) {
-        alSourceStop(alsrc);
+        alSourceStop_(alsrc);
         if (!al_check_error_synth("alSourceStop paint"))
             alError=true;
         alPlaying=false;
