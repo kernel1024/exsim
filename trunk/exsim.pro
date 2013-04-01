@@ -72,6 +72,14 @@ unix {
     LIBS += -lopenal
 }
 
+win32 {
+    win32-g++:contains(QMAKE_HOST.arch, x86_64):{
+        LIBS += $$PWD/lib64/libOpenAl32.dll.a
+    } else {
+        LIBS += $$PWD/lib32/libOpenAl32.dll.a
+    }
+}
+
 FORMS += \
     mainwindow.ui \
     loadinglogdialog.ui
