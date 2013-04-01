@@ -51,6 +51,7 @@ protected:
     QString workFile;
     QString programTitle;
     QString loadingFile;
+    QLabel* mouseCoords;
 
     void loadFile(const QString &fname);
     bool saveFile(const QString &fname);
@@ -59,6 +60,7 @@ protected:
     void updateStatus();
     void centerWindow();
     void cleanupBlock(QDomElement & block);
+    bool eventFilter(QObject *obj, QEvent *event);
 private:
     ALCdevice *alDev;
     ALCcontext *alCtx;
