@@ -22,7 +22,7 @@ QSize QCPGnd::minimumSizeHint() const
                  2*fm.height());
 }
 
-void QCPGnd::realignPins(QPainter &)
+void QCPGnd::realignPins()
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
 }

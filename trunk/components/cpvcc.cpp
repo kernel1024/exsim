@@ -23,7 +23,7 @@ QSize QCPVcc::minimumSizeHint() const
                  2*fm.height());
 }
 
-void QCPVcc::realignPins(QPainter &)
+void QCPVcc::realignPins()
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
 }

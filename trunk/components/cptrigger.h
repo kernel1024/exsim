@@ -30,7 +30,7 @@ protected:
     bool state;
     bool savedT;
     TriggerMode mode;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);

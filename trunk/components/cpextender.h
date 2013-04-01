@@ -20,7 +20,7 @@ public:
     void setMode(int outputCount);
 
 protected:
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);

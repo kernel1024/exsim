@@ -77,7 +77,7 @@ void QCPTrigger::setMode(QCPTrigger::TriggerMode tMode)
     update();
 }
 
-void QCPTrigger::realignPins(QPainter &)
+void QCPTrigger::realignPins()
 {
     int dy = height()/6;
     int ddy = dy/2;

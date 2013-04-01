@@ -40,7 +40,7 @@ void QCPButton::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPButton::realignPins(QPainter &)
+void QCPButton::realignPins()
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
 }

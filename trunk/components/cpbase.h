@@ -41,7 +41,6 @@ protected:
     bool isStateChanged();
     QString calcState();
 
-    virtual void realignPins(QPainter & painter)=0;
     virtual void doLogicPrivate()=0;
 
     int getDCompHeight(const int divCount) const;
@@ -54,6 +53,9 @@ protected:
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void paintEvent(QPaintEvent *event);
+    void showEvent(QShowEvent *event);
+
+    virtual void realignPins();
     virtual void periodicCheck();
     virtual bool checkTimerNeeded();
 

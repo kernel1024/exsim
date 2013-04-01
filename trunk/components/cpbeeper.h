@@ -27,7 +27,7 @@ protected:
     QMutex stateUpdate;
 
     float freq;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);

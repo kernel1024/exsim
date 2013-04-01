@@ -32,7 +32,7 @@ protected:
     bool savedC;
     bool savedInc;
     bool savedDec;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
 };

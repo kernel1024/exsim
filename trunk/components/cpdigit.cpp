@@ -63,7 +63,7 @@ void QCPDigit::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPDigit::realignPins(QPainter &)
+void QCPDigit::realignPins()
 {
     int dy=getDCompIncrement();
     f1Inp->relCoord=QPoint(getPinSize()/2,dy);

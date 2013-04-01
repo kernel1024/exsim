@@ -123,7 +123,7 @@ QSize QCPSynth::minimumSizeHint() const
     return QSize(80*zoom()/100,getDCompHeight(1));
 }
 
-void QCPSynth::realignPins(QPainter &)
+void QCPSynth::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

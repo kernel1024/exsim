@@ -44,7 +44,7 @@ void QCPLabel::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPLabel::realignPins(QPainter &)
+void QCPLabel::realignPins()
 {
 }
 

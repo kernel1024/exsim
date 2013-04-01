@@ -39,7 +39,7 @@ QSize QCPEncoder::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(0));
 }
 
-void QCPEncoder::realignPins(QPainter &)
+void QCPEncoder::realignPins()
 {
     int dy = getDCompIncrement();
     f1Inp->relCoord = QPoint(getPinSize()/2,dy);

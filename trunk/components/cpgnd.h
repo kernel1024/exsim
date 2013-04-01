@@ -15,7 +15,7 @@ public:
     QSize minimumSizeHint() const;
 protected:
     void paintEvent(QPaintEvent *event);
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
 };
 

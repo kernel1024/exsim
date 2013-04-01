@@ -41,7 +41,7 @@ QSize QCPComparator::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(2));
 }
 
-void QCPComparator::realignPins(QPainter &)
+void QCPComparator::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

@@ -52,7 +52,7 @@ QSize QCPCounter::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(1));
 }
 
-void QCPCounter::realignPins(QPainter &)
+void QCPCounter::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

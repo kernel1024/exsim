@@ -38,7 +38,7 @@ protected:
     int addrWidth;
     bool savedW;
     void updateInputsCount();
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);
