@@ -65,9 +65,10 @@ SOURCES       = main.cpp \
 
 RESOURCES     = exsim.qrc
 
-CONFIG += warn_on link_pkgconfig
+CONFIG += warn_on
 
 unix {
+    CONFIG += link_pkgconfig
     LIBS += -lopenal
 }
 

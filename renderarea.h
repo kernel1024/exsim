@@ -7,19 +7,23 @@
 #include <QList>
 #include <QStringList>
 #include <QScrollArea>
+#include <QTimer>
 
 #include "components/cpbase.h"
+class MainWindow;
 
 class QRenderArea : public QFrame
 {
     Q_OBJECT
 public:
-    QRenderArea(QWidget *parent = 0, QScrollArea *aScroller=0, int aLcdFontIdx = -1);
+    QRenderArea(QWidget *parent = 0, QScrollArea *aScroller=0, int aLcdFontIdx = -1,
+                MainWindow *aMainWindow = NULL);
     
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
     
     QScrollArea *scroller;
+    MainWindow *mainWindow;
 
     QList<QUuid> pendingLogicLinks;
     
@@ -52,7 +56,9 @@ public:
     int cpComponentCount();
     void setZoom(int zoomFactor);
     QCPBase* createCpInstance(const QString & className);
+
 protected:
+    QTimer* periodicCheckTimer;
     void paintEvent ( QPaintEvent * event );
     void mouseMoveEvent(QMouseEvent * event);
     void mousePressEvent(QMouseEvent * event);

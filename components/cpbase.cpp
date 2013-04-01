@@ -1,4 +1,5 @@
 #include "renderarea.h"
+#include "mainwindow.h"
 #include "cpbase.h"
 
 int ipow(int base, int pow)
@@ -30,16 +31,6 @@ QSize QCPBase::minimumSizeHint() const
 QSize QCPBase::sizeHint() const
 {
     return minimumSizeHint();
-}
-
-bool QCPBase::canConnectOut(const QCPBase *)
-{
-    return true;
-}
-
-bool QCPBase::canConnectIn(const QCPBase *)
-{
-    return true;
 }
 
 void QCPBase::mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase* & aFilter)
@@ -241,6 +232,22 @@ void QCPBase::deleteComponent()
     }
     cpOwner->repaintConn();
     deleteLater();
+}
+
+bool QCPBase::isSoundOK()
+{
+    if (cpOwner == NULL) return false;
+    if (cpOwner->mainWindow == NULL) return false;
+    return cpOwner->mainWindow->isSoundOK();
+}
+
+bool QCPBase::checkTimerNeeded()
+{
+    return false;
+}
+
+void QCPBase::periodicCheck()
+{
 }
 
 void QCPBase::deleteInputs()
@@ -637,4 +644,10 @@ void QCPInput::applyState(bool aState)
     oldState = aState;
     state = aState;
     emit applyInputState(this);
+}
+
+
+void QCPBase::periodicCheckSlot()
+{
+    periodicCheck();
 }

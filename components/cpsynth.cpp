@@ -1,6 +1,5 @@
 #include "cpsynth.h"
 #include <math.h>
-#include "openal.h"
 
 const float notes[32] = {130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94,
                          261.63, 293.67, 329.63, 349.23, 392.00, 440.00, 493.88,
@@ -14,16 +13,6 @@ bool al_check_error_synth(QString where) {
     for(; err!=AL_NO_ERROR; err=alGetError_())
         qDebug() << "AL Error " << QString("%1").arg(err,0,16) << " at " << where;
     return false;
-}
-
-void drawRotatedText(QPainter *painter, float degrees, const QRect& rect, const QString &text)
-{
-    painter->save();
-    painter->translate(rect.center());
-    painter->rotate(degrees);
-    QRect rct = QRect(-rect.height()/2,-rect.width()/2,rect.height(),rect.width());
-    painter->drawText(rct, Qt::AlignCenter, text);
-    painter->restore();
 }
 
 QCPSynth::QCPSynth(QWidget *parent, QRenderArea *aOwner) :
@@ -45,14 +34,16 @@ QCPSynth::QCPSynth(QWidget *parent, QRenderArea *aOwner) :
 
 QCPSynth::~QCPSynth()
 {
-    if (alPlaying) {
-        alSourceStop_(alsrc);
-        if (!al_check_error_synth("alSourceStop"))
-            alError=true;
-        alDeleteSources_(1,&alsrc);
-        if (!al_check_error_synth("alDeleteSources"))
-            alError=true;
-        alsrc=0;
+    if (isSoundOK()) {
+        if (alPlaying) {
+            alSourceStop_(alsrc);
+            if (!al_check_error_synth("alSourceStop"))
+                alError=true;
+            alDeleteSources_(1,&alsrc);
+            if (!al_check_error_synth("alDeleteSources"))
+                alError=true;
+            alsrc=0;
+        }
     }
     fInputs.clear();
     delete f1Inp;
@@ -66,55 +57,65 @@ QCPSynth::~QCPSynth()
 void QCPSynth::updateFreq(int code)
 {
     if ((code<0) || (code>31)) return;
-    if (alPlaying) {
-        alSourceStop_(alsrc);
-        if (!al_check_error_synth("alSourceStop"))
-            alError=true;
-        alDeleteSources_(1,&alsrc);
-        if (!al_check_error_synth("alDeleteSources"))
-            alError=true;
-        alsrc=0;
+
+    if (!stateUpdate.tryLock()) {
+        qDebug() << "State update mutex is locked. Unable to change frequency.";
+        return;
     }
 
     freq = notes[code];
-    int seconds = 4;
-    unsigned sample_rate = 22050;
-    size_t buf_size = seconds * sample_rate;
 
-    short *samples;
-    samples = new short[buf_size];
-    for(size_t i=0; i<buf_size; ++i) {
-        samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
-    }
+    if (isSoundOK()) {
+        if (alPlaying) {
+            alSourceStop_(alsrc);
+            if (!al_check_error_synth("alSourceStop"))
+                alError=true;
+            alDeleteSources_(1,&alsrc);
+            if (!al_check_error_synth("alDeleteSources"))
+                alError=true;
+            alsrc=0;
+        }
 
-    /* Download buffer to OpenAL */
-    if (albuf!=0)
-        alDeleteBuffers_(1,&albuf);
-    alGetError_();
-    albuf=0;
-    alGenBuffers_(1, &albuf);
-    if (!al_check_error_synth("alGenSources"))
-        alError=true;
-    else {
-        alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
-        if (!al_check_error_synth("alBufferData"))
-            alError=true;
-    }
-    if (alPlaying) {
-        alGenSources_(1, &alsrc);
+        int seconds = 4;
+        unsigned sample_rate = 22050;
+        size_t buf_size = seconds * sample_rate;
+
+        short *samples;
+        samples = new short[buf_size];
+        for(size_t i=0; i<buf_size; ++i) {
+            samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
+        }
+
+        /* Download buffer to OpenAL */
+        if (albuf!=0)
+            alDeleteBuffers_(1,&albuf);
+        alGetError_();
+        albuf=0;
+        alGenBuffers_(1, &albuf);
         if (!al_check_error_synth("alGenSources"))
             alError=true;
-        alSourcei_(alsrc, AL_BUFFER, albuf);
-        if (!al_check_error_synth("alSourcei"))
-            alError=true;
-        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
-        if (!al_check_error_synth("alSourcei loop"))
-            alError=true;
-        alSourcePlay_(alsrc);
-        if (!al_check_error_synth("alSourcePlay"))
-            alError=true;
+        else {
+            alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+            if (!al_check_error_synth("alBufferData"))
+                alError=true;
+        }
+        if (alPlaying) {
+            alGenSources_(1, &alsrc);
+            if (!al_check_error_synth("alGenSources"))
+                alError=true;
+            alSourcei_(alsrc, AL_BUFFER, albuf);
+            if (!al_check_error_synth("alSourcei"))
+                alError=true;
+            alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+            if (!al_check_error_synth("alSourcei loop"))
+                alError=true;
+            alSourcePlay_(alsrc);
+            if (!al_check_error_synth("alSourcePlay"))
+                alError=true;
+        }
     }
     savedCode = code;
+    stateUpdate.unlock();
 }
 
 QSize QCPSynth::minimumSizeHint() const
@@ -136,6 +137,7 @@ void QCPSynth::realignPins(QPainter &)
 
 void QCPSynth::doLogicPrivate()
 {
+    periodicCheck();
 }
 
 void QCPSynth::paintEvent(QPaintEvent *)
@@ -144,12 +146,6 @@ void QCPSynth::paintEvent(QPaintEvent *)
     QPen op=p.pen();
     QBrush ob=p.brush();
     QFont of=p.font();
-
-    qint8 di = ((f16Inp->state << 4) & 0x10) |
-               ((f8Inp->state << 3) & 0x8) |
-               ((f4Inp->state << 2) & 0x4) |
-               ((f2Inp->state << 1) & 0x2) |
-               (f1Inp->state & 0x1);
 
     p.setPen(QPen(Qt::black));
     p.setBrush(QBrush(Qt::white,Qt::SolidPattern));
@@ -183,22 +179,54 @@ void QCPSynth::paintEvent(QPaintEvent *)
     p.setPen(op);
 
     drawSelection(p);
+}
 
-    if (!alPlaying && fOEInp->state) {
-        alsrc = 0;
-        alGenSources_(1, &alsrc);
-        alSourcei_(alsrc, AL_BUFFER, albuf);
-        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
-        alSourcePlay_(alsrc);
-        if (!al_check_error_synth("alSourcePlay paint"))
-            alError=true;
-        alPlaying=true;
-    } else if (alPlaying && !fOEInp->state) {
-        alSourceStop_(alsrc);
-        if (!al_check_error_synth("alSourceStop paint"))
-            alError=true;
-        alPlaying=false;
-    } else if (di!=savedCode) {
-        updateFreq(di);
+void QCPSynth::periodicCheck()
+{
+    if (!stateUpdate.tryLock()) return;
+    bool needToUpdateFreq = false;
+
+    qint8 di = ((f16Inp->state << 4) & 0x10) |
+               ((f8Inp->state << 3) & 0x8) |
+               ((f4Inp->state << 2) & 0x4) |
+               ((f2Inp->state << 1) & 0x2) |
+               (f1Inp->state & 0x1);
+
+    if (isSoundOK()) {
+        if (!alPlaying && fOEInp->state) {
+            alsrc = 0;
+            alGenSources_(1, &alsrc);
+            alSourcei_(alsrc, AL_BUFFER, albuf);
+            alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+            alSourcePlay_(alsrc);
+            if (!al_check_error_synth("alSourcePlay paint"))
+                alError=true;
+            alPlaying=true;
+        } else if (alPlaying && !fOEInp->state) {
+            alSourceStop_(alsrc);
+            if (!al_check_error_synth("alSourceStop paint"))
+                alError=true;
+            alPlaying=false;
+        } else if (di!=savedCode) {
+            needToUpdateFreq=true;
+        }
     }
+    stateUpdate.unlock();
+    if (needToUpdateFreq)
+        updateFreq(di);
+}
+
+bool QCPSynth::checkTimerNeeded()
+{
+    return true;
+}
+
+void QCPSynth::drawRotatedText(QPainter *painter, float degrees, const QRect& rect, const QString &text)
+{
+    painter->save();
+    painter->translate(rect.center());
+    painter->rotate(degrees);
+    QRect rct = QRect(-rect.height()/2,-rect.width()/2,rect.height(),rect.width());
+    painter->drawText(rct, Qt::AlignCenter, text);
+    painter->restore();
 }

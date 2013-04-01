@@ -1,7 +1,6 @@
 #include "cpbeeper.h"
 #include <math.h>
 #include <QInputDialog>
-#include "openal.h"
 
 bool al_check_error(QString where) {
     ALenum err = alGetError_();
@@ -26,14 +25,16 @@ QCPBeeper::QCPBeeper(QWidget *parent, QRenderArea *aOwner) :
 
 QCPBeeper::~QCPBeeper()
 {
-    if (alPlaying) {
-        alSourceStop_(alsrc);
-        if (!al_check_error("alSourceStop"))
-            alError=true;
-        alDeleteSources_(1,&alsrc);
-        if (!al_check_error("alDeleteSources"))
-            alError=true;
-        alsrc=0;
+    if (isSoundOK()) {
+        if (alPlaying) {
+            alSourceStop_(alsrc);
+            if (!al_check_error("alSourceStop"))
+                alError=true;
+            alDeleteSources_(1,&alsrc);
+            if (!al_check_error("alDeleteSources"))
+                alError=true;
+            alsrc=0;
+        }
     }
     fInputs.clear();
     delete fInp;
@@ -41,54 +42,62 @@ QCPBeeper::~QCPBeeper()
 
 void QCPBeeper::updateFreq(float aFreq)
 {
-    if (alPlaying) {
-        alSourceStop_(alsrc);
-        if (!al_check_error("alSourceStop"))
-            alError=true;
-        alDeleteSources_(1,&alsrc);
-        if (!al_check_error("alDeleteSources"))
-            alError=true;
-        alsrc=0;
+    if (!stateUpdate.tryLock()) {
+        qDebug() << "State update mutex is locked. Unable to change frequency.";
+        return;
     }
-
     freq = aFreq;
-    int seconds = 4;
-    unsigned sample_rate = 22050;
-    size_t buf_size = seconds * sample_rate;
 
-    short *samples;
-    samples = new short[buf_size];
-    for(size_t i=0; i<buf_size; ++i) {
-        samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
-    }
+    if (isSoundOK()) {
+        if (alPlaying) {
+            alSourceStop_(alsrc);
+            if (!al_check_error("alSourceStop"))
+                alError=true;
+            alDeleteSources_(1,&alsrc);
+            if (!al_check_error("alDeleteSources"))
+                alError=true;
+            alsrc=0;
+        }
 
-    /* Download buffer to OpenAL */
-    if (albuf!=0)
-        alDeleteBuffers_(1,&albuf);
-    alGetError_();
-    albuf=0;
-    alGenBuffers_(1, &albuf);
-    if (!al_check_error("alGenSources"))
-        alError=true;
-    else {
-        alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
-        if (!al_check_error("alBufferData"))
-            alError=true;
-    }
-    if (alPlaying) {
-        alGenSources_(1, &alsrc);
+        int seconds = 4;
+        unsigned sample_rate = 22050;
+        size_t buf_size = seconds * sample_rate;
+
+        short *samples;
+        samples = new short[buf_size];
+        for(size_t i=0; i<buf_size; ++i) {
+            samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
+        }
+
+        /* Download buffer to OpenAL */
+        if (albuf!=0)
+            alDeleteBuffers_(1,&albuf);
+        alGetError_();
+        albuf=0;
+        alGenBuffers_(1, &albuf);
         if (!al_check_error("alGenSources"))
             alError=true;
-        alSourcei_(alsrc, AL_BUFFER, albuf);
-        if (!al_check_error("alSourcei"))
-            alError=true;
-        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
-        if (!al_check_error("alSourcei loop"))
-            alError=true;
-        alSourcePlay_(alsrc);
-        if (!al_check_error("alSourcePlay"))
-            alError=true;
+        else {
+            alBufferData_(albuf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+            if (!al_check_error("alBufferData"))
+                alError=true;
+        }
+        if (alPlaying) {
+            alGenSources_(1, &alsrc);
+            if (!al_check_error("alGenSources"))
+                alError=true;
+            alSourcei_(alsrc, AL_BUFFER, albuf);
+            if (!al_check_error("alSourcei"))
+                alError=true;
+            alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+            if (!al_check_error("alSourcei loop"))
+                alError=true;
+            alSourcePlay_(alsrc);
+            if (!al_check_error("alSourcePlay"))
+                alError=true;
+        }
     }
+    stateUpdate.unlock();
 
     update();
 }
@@ -127,6 +136,7 @@ void QCPBeeper::realignPins(QPainter &)
 
 void QCPBeeper::doLogicPrivate()
 {
+    periodicCheck();
 }
 
 void QCPBeeper::contextMenuEvent(QContextMenuEvent *event)
@@ -134,6 +144,34 @@ void QCPBeeper::contextMenuEvent(QContextMenuEvent *event)
     QMenu cm(this);
     cm.addAction(tr("Change frequency..."),this,SLOT(chooseFreq()));
     cm.exec(event->globalPos());
+}
+
+bool QCPBeeper::checkTimerNeeded()
+{
+    return true;
+}
+
+void QCPBeeper::periodicCheck()
+{
+    if (!stateUpdate.tryLock()) return;
+    if (isSoundOK()) {
+        if (!alPlaying && fInp->state) {
+            alsrc = 0;
+            alGenSources_(1, &alsrc);
+            alSourcei_(alsrc, AL_BUFFER, albuf);
+            alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
+            alSourcePlay_(alsrc);
+            if (!al_check_error("alSourcePlay paint"))
+                alError=true;
+            alPlaying=true;
+        } else if (alPlaying && !fInp->state) {
+            alSourceStop_(alsrc);
+            if (!al_check_error("alSourceStop paint"))
+                alError=true;
+            alPlaying=false;
+        }
+    }
+    stateUpdate.unlock();
 }
 
 void QCPBeeper::chooseFreq()
@@ -173,20 +211,4 @@ void QCPBeeper::paintEvent(QPaintEvent *)
     p.setPen(op);
 
     drawSelection(p);
-
-    if (!alPlaying && fInp->state) {
-        alsrc = 0;
-        alGenSources_(1, &alsrc);
-        alSourcei_(alsrc, AL_BUFFER, albuf);
-        alSourcei_(alsrc, AL_LOOPING, AL_TRUE);
-        alSourcePlay_(alsrc);
-        if (!al_check_error("alSourcePlay paint"))
-            alError=true;
-        alPlaying=true;
-    } else if (alPlaying && !fInp->state) {
-        alSourceStop_(alsrc);
-        if (!al_check_error("alSourceStop paint"))
-            alError=true;
-        alPlaying=false;
-    }
 }

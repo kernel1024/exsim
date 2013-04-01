@@ -6,6 +6,7 @@
 #include <QLabel>
 #include "renderarea.h"
 #include "ui_mainwindow.h"
+#include "openal.h"
 
 class MainWindow : public QMainWindow
 {
@@ -24,7 +25,9 @@ public:
     bool modified;
     
     int deletedTimer, repaintTimer;
-    void generateConfigToFile(QTextStream & stream);
+//    void generateConfigToFile(QTextStream & stream);
+    bool isSoundOK();
+
 public slots:
     void deletedItem(QObject * obj);
     void timerEvent(QTimerEvent * event);
@@ -57,5 +60,10 @@ protected:
     void updateStatus();
     void centerWindow();
     void cleanupBlock(QDomElement & block);
+private:
+    ALCdevice *alDev;
+    ALCcontext *alCtx;
+    bool initOpenAL();
+    void doneOpenAL();
 };
 #endif

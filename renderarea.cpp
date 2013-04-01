@@ -25,10 +25,12 @@
 #include "components/cplabel.h"
 #include "components/cpintextender.h"
 
-QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx)
+QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontIdx,
+                         MainWindow *aMainWindow)
     : QFrame(parent)
 {
     scroller=aScroller;
+    mainWindow = aMainWindow;
     pendingLogicLinks.clear();
 
     resReading=false;
@@ -67,6 +69,9 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
         }
     }
 
+    periodicCheckTimer = new QTimer(this);
+    periodicCheckTimer->setInterval(2000);
+    periodicCheckTimer->start();
 }
 
 QSize QRenderArea::minimumSizeHint() const
@@ -403,22 +408,6 @@ void QRenderArea::doneConnBuilder(const bool aNone, int aType,
         repaintConn();
         return;
     }
-    // if this output can't possible connect to specified input, then delete it
-    QCPBase *aTo, *aFrom;
-    if (cbType==QPT_INPUT)
-    {
-        aTo=cbInput->ownerCmp;
-        aFrom=aOutput->ownerCmp;
-    } else {
-        aTo=aInput->ownerCmp;
-        aFrom=cbOutput->ownerCmp;
-    }
-    if ((!aFrom->canConnectOut(aTo)) || (!aTo->canConnectIn(aFrom)))
-    {
-        cbBuilding=false;
-        repaintConn();
-        return;
-    }
     if (cbType==QPT_INPUT)
     {
         cbInput->fromCmp=aOutput->ownerCmp;
@@ -571,27 +560,33 @@ void QRenderArea::deleteComponents()
 
 QCPBase* QRenderArea::createCpInstance(const QString &className)
 {
-    if (className=="QCPButton")      return new QCPButton(this,this);
-    else if (className=="QCPLed")      return new QCPLed(this,this);
-    else if (className=="QCPLogic")      return new QCPLogic(this,this);
-    else if (className=="QCPExtender")      return new QCPExtender(this,this);
-    else if (className=="QCPTrigger")      return new QCPTrigger(this,this);
-    else if (className=="QCPGen")      return new QCPGen(this,this);
-    else if (className=="QCPBeeper")      return new QCPBeeper(this,this);
-    else if (className=="QCPRegister")      return new QCPRegister(this,this);
-    else if (className=="QCPDecoder")      return new QCPDecoder(this,this);
-    else if (className=="QCPEncoder")      return new QCPEncoder(this,this);
-    else if (className=="QCPCounter")      return new QCPCounter(this,this);
-    else if (className=="QCPDigit")      return new QCPDigit(this,this);
-    else if (className=="QCPMux")      return new QCPMux(this,this);
-    else if (className=="QCPSum")      return new QCPSum(this,this);
-    else if (className=="QCPGnd")      return new QCPGnd(this,this);
-    else if (className=="QCPVcc")      return new QCPVcc(this,this);
-    else if (className=="QCPComparator")      return new QCPComparator(this,this);
-    else if (className=="QCPRndGen")      return new QCPRndGen(this,this);
-    else if (className=="QCPRAM")      return new QCPRAM(this,this);
-    else if (className=="QCPSynth")      return new QCPSynth(this,this);
-    else if (className=="QCPLabel")      return new QCPLabel(this,this);
-    else if (className=="QCPIntExtender")      return new QCPIntExtender(this,this);
-    else return NULL;
+    QCPBase* c = NULL;
+    if (className=="QCPButton")             c = new QCPButton(this,this);
+    else if (className=="QCPLed")           c = new QCPLed(this,this);
+    else if (className=="QCPLogic")         c = new QCPLogic(this,this);
+    else if (className=="QCPExtender")      c = new QCPExtender(this,this);
+    else if (className=="QCPTrigger")       c = new QCPTrigger(this,this);
+    else if (className=="QCPGen")           c = new QCPGen(this,this);
+    else if (className=="QCPBeeper")        c = new QCPBeeper(this,this);
+    else if (className=="QCPRegister")      c = new QCPRegister(this,this);
+    else if (className=="QCPDecoder")       c = new QCPDecoder(this,this);
+    else if (className=="QCPEncoder")       c = new QCPEncoder(this,this);
+    else if (className=="QCPCounter")       c = new QCPCounter(this,this);
+    else if (className=="QCPDigit")         c = new QCPDigit(this,this);
+    else if (className=="QCPMux")           c = new QCPMux(this,this);
+    else if (className=="QCPSum")           c = new QCPSum(this,this);
+    else if (className=="QCPGnd")           c = new QCPGnd(this,this);
+    else if (className=="QCPVcc")           c = new QCPVcc(this,this);
+    else if (className=="QCPComparator")    c = new QCPComparator(this,this);
+    else if (className=="QCPRndGen")        c = new QCPRndGen(this,this);
+    else if (className=="QCPRAM")           c = new QCPRAM(this,this);
+    else if (className=="QCPSynth")         c = new QCPSynth(this,this);
+    else if (className=="QCPLabel")         c = new QCPLabel(this,this);
+    else if (className=="QCPIntExtender")   c = new QCPIntExtender(this,this);
+
+    if (c!=NULL)
+        if (c->checkTimerNeeded())
+            connect(periodicCheckTimer,SIGNAL(timeout()),c,SLOT(periodicCheckSlot()));
+
+    return c;
 }
