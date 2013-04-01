@@ -2,13 +2,8 @@
 #define CPBEEPER_H
 
 #include "cpbase.h"
-#if WIN32
-#include "AL/al.h"
-#include "AL/alc.h"
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
-#endif
+#include "openal.h"
+#include <QMutex>
 
 class QCPBeeper : public QCPBase
 {
@@ -29,12 +24,15 @@ public:
 protected:
     ALuint albuf;
     ALuint alsrc;
+    QMutex stateUpdate;
 
     float freq;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void contextMenuEvent(QContextMenuEvent *);
+    bool checkTimerNeeded();
+    void periodicCheck();
 
 public slots:
     void chooseFreq();

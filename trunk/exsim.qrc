@@ -29,5 +29,15 @@
         <file>images/synth.png</file>
         <file>images/label.png</file>
         <file>images/intextender.png</file>
+        <file>images/theme-icons/application-exit.png</file>
+        <file>images/theme-icons/document-new.png</file>
+        <file>images/theme-icons/document-open.png</file>
+        <file>images/theme-icons/document-save-as.png</file>
+        <file>images/theme-icons/document-save.png</file>
+        <file>images/theme-icons/edit-copy.png</file>
+        <file>images/theme-icons/edit-cut.png</file>
+        <file>images/theme-icons/edit-delete.png</file>
+        <file>images/theme-icons/edit-paste.png</file>
+        <file>images/theme-icons/zoom-draw.png</file>
     </qresource>
 </RCC>

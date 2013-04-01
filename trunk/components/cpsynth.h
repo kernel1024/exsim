@@ -2,13 +2,8 @@
 #define CPSYNTH_H
 
 #include "cpbase.h"
-#if WIN32
-#include "AL/al.h"
-#include "AL/alc.h"
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
-#endif
+#include "openal.h"
+#include <QMutex>
 
 class QCPSynth : public QCPBase
 {
@@ -31,12 +26,16 @@ public:
 protected:
     ALuint albuf;
     ALuint alsrc;
+    QMutex stateUpdate;
 
     float freq;
     int savedCode;
     void realignPins(QPainter & painter);
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
+    void periodicCheck();
+    bool checkTimerNeeded();
+    void drawRotatedText(QPainter *painter, float degrees, const QRect& rect, const QString &text);
 };
 
 #endif // CPSYNTH_H

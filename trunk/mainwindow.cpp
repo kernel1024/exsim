@@ -12,26 +12,38 @@
 #include "components/cpbase.h"
 #include "loadinglogdialog.h"
 
-void init_al() {
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
-
+bool MainWindow::initOpenAL() {
     const char *defname = alcGetString_(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    dev = alcOpenDevice_(defname);
-    ctx = alcCreateContext_(dev, NULL);
-    alcMakeContextCurrent_(ctx);
+    alDev = alcOpenDevice_(defname);
+    if (alDev == NULL)
+        return false;
+
+    alCtx = alcCreateContext_(alDev, NULL);
+    if (alCtx == NULL) {
+        alcCloseDevice_(alDev);
+        alDev = NULL;
+        return false;
+    }
+    if (!alcMakeContextCurrent_(alCtx)) {
+        alcDestroyContext_(alCtx);
+        alcCloseDevice_(alDev);
+        alCtx = NULL;
+        alDev = NULL;
+        return false;
+    }
+    return true;
 }
 
-void exit_al() {
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
-    ctx = alcGetCurrentContext_();
-    dev = alcGetContextsDevice_(ctx);
-
-    alcMakeContextCurrent_(NULL);
-    alcDestroyContext_(ctx);
-    alcCloseDevice_(dev);
+void MainWindow::doneOpenAL() {
+    if (alCtx != NULL) {
+        alcMakeContextCurrent_(NULL);
+        alcDestroyContext_(alCtx);
+    }
+    if (alDev !=NULL)
+        alcCloseDevice_(alDev);
+    alCtx = NULL;
+    alDev = NULL;
 }
 
 MainWindow::MainWindow(QWidget * parent) :
@@ -39,8 +51,10 @@ MainWindow::MainWindow(QWidget * parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    alDev = NULL;
+    alCtx = NULL;
 
-    init_al();
+    initOpenAL();
 
     QIcon appIcon;
     // Icon author: Jack Cai
@@ -63,7 +77,7 @@ MainWindow::MainWindow(QWidget * parent) :
     statusLabel=new QLabel();
     this->statusBar()->addPermanentWidget(statusLabel);
 
-    renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea,fontIdx);
+    renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea,fontIdx,this);
     ui->scrollArea->setWidget(renderArea);
 
     programTitle=tr("exSim electronic simulator");
@@ -71,6 +85,19 @@ MainWindow::MainWindow(QWidget * parent) :
 
     repaintTimer=0;
     deletedTimer=0;
+
+#ifdef WIN32
+    ui->actionNew->setIcon(QIcon(":/images/theme-icons/document-new.png"));
+    ui->actionOpen->setIcon(QIcon(":/images/theme-icons/document-open.png"));
+    ui->actionSave->setIcon(QIcon(":/images/theme-icons/document-save.png"));
+    ui->actionSave_as->setIcon(QIcon(":/images/theme-icons/document-save-as.png"));
+    ui->actionExit->setIcon(QIcon(":/images/theme-icons/application-exit.png"));
+    ui->actionCut->setIcon(QIcon(":/images/theme-icons/edit-cut.png"));
+    ui->actionCopy->setIcon(QIcon(":/images/theme-icons/edit-copy.png"));
+    ui->actionPaste->setIcon(QIcon(":/images/theme-icons/edit-paste.png"));
+    ui->actionDelete->setIcon(QIcon(":/images/theme-icons/edit-delete.png"));
+    ui->actionZoom->setIcon(QIcon(":/images/theme-icons/zoom-draw.png"));
+#endif
 
     ui->toolBarFile->addAction(ui->actionNew);
     ui->toolBarFile->addAction(ui->actionOpen);
@@ -112,7 +139,12 @@ MainWindow::MainWindow(QWidget * parent) :
 
 MainWindow::~MainWindow()
 {
-    exit_al();
+    doneOpenAL();
+}
+
+bool MainWindow::isSoundOK()
+{
+    return ((alDev != NULL) && (alCtx != NULL));
 }
 
 void MainWindow::updateStatus()

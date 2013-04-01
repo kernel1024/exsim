@@ -28,6 +28,8 @@ class QCPBase : public QWidget
 {
     Q_OBJECT
 
+    friend class QRenderArea;
+
 private:
     void mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase * &aFilter);
     void moveComponent(QMouseEvent *event);
@@ -52,8 +54,16 @@ protected:
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void paintEvent(QPaintEvent *event);
+    virtual void periodicCheck();
+    virtual bool checkTimerNeeded();
 
 public:
+    QRenderArea *cpOwner;
+    QList<QCPInput*> fInputs;
+    QList<QCPOutput*> fOutputs;
+    QPoint relCorner;
+    bool isDragging;
+
     QCPBase(QWidget *parent, QRenderArea *aOwner);
 
     QSize minimumSizeHint() const;
@@ -65,22 +75,18 @@ public:
     virtual void zoomChanged();
     int getPinSize() const;
     void deleteComponent();
+    bool isSoundOK();
 
     virtual void readFromXML(QTextStream &errlog, const QDomElement &element);
     virtual void storeToXML(QDomElement & element);
-    virtual bool canConnectOut(const QCPBase * toComponent);
-    virtual bool canConnectIn(const QCPBase * toComponent);
     void regroupOutputs();
 
-    QRenderArea *cpOwner;
-    QList<QCPInput*> fInputs;
-    QList<QCPOutput*> fOutputs;
-    QPoint relCorner;
-    bool isDragging;
 signals:
     void componentChanged(QCPBase * obj);
+
 private slots:
     void applyInputState(QCPInput* input);
+    void periodicCheckSlot();
 };
 
 class QCPOutput : public QObject
