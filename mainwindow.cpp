@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget * parent) :
     renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea,fontIdx,this);
     ui->scrollArea->setWidget(renderArea);
 
-    renderArea->installEventFilter(this);
+    qApp->installEventFilter(this);
 
     programTitle=tr("exSim electronic simulator");
     workFile="";
