@@ -25,7 +25,6 @@ public:
     bool modified;
     
     int deletedTimer, repaintTimer;
-//    void generateConfigToFile(QTextStream & stream);
     bool isSoundOK();
 
 public slots:
