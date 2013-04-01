@@ -79,7 +79,7 @@ void QCPLogic::setMode(QCPLogic::LogicType lt, int inputCount)
     update();
 }
 
-void QCPLogic::realignPins(QPainter &)
+void QCPLogic::realignPins()
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
     int dy = height()/(fInputs.count()+1);

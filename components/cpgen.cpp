@@ -45,7 +45,7 @@ void QCPGen::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPGen::realignPins(QPainter &)
+void QCPGen::realignPins()
 {
     fOut->relCoord=QPoint(width()-getPinSize()/2,height()/2);
 }

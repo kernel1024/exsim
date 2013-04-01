@@ -83,7 +83,7 @@ void QCPBase::mouseInPin(const QPoint & mx, int &aPinNum, int &aPinType, QCPBase
 void QCPBase::redrawPins(QPainter & painter)
 {
     if (cpOwner->resReading) return;
-    realignPins(painter);
+    realignPins();
 
     QPen op=painter.pen();
     QBrush ob=painter.brush();
@@ -322,6 +322,10 @@ QString QCPBase::calcState()
     return a;
 }
 
+void QCPBase::realignPins()
+{
+}
+
 int QCPBase::getDCompHeight(const int divCount) const
 {
     int dy = getDCompIncrement();
@@ -365,6 +369,12 @@ void QCPBase::paintEvent ( QPaintEvent * )
     p.setBrush(QBrush(Qt::white,Qt::SolidPattern));
 
     p.drawRect(rect());
+}
+
+void QCPBase::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    realignPins();
 }
 
 void QCPBase::mousePressEvent(QMouseEvent * event)

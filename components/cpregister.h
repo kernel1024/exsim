@@ -29,7 +29,7 @@ protected:
     bool savedC;
     bool savedLS;
     bool savedRS;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
 };

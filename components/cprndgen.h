@@ -21,7 +21,7 @@ public:
 protected:
     qint8 state;
     bool savedC;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
 };

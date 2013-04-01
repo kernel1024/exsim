@@ -93,7 +93,7 @@ void QCPRAM::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPRAM::realignPins(QPainter &)
+void QCPRAM::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

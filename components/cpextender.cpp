@@ -68,7 +68,7 @@ void QCPExtender::setMode(int outputCount)
     update();
 }
 
-void QCPExtender::realignPins(QPainter &)
+void QCPExtender::realignPins()
 {
     fInp->relCoord=QPoint(getPinSize()/2,height()/2);
     int dy = height()/(fOutputs.count()+1);

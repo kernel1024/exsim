@@ -30,7 +30,7 @@ protected:
 
     float freq;
     int savedCode;
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void paintEvent(QPaintEvent *event);
     void periodicCheck();

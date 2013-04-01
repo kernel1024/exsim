@@ -69,7 +69,7 @@ void QCPIntExtender::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPIntExtender::realignPins(QPainter &)
+void QCPIntExtender::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

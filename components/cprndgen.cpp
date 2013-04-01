@@ -32,7 +32,7 @@ QSize QCPRndGen::minimumSizeHint() const
     return QSize(100*zoom()/100,getDCompHeight(0));
 }
 
-void QCPRndGen::realignPins(QPainter &)
+void QCPRndGen::realignPins()
 {
     int dy = getDCompIncrement();
     int ddy = dy/2;

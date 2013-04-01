@@ -24,7 +24,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void contextMenuEvent(QContextMenuEvent *);
 

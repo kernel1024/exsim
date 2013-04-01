@@ -129,7 +129,7 @@ void QCPBeeper::storeToXML(QDomElement &element)
     QCPBase::storeToXML(element);
 }
 
-void QCPBeeper::realignPins(QPainter &)
+void QCPBeeper::realignPins()
 {
     fInp->relCoord=QPoint(getPinSize()/2,height()/2);
 }

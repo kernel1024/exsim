@@ -25,7 +25,7 @@ protected:
     QTimer mainTimer;
     bool genState;
     void paintEvent(QPaintEvent *event);
-    void realignPins(QPainter & painter);
+    void realignPins();
     void doLogicPrivate();
     void contextMenuEvent(QContextMenuEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
