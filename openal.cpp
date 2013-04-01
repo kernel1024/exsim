@@ -26,7 +26,7 @@ LPALCCLOSEDEVICE alcCloseDevice_;
 
 bool loadOpenAL()
 {
-#ifdef WIN32
+/* #ifdef WIN32
     qDebug() << "Loading OPENAL32.DLL";
     openAlLib = LoadLibraryW(L"openal32.dll");
     if (openAlLib == 0)
@@ -68,7 +68,7 @@ bool loadOpenAL()
     if (alcGetContextsDevice_ == NULL) { qDebug() << "alcGetContextsDevice is NULL"; return false; }
     if (alcDestroyContext_ == NULL) { qDebug() << "alcDestroyContext is NULL"; return false; }
     if (alcCloseDevice_ == NULL) { qDebug() << "alcCloseDevice is NULL"; return false; }
-#else // WIN32
+#else // WIN32 */
     alGetError_ = alGetError;
     alDeleteBuffers_ = alDeleteBuffers;
     alDeleteSources_ = alDeleteSources;
@@ -86,18 +86,18 @@ bool loadOpenAL()
     alcGetContextsDevice_ = alcGetContextsDevice;
     alcDestroyContext_ = alcDestroyContext;
     alcCloseDevice_ = alcCloseDevice;
-#endif // WIN32
+// #endif // WIN32
 
     return true;
 }
 
 void unloadOpenAL()
 {
-#ifdef WIN32
+/* #ifdef WIN32
     qDebug() << "Unloading OPENAL32.DLL";
     if (openAlLib != 0)
         FreeLibrary(openAlLib);
 
     openAlLib = 0;
-#endif // WIN32
+#endif // WIN32 */
 }
