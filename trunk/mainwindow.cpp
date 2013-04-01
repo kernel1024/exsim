@@ -7,6 +7,7 @@
 #include <QInputDialog>
 #include <QFontDatabase>
 #include <QClipboard>
+#include <QStatusBar>
 #include "openal.h"
 #include "mainwindow.h"
 #include "components/cpbase.h"
@@ -75,10 +76,15 @@ MainWindow::MainWindow(QWidget * parent) :
     resize(QSize(800, 500).expandedTo(minimumSizeHint()));
 
     statusLabel=new QLabel();
-    this->statusBar()->addPermanentWidget(statusLabel);
+    statusBar()->addPermanentWidget(statusLabel);
+    mouseCoords=new QLabel();
+    statusBar()->addPermanentWidget(mouseCoords);
+
 
     renderArea = new QRenderArea(ui->scrollArea,ui->scrollArea,fontIdx,this);
     ui->scrollArea->setWidget(renderArea);
+
+    renderArea->installEventFilter(this);
 
     programTitle=tr("exSim electronic simulator");
     workFile="";
@@ -532,6 +538,18 @@ void MainWindow::cleanupBlock(QDomElement &block)
         }
     }
     rhash.clear();
+}
+
+bool MainWindow::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        mouseCoords->setText(tr("X:%1, Y:%2").
+                             arg(mouseEvent->pos().x()).
+                             arg(mouseEvent->pos().y()));
+    }
+    return false;
 }
 
 void MainWindow::editPaste()
