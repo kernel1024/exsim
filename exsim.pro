@@ -60,8 +60,7 @@ SOURCES       = main.cpp \
     components/cpsynth.cpp \
     components/cplabel.cpp \
     loadinglogdialog.cpp \
-    components/cpintextender.cpp \
-    openal.cpp
+    components/cpintextender.cpp
 
 RESOURCES     = exsim.qrc
 

@@ -13,21 +13,21 @@
 #include "loadinglogdialog.h"
 
 bool MainWindow::initOpenAL() {
-    const char *defname = alcGetString_(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    alDev = alcOpenDevice_(defname);
+    alDev = alcOpenDevice(defname);
     if (alDev == NULL)
         return false;
 
-    alCtx = alcCreateContext_(alDev, NULL);
+    alCtx = alcCreateContext(alDev, NULL);
     if (alCtx == NULL) {
-        alcCloseDevice_(alDev);
+        alcCloseDevice(alDev);
         alDev = NULL;
         return false;
     }
-    if (!alcMakeContextCurrent_(alCtx)) {
-        alcDestroyContext_(alCtx);
-        alcCloseDevice_(alDev);
+    if (!alcMakeContextCurrent(alCtx)) {
+        alcDestroyContext(alCtx);
+        alcCloseDevice(alDev);
         alCtx = NULL;
         alDev = NULL;
         return false;
@@ -37,11 +37,11 @@ bool MainWindow::initOpenAL() {
 
 void MainWindow::doneOpenAL() {
     if (alCtx != NULL) {
-        alcMakeContextCurrent_(NULL);
-        alcDestroyContext_(alCtx);
+        alcMakeContextCurrent(NULL);
+        alcDestroyContext(alCtx);
     }
     if (alDev !=NULL)
-        alcCloseDevice_(alDev);
+        alcCloseDevice(alDev);
     alCtx = NULL;
     alDev = NULL;
 }
