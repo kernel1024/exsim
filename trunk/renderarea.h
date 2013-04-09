@@ -10,6 +10,8 @@
 #include <QTimer>
 
 #include "components/cpbase.h"
+#include "palette.h"
+
 class MainWindow;
 
 class QRenderArea : public QFrame
@@ -44,6 +46,8 @@ public:
     QColor pinColorOff;
     QColor pinColorOn;
 
+    Palette* palette;
+
     void initConnBuilder(const int aType, int aPinNum, QCPInput* aInput, QCPOutput* aOutput);
     void repaintConn();
     void refreshConnBuilder(const QPoint & atPos);
@@ -64,6 +68,7 @@ protected:
     void mousePressEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void paintConnections(QPainter *p);
+    void contextMenuEvent(QContextMenuEvent * event);
 };
 
 #endif
