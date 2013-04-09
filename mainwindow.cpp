@@ -327,8 +327,13 @@ void MainWindow::fileOpen()
                 break;
         }
     }
+    QFileDialog::Options opts = 0;
+#ifndef WIN32
+    opts = QFileDialog::DontUseNativeDialog;
+#endif
+
     QString s = QFileDialog::getOpenFileName(this,tr("Choose a file"),"","exSim files (*.exs)",
-                                             NULL, QFileDialog::DontUseNativeDialog);
+                                             NULL, opts);
     if (s.isEmpty()) return;
     workFile=s;
     modified=false;
@@ -341,9 +346,14 @@ void MainWindow::fileSave()
     if (!modified) return;
     if (workFile=="")
     {
+        QFileDialog::Options opts = 0;
+    #ifndef WIN32
+        opts = QFileDialog::DontUseNativeDialog;
+    #endif
+
         QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
                                                      tr("exSim files (*.exs)"),NULL,
-                                                     QFileDialog::DontUseNativeDialog);
+                                                     opts);
         if (fname.isEmpty()) return;
         QFileInfo fi(fname);
         if (fi.suffix().isEmpty())
@@ -359,9 +369,14 @@ void MainWindow::fileSave()
 
 void MainWindow::fileSaveAs()
 {
+    QFileDialog::Options opts = 0;
+#ifndef WIN32
+    opts = QFileDialog::DontUseNativeDialog;
+#endif
+
     QString fname = QFileDialog::getSaveFileName(this,tr("Choose a filename to save under"),QString(),
                                                  tr("exSim files (*.exs)"),NULL,
-                                                 QFileDialog::DontUseNativeDialog);
+                                                 opts);
     if (fname.isEmpty()) return;
     QFileInfo fi(fname);
     if (fi.suffix().isEmpty())
