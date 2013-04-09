@@ -33,7 +33,8 @@ HEADERS       = components/cpbase.h \
     components/cplabel.h \
     loadinglogdialog.h \
     components/cpintextender.h \
-    openal.h
+    openal.h \
+    palette.h
 SOURCES       = main.cpp \
                 renderarea.cpp \
                 mainwindow.cpp \
@@ -60,7 +61,8 @@ SOURCES       = main.cpp \
     components/cpsynth.cpp \
     components/cplabel.cpp \
     loadinglogdialog.cpp \
-    components/cpintextender.cpp
+    components/cpintextender.cpp \
+    palette.cpp
 
 RESOURCES     = exsim.qrc
 
@@ -81,4 +83,5 @@ win32 {
 
 FORMS += \
     mainwindow.ui \
-    loadinglogdialog.ui
+    loadinglogdialog.ui \
+    palette.ui
