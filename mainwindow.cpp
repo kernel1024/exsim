@@ -393,9 +393,7 @@ void MainWindow::fileExit()
 
 void MainWindow::helpAbout()
 {
-//    if (A=1)
-//    {
-            QMessageBox::about(this,"exSim electronic simulator","exSim electronic simulator\n\n"
+    QMessageBox::about(this,"exSim electronic simulator","exSim electronic simulator\n\n"
                        "(c) 2012-2013 by Kernel\n\n"
                        "This program is provided AS IS with NO WARRANTY OF ANY KIND,\n"
                        "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS\n"
@@ -405,20 +403,6 @@ void MainWindow::helpAbout()
                        "modify it under the terms of the GNU General Public License as\n"
                        "published by the Free Software Foundation; either version 3 of\n"
                        "the License, or (at your option) any later version. ");
-//    }
-//    else
-//    {
-//        QMessageBox::about(this,"exSim электронном тренажере", "exSim электронный имитатор \ п \ n"
-//                           "(с) 2012-2013 ядром \ п \ п"
-//                           "Эта программа предоставляется КАК ЕСТЬ БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, \ n"
-//                           "В ТОМ ЧИСЛЕ ГАРАНТИЙ дизайн, ПРИГОДНОСТИ \ n"
-//                           "ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. \ П \ n"
-//                           "Эта программа распространяется под GPL лицензией. \ П \ n"
-//                           "Эта программа является свободным программным обеспечением, вы можете распространять и / или \ п"
-//                           "изменять его в соответствии с условиями GNU General Public License, как \ n"
-//                           », опубликованной Фондом Свободного Программного Обеспечения, версии 3 \ n"
-//                           "Лицензии, либо (по вашему выбору) любой более поздней версии".);
-//    }
 }
 
 void MainWindow::changingComponents(QCPBase *)
