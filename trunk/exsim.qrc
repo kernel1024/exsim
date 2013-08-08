@@ -39,17 +39,5 @@
         <file>images/theme-icons/edit-delete.png</file>
         <file>images/theme-icons/edit-paste.png</file>
         <file>images/theme-icons/zoom-draw.png</file>
-        <file>images/dig.png</file>
-        <file>images/gen.png</file>
-        <file>images/SR.png</file>
-        <file>images/rav.png</file>
-        <file>images/V.png</file>
-        <file>images/Vikl.png</file>
-        <file>images/ramo.png</file>
-        <file>images/SE.png</file>
-        <file>images/lamp.png</file>
-        <file>images/Knopka.png</file>
-        <file>images/I+I.png</file>
-        <file>images/Tren.png</file>
     </qresource>
 </RCC>

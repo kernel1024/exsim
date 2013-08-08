@@ -69,9 +69,6 @@ QRenderArea::QRenderArea(QWidget *parent, QScrollArea *aScroller, int aLcdFontId
         }
     }
 
-    palette = new Palette(this,mainWindow);
-    palette->hide();
-
     periodicCheckTimer = new QTimer(this);
     periodicCheckTimer->setInterval(2000);
     periodicCheckTimer->start();
@@ -335,13 +332,6 @@ void QRenderArea::paintConnections(QPainter* p)
     }
     cmps.clear();
     cmpsRect.clear();
-}
-
-void QRenderArea::contextMenuEvent(QContextMenuEvent *event)
-{
-    QPoint p = QPoint(palette->width()/2,palette->height()/2);
-    palette->move(mapFromGlobal(event->globalPos())-p);
-    palette->show();
 }
 
 void QRenderArea::refreshConnBuilder(const QPoint & atPos)
